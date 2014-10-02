@@ -1,11 +1,10 @@
 import random
 import math
-import matplotlib.pyplot as plt
 
 random.seed()
 
-#Struct for passing simulation parameters
-class SimParam:
+#Class for simulating cancer dynamics with the Gillespie algorithm
+class Gillspie:
     def __init__(self, numCells):
         self.curTime = 0.0
         self.timeLimit = 100.0
