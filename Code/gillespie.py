@@ -6,7 +6,7 @@ mySim.timeLimit = 100
 mySim.u2 = 0.01
 dataPointCount = 25
 
-simsPerDataPoint = 1000
+simsPerDataPoint = 1001
 
 dataPointsX = []
 dataPointsY = []
