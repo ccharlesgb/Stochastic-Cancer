@@ -4,7 +4,7 @@ import math
 random.seed()
 
 #Class for simulating cancer dynamics with the Gillespie algorithm
-class Gillspie:
+class Gillespie:
     def __init__(self, numCells):
         self.curTime = 0.0
         self.timeLimit = 100.0

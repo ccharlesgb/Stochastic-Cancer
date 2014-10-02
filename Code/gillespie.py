@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import SimTools
 
-mySim = SimTools.Gillespie(100)
+mySim = SimTools.Gillespie(10)
 mySim.timeLimit = 100
 mySim.u2 = 0.01
 dataPointCount = 25
 
-simsPerDataPoint = 1001
+simsPerDataPoint = 1000
 
 dataPointsX = []
 dataPointsY = []
