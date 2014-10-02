@@ -9,6 +9,7 @@ class SimParam:
     def __init__(self, numCells):
         self.curTime = 0.0
         self.timeLimit = 100.0
+        self.simSteps = 0
         
         #The fitness
         self.r0 = 1.0
@@ -34,6 +35,7 @@ class SimParam:
 
     def ResetSim(self):
         self.curTime = 0.0
+        self.simSteps = 0
         self.n0 = self.N
         self.n1 = 0
         self.n2 = 0
@@ -76,7 +78,8 @@ class SimParam:
 
     #Returns an exponentially distributed number based on the lambda parameter
     def GetTimeStep(self):
-        return 1.0/(self.GetLambda() * math.log(1.0/random.random()))
+        return 1.0/self.GetLambda() * math.log(1.0/random.random())
+        #return random.expovariate(self.GetLambda())
 
     #Chose and execute which event to carry out. Updates cell array and population counts
     def ChooseEvent(self):
@@ -159,17 +162,19 @@ class SimParam:
             #print("n1 = %i" % mySim.n1)
             #print("n2 = %i" % mySim.n2)
             if self.Fixated():
+                #print("Sim quit after {0} steps.", self.simSteps)
                 return
             self.curTime += timestep
+            self.simSteps+= 1
 #END CLASS DEFINTION
 
 
 mySim = SimParam(10)
-mySim.timeLimit = 1000
-mySim.u2 = 0.001
+mySim.timeLimit = 100
+mySim.u2 = 0.1
 dataPointCount = 25
 
-simsPerDataPoint = 300
+simsPerDataPoint = 700
 
 dataPointsX = []
 dataPointsY = []
