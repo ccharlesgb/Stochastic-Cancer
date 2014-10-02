@@ -1,5 +1,6 @@
 import random
 import math
+import matplotlib.pyplot as plt
 
 random.seed()
 
@@ -25,7 +26,7 @@ class SimParam:
         self.n1 = 0
         self.n2 = 0
 
-        self.cells = []
+        self.cells = [] #Is this actually needed?
         for i in range(0, self.N):
             self.cells.insert(i,0)
 
@@ -168,7 +169,7 @@ mySim.timeLimit = 1000
 mySim.u2 = 0.001
 dataPointCount = 25
 
-simsPerDataPoint = 1000
+simsPerDataPoint = 100
 
 dataPointsX = []
 dataPointsY = []
@@ -196,12 +197,19 @@ for curPoint in range(0, dataPointCount):
 for i in range(0, dataPointCount):
     print("r1: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
     
-f = open('sim_output.dat', 'w')
+filename = "sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)
+
+f = open(filename, 'w')
 
 for i in range(0, dataPointCount):
     f.write(str(dataPointsX[i]) + "    " + str(dataPointsY[i]) + "\n")
 
 f.close()
+
+plt.plot(dataPointsX, dataPointsY)
+plt.xlabel("Type 1 Fitness r1")
+plt.ylabel("Type 2 Fixation %")
+plt.show()
 
 
 
