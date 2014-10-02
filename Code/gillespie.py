@@ -42,31 +42,31 @@ class SimParam:
             self.cells.insert(i,0)
             
     def AvgFitness(self):
-        return (self.r0*self.n0 + self.r1*self.n1 + self.r2 * self.n2)/self.N
+        return (self.r0*self.n0 + self.r1*self.n1 + self.r2 * self.n2)
         
     #Reaction probability for cell from 1->0
     def GetT10(self):
-        top = (1 - self.u1) * self.r0 * (float(self.n0)/self.N) * self.n1
+        top = (1 - self.u1) * self.r0 * float(self.n0) * self.n1
         return top / self.AvgFitness()
 
     def GetT20(self):
-        top = (1 - self.u1) * self.r0 * (float(self.n0)/self.N) * self.n2
+        top = (1 - self.u1) * self.r0 * float(self.n0) * self.n2
         return top / self.AvgFitness()
 
     def GetT01(self):
-        top = (self.u1 * self.r0 * (float(self.n0)/self.N) + (1-self.u2) * self.r1 * (float(self.n1)/self.N)) * self.n0
+        top = (self.u1 * self.r0 * self.n0 + (1-self.u2) * self.r1 * self.n1) * self.n0
         return top / self.AvgFitness()
 
     def GetT21(self):
-        top = (self.u1 * self.r0 * (float(self.n0)/self.N) + (1-self.u2) * self.r1 * (float(self.n1)/self.N)) * self.n2
+        top = (self.u1 * self.r0 * self.n0 + (1-self.u2) * self.r1 * self.n1) * self.n2
         return top / self.AvgFitness()
 
     def GetT02(self):
-        top = (self.u2 * self.r1 * (float(self.n1)/self.N) + self.r2 * (float(self.n2)/self.N)) * self.n0
+        top = (self.u2 * self.r1 * self.n1 + self.r2 * self.n2) * self.n0
         return top / self.AvgFitness()
 
     def GetT12(self):
-        top = (self.u2 * self.r1 * (float(self.n1)/self.N) + self.r2 * (float(self.n2)/self.N)) * self.n1
+        top = (self.u2 * self.r1 * self.n1 + self.r2 * self.n2) * self.n1
         return top / self.AvgFitness()
 
     #Exponential parameter for frequency of events
@@ -169,7 +169,7 @@ mySim.timeLimit = 1000
 mySim.u2 = 0.001
 dataPointCount = 25
 
-simsPerDataPoint = 100
+simsPerDataPoint = 300
 
 dataPointsX = []
 dataPointsY = []
@@ -184,11 +184,6 @@ for curPoint in range(0, dataPointCount):
     for sim in range(0, simsPerDataPoint):
         mySim.Simulate()
 
-        #print("Simulation Complete")
-        #print("n0 = %i" % n0)
-        #print("n1 = %i" % n1)
-        #print("n2 = %i" % n2)
-
         if mySim.n2 == mySim.N:
             fixationCounts += 1
     dataPointsX[curPoint] = mySim.r1
@@ -196,7 +191,14 @@ for curPoint in range(0, dataPointCount):
 
 for i in range(0, dataPointCount):
     print("r1: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
-    
+
+
+plt.plot(dataPointsX, dataPointsY)
+plt.xlabel("Type 1 Fitness r1")
+plt.ylabel("Type 2 Fixation %")
+plt.show()
+
+   
 filename = "sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)
 
 f = open(filename, 'w')
@@ -205,12 +207,6 @@ for i in range(0, dataPointCount):
     f.write(str(dataPointsX[i]) + "    " + str(dataPointsY[i]) + "\n")
 
 f.close()
-
-plt.plot(dataPointsX, dataPointsY)
-plt.xlabel("Type 1 Fitness r1")
-plt.ylabel("Type 2 Fixation %")
-plt.show()
-
 
 
 
