@@ -10,16 +10,17 @@ dataPointCount = 25
 
 #Pre Simulate callback (called every frame before a timestep)
 def modifyU1(sim):
+    #Double the mutation rate from 0->1 for 10 seconds
     if sim.curTime < 10.0:
         sim.u1 = 0.2
-    else:
+    else: #Back to normal after a while
         sim.u1 = 0.1
 
-mySim.preSim = modifyU1
+mySim.preSim = modifyU1 #IMPORTANT assign the callback (called in the class sim loop)
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 500
+simsPerDataPoint = 100
 
 #Initialize the array with default values
 dataPointsX = []
@@ -60,14 +61,7 @@ plt.show()
 #Do the filename with all the parameters of the simulation   
 filename = "sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)
 
-f = open(filename, 'w')
-
-#Dump data to file
-for i in range(0, dataPointCount):
-    f.write(str(dataPointsX[i]) + "    " + str(dataPointsY[i]) + "\n")
-
-f.close()
-
-
+#Save the data to a file
+SimTools.SaveXYToFile(filename, dataPointsX, dataPointsY)
 
         

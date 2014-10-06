@@ -146,3 +146,17 @@ class Gillespie:
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
 #END CLASS DEFINTION
+
+#Helper functions
+
+#Saves an array of xy data to a file
+def SaveXYToFile(filename, dataX, dataY):
+    f = open(filename, 'w')
+
+    #Dump data to file
+    for i in range(0, len(dataX)):
+        f.write(str(dataX[i]) + "    " + str(dataY[i]) + "\n")
+    
+    f.close()
+
+
