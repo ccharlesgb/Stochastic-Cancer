@@ -79,7 +79,7 @@ class Gillespie:
     def GetTimeStep(self):
         return 1.0/self.GetLambda() * math.log(1.0/random.random())
         #return random.expovariate(self.GetLambda())
-
+        
     #Chose and execute which event to carry out. Updates cell array and population counts
     def ChooseEvent(self):
         rand = random.random()
@@ -150,18 +150,10 @@ class Gillespie:
     
     def Simulate(self):
         self.ResetSim()
-        #print("n0 = %i" % mySim.n0)
-        #print("n1 = %i" % mySim.n1)
-        #print("n2 = %i" % mySim.n2)
         while self.curTime < self.timeLimit:
             timestep = self.GetTimeStep()
             self.ChooseEvent()
-            #print("Event:")
-            #print("n0 = %i" % mySim.n0)
-            #print("n1 = %i" % mySim.n1)
-            #print("n2 = %i" % mySim.n2)
             if self.Fixated():
-                #print("Sim quit after {0} steps.", self.simSteps)
                 return
             self.curTime += timestep
             self.simSteps+= 1
