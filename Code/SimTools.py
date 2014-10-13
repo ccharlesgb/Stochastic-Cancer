@@ -3,6 +3,25 @@ import math
 
 random.seed()
 
+class SimParam:
+    def __init__(self, numCells):
+        self.timeLimit = 0.0
+        
+        self.r0 = 0.0
+        self.r1 = 0.0
+        self.r2 = 0.0
+        
+        self.u1 = 0.0
+        self.u2 = 0.0
+        
+        self.N = 0
+        
+        self.n0 = 0
+        self.n1 = 0
+        self.n2 = 0
+        
+        
+
 #Class for simulating cancer dynamics with the Gillespie algorithm
 class Gillespie:
     def __init__(self, numCells):
@@ -12,6 +31,9 @@ class Gillespie:
         self.simSteps = 0
         
         self.populationHistory = 0        
+        self.n0Hist = []
+        self.n1Hist = []
+        self.n2Hist = []
         
         #The fitness
         self.r0 = 1.0
@@ -32,7 +54,7 @@ class Gillespie:
         self.lambd = self.GetLambda()
         
         self.preSim = 0
-
+    
     #Reset parameters to default values
     def ResetSim(self):
         self.curTime = 0.0
