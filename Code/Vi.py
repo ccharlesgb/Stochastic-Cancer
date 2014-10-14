@@ -13,7 +13,7 @@ def GetV_i(index, r0, r1, r2, u1, u2, N):
     
     
     MAX_ITER = 1000
-    MIN_CHANGE = 1e-6
+    MIN_CHANGE = 1e-5
     
     V1_old = V[1]
     
@@ -27,7 +27,7 @@ def GetV_i(index, r0, r1, r2, u1, u2, N):
             V[i] = new
         
         if abs(V[1] - V1_old) < MIN_CHANGE:
-            print("Converged in {0} steps.".format(i))
+            #print("Converged in {0} steps.".format(i))
             break
         V1_old = V[1]
         
