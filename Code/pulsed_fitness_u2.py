@@ -8,36 +8,36 @@ mySim.timeLimit = 100.0
 mySim.u1 = 0.1
 mySim.u2 = 0.01
 mySim.r1 = 1.0
-dataPointCount = 5
+dataPointCount = 10
 
-pulseAmp = 0.01
+pulseAmp = mySim.u2
 pulseWidth = 1.0
 maxPulseWidth = 10.0
 
 pulseWavelength = 10.0
 
 #Pre Simulate callback (called every frame before a timestep)
-def pulse_u1(sim):
+def pulse_u2(sim):
     global curPoint
     global dataPointCount
     global pulseWidth
 
-    pulseWidth = (float(curPoint) / dataPointCount) * maxPulseWidth
-    sim.u2 = SimTools.PulseWave(sim.curTime, pulseAmp, pulseWidth, pulseWavelength) + 0.01
+    pulseWidth = (float(curPoint) / (dataPointCount - 1)) * maxPulseWidth
+    sim.u2 = SimTools.PulseWave(sim.curTime, pulseAmp, pulseWidth, pulseWavelength) + pulseAmp
 
-mySim.preSim = pulse_u1 #IMPORTANT assign the callback (called in the class sim loop)
+mySim.preSim = pulse_u2 #IMPORTANT assign the callback (called in the class sim loop)
 
-def avgpulse_u1(sim):
+def avgpulse_u2(sim):
     global curPoint
     global dataPointCount
     global pulseWidth
-    pulseWidth = (float(curPoint) / dataPointCount) * maxPulseWidth
-    sim.u2 = pulseAmp * (pulseWidth / pulseWavelength) + 0.01
+    pulseWidth = (float(curPoint) / (dataPointCount - 1)) * maxPulseWidth
+    sim.u2 = pulseAmp * (pulseWidth / pulseWavelength) + pulseAmp
     
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 5000
+simsPerDataPoint = 1000
 
 #Initialize the array with default values
 dataPointsX = []
@@ -70,12 +70,12 @@ for i in range(0, dataPointCount):
 
 #Create graph of data
 plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "Pulsed")
-plt.xlabel("Pulse Time: ")
-plt.ylabel("Type 2 Fixation %")
+plt.xlabel("u2 Pulse Time: ")
+plt.ylabel("Type 2 Fixation Prob")
 plt.show()
 
 #Do the filename with all the parameters of the simulation   
-filename = "PULSE_sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)
+filename = "PULSEU2_sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)
 
 #Save the data to a file
 SimTools.SaveXYToFile(filename, dataPointsX, dataPointsY)
@@ -83,7 +83,7 @@ SimTools.SaveXYToFile(filename, dataPointsX, dataPointsY)
 #Do the average of the pulse and see how it compares
 #Initialize the array with default values
 
-mySim.preSim = avgpulse_u1
+mySim.preSim = avgpulse_u2
 
 dataPointsX = []
 dataPointsY = []
@@ -114,8 +114,6 @@ for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 plot_averaged = plt.plot(dataPointsX, dataPointsY, label = "Averaged")
-plt.xlabel("Pulse Time: ")
-plt.ylabel("Type 2 Fixation %")
 
 plt.legend()
 
