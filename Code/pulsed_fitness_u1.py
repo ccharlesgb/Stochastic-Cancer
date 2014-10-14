@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import SimTools
 import time
 
+import Vi
+
+print(Vi.GetV_i(1, 1.0,1.0,1.0, 0.1, 0.01, 10))
+
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 mySim.timeLimit = 100.0
