@@ -44,6 +44,7 @@ def CalculateValues():
     
     
     V1=Vi.GetV_i(1, r0, r1, r2, u1, u2, N)
+    print("V1: {0}".format(V1))
     
     a=N*u1*rho1
     b=N*u1*(1.0-V1-rho1)
