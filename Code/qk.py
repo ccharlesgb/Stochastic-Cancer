@@ -11,29 +11,35 @@ def GetMuK(k, N, r1, r2, u2):
     
     return res
 
-q = []
-q_lin = []
 
-for i in range(0,N+1):
-    q.append(float(i) / N)
-    q_lin.append(q[i])
-
-
-MAX_ITER = 1000
-MIN_CHANGE = 1e-5
-
-V1_old = V[1]
-
-for it in range(0, MAX_ITER):
-    for i in range(1, N):
-        nextq = q[i + 1]
-        prevq = q[i - 1]
-        curq = q[i]
-        curlambda = GetLambdaK(k, N, r1, r2, u2)
-        curmu = GetMuK(k, N, r1, r2, u2)
-        
-        qkdot = curlambda * nextq - (curlambda + curmu)*curq + curmu * prevq
-        
+def GetQk(t, r0, r1, r2, u1, u2, N):
+    q = []
+    q_lin = []
+    
+    for i in range(0,N+1):
+        q.append(float(i) / N)
+        q_lin.append(q[i])
+    
+    
+    MAX_ITER = 1000
+    MIN_CHANGE = 1e-5
+    
+    V1_old = V[1]
+    
+    for it in range(0, MAX_ITER):
+        for i in range(1, N):
+            nextq = q[i + 1]
+            prevq = q[i - 1]
+            curq = q[i]
+            curlambda = GetLambdaK(k, N, r1, r2, u2)
+            curmu = GetMuK(k, N, r1, r2, u2)
+            
+            qkdot = curlambda * nextq - (curlambda + curmu)*curq + curmu * prevq
+            newQ = qkdot * t
+            q[i] = newQ
+    
+    return q[0]
+            
 
 '''
 for it in range(0, MAX_ITER):

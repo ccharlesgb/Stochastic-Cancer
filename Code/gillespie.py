@@ -10,7 +10,7 @@ dataPointCount = 25
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 100
+simsPerDataPoint = 1000
 
 #Initialize the array with default values
 dataPointsX = []

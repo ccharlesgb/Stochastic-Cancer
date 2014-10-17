@@ -9,10 +9,10 @@ def GetV_i(index, r0, r1, r2, u1, u2, N):
     V = []
     V_lin = []
     
-    for i in range(0,N):
-        V.append(1.0 - float(i+1) / N)
+    for i in range(0,N+1):
+        V.append(1.0 - float(i) / (N))
         V_lin.append(V[i])
-    
+        print("V{0} = {1}".format(i, V[i]))
     
     MAX_ITER = 1000
     MIN_CHANGE = 1e-5
@@ -20,7 +20,7 @@ def GetV_i(index, r0, r1, r2, u1, u2, N):
     V1_old = V[1]
     
     for it in range(0, MAX_ITER):
-        for i in range(1, N-1):
+        for i in range(1, N):
             nxt = V[i+1]
             prv = V[i-1]
             P_i = float(i*(N-i)) / (i*r1*(1.0-u2) + r0*(N-i))

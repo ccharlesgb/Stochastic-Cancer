@@ -17,7 +17,7 @@ r0=1.0
 r1=0.0
 r2=1.0
 u1=0.1
-u2=0.1
+u2=0.01
 curpoint=100
 
 rho1 = 0.0
@@ -37,7 +37,7 @@ def CalculateValues():
     
     rho1 = 1.0 - ((r0 * (1.0-u1)) / (r1 + r0 * u1)) 
     rho1 = rho1 / (1.0 - math.pow((r0 * (1.0-u1) / (r1+r0 * u1)) , N))
-    
+
     rho3 = 1.0 - (r0 * (1.0-u1) / (r2 + r1 * u2))
     rho3 = rho3 / (1.0 - math.pow((r0 * (1.0-u1) / (r2 + r1 * u2)) , N))
     
@@ -62,7 +62,6 @@ def gee(t):
     result = 1.0-math.exp(-(c*t))    
     return result    
     
-
 def ell(t):
     global a
     global b
@@ -72,6 +71,7 @@ def ell(t):
     return result
 
 def traj(t):
+    print(b/(a+b))
     result = (b/(a+b))*(1.0-math.exp(-(a+b)*t)) + ell(t)
     
     return result
@@ -90,13 +90,14 @@ for i in range(0, datapointcount):
     dataPointsY.append(traj(100.0))
     dataPoints1.append(traj(100.0) - ell(100.0))
     dataPoints2.append(ell(100.0))
-    print(dataPointsY[i])
+    #print(dataPointsY[i])
 #
     
 #t = np.arange(0.,  CurPoint., 1)
 #y=traj(t)
-plt.plot(dataPointsT, dataPointsY, linewidth=4.0)
-plt.plot(dataPointsT, dataPoints1, linewidth=1.0)
-plt.plot(dataPointsT, dataPoints2, linewidth=2.0)
+plt.plot(dataPointsT, dataPointsY, linewidth=4.0, label="X2(t)")
+plt.plot(dataPointsT, dataPoints1, linewidth=1.0, label = "1-exp()")
+plt.plot(dataPointsT, dataPoints2, linewidth=2.0, label = "L(t)")
+plt.legend()
 plt.show()
     
