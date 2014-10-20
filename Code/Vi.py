@@ -1,8 +1,6 @@
-
 import math
 
 def GetV_i(index, r0, r1, r2, u1, u2, N):
-    
     rho3 = 1.0 - (r0*(1-u1) / (r2 + r1 * u2))
     rho3 /= 1.0 - math.pow(r0*(1.0-u1) / (r2 + r1 * u2), N)
     

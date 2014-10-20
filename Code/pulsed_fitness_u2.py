@@ -8,9 +8,11 @@ mySim.timeLimit = 100.0
 mySim.u1 = 0.1
 mySim.u2 = 0.01
 mySim.r1 = 1.0
+mySim.r2 = 1.0
 dataPointCount = 10
 
-pulseAmp = mySim.u2
+pulseOff = 0.01
+pulseOn = 0.1
 pulseWidth = 1.0
 maxPulseWidth = 10.0
 
@@ -23,7 +25,7 @@ def pulse_u2(sim):
     global pulseWidth
 
     pulseWidth = (float(curPoint) / (dataPointCount - 1)) * maxPulseWidth
-    sim.u2 = SimTools.PulseWave(sim.curTime, pulseAmp, pulseWidth, pulseWavelength) + pulseAmp
+    sim.u2 = SimTools.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulseWavelength) + pulseOff
 
 mySim.preSim = pulse_u2 #IMPORTANT assign the callback (called in the class sim loop)
 
@@ -32,7 +34,7 @@ def avgpulse_u2(sim):
     global dataPointCount
     global pulseWidth
     pulseWidth = (float(curPoint) / (dataPointCount - 1)) * maxPulseWidth
-    sim.u2 = pulseAmp * (pulseWidth / pulseWavelength) + pulseAmp
+    sim.u2 = (pulseOn - pulseOff) * (pulseWidth / pulseWavelength) + pulseOff
     
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point

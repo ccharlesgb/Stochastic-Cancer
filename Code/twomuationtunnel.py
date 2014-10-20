@@ -17,7 +17,7 @@ r0=1.0
 r1=0.0
 r2=1.0
 u1=0.1
-u2=0.01
+u2=0.1
 curpoint=100
 
 rho1 = 0.0
@@ -72,7 +72,7 @@ def ell(t):
     return result
 
 def traj(t):
-    print(b/(a+b))
+    print("A = {0} B = {1} B/A+B = {2}".format(a,b, b/(a+b)))
     result = (b/(a+b))*(1.0-math.exp(-(a+b)*t)) + ell(t)
     
     return result
