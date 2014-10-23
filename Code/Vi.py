@@ -36,5 +36,6 @@ def GetV_i(index, r0, r1, r2, u1, u2, N):
             break
         V1_old = V[1]
         
+        
     return V[index]
 
