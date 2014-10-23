@@ -9,7 +9,7 @@ import math
 mySim = SimTools.Gillespie(100)
 mySim.timeLimit = 1000.0
 mySim.u1 = 0.1
-mySim.u2 = 0.1
+mySim.u2 = 0.001
 mySim.r1 = 0.75
 mySim.populationHistory = 1
 
@@ -36,6 +36,15 @@ def pulse_r1(sim):
     dataPulsePulse.append(sim.r1)  
     
 mySim.preSim = pulse_r1 #IMPORTANT assign the callback (called in the class sim loop)
+
+def raise_r1(sim):
+    r_grad = 0.001
+    sim.r1 = r_grad * sim.curTime
+    
+    dataPulseTime.append(sim.curTime)
+    dataPulsePulse.append(sim.r1)
+
+mySim.preSim = raise_r1
 
 #Run the simulation
 mySim.Simulate()
