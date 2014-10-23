@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import SimTools
 import time
+import math
 
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
@@ -8,7 +9,7 @@ mySim.timeLimit = 100.0
 mySim.u1 = 0.1
 mySim.u2 = 0.01
 mySim.r1 = 1.0
-dataPointCount = 2
+dataPointCount = 10
 
 pulseAmp = mySim.r1
 pulseWidth = 1.0
@@ -38,6 +39,7 @@ def avgpulse_r1(sim):
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
 simsPerDataPoint = 10000
+fixError = 1/math.sqrt(float(simsPerDataPoint))
 
 #Initialize the array with default values
 dataPointsX = []
@@ -69,7 +71,7 @@ for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 #Create graph of data
-plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "Pulsed")
+plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError, label = "Pulsed")
 plt.xlabel("r1 Pulse Time: ")
 plt.ylabel("Type 2 Fixation Prob")
 plt.show()
@@ -113,7 +115,7 @@ for curPoint in range(0, dataPointCount):
 for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
-plot_averaged = plt.plot(dataPointsX, dataPointsY, label = "Averaged")
+plot_averaged = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError, label = "Averaged")
 
 plt.legend()
 

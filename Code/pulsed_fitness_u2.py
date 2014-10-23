@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import SimTools
 import time
+import math
 
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
@@ -39,7 +40,8 @@ def avgpulse_u2(sim):
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 1000
+simsPerDataPoint = 20000
+fixError = 1/math.sqrt(float(simsPerDataPoint))
 
 #Initialize the array with default values
 dataPointsX = []
@@ -52,7 +54,6 @@ for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
     
     fixationCounts = 0
-    
     print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
     #Perform many simulations to get an accurate probability of the fixation probability
     for sim in range(0, simsPerDataPoint):
@@ -71,7 +72,7 @@ for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 #Create graph of data
-plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "Pulsed")
+plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError, label = "Pulsed")
 plt.xlabel("u2 Pulse Time: ")
 plt.ylabel("Type 2 Fixation Prob")
 plt.show()
@@ -97,7 +98,6 @@ for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
     
     fixationCounts = 0
-    
     print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
     #Perform many simulations to get an accurate probability of the fixation probability
     for sim in range(0, simsPerDataPoint):
@@ -115,7 +115,7 @@ for curPoint in range(0, dataPointCount):
 for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
-plot_averaged = plt.plot(dataPointsX, dataPointsY, label = "Averaged")
+plot_averaged = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError, label = "Averaged")
 
 plt.legend()
 
