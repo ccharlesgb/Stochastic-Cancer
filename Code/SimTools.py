@@ -30,7 +30,8 @@ class Gillespie:
         self.timeLimit = 100.0
         self.simSteps = 0
         
-        self.populationHistory = 0        
+        self.populationHistory = 0      
+        self.tHist = []
         self.n0Hist = []
         self.n1Hist = []
         self.n2Hist = []
@@ -62,6 +63,11 @@ class Gillespie:
         self.n0 = self.N
         self.n1 = 0
         self.n2 = 0
+        
+        self.tHist = []
+        self.n0Hist = []
+        self.n1Hist = []
+        self.n2Hist = []
     
     #Helper function to renormalize fitness of current cell population
     def AvgFitness(self):
@@ -154,11 +160,19 @@ class Gillespie:
     def Fixated(self):
         return self.n2 >= self.N
         
+    def RecordFrame(self):
+        self.tHist.append(self.curTime)
+        self.n0Hist.append(self.n0)
+        self.n1Hist.append(self.n1)
+        self.n2Hist.append(self.n2)
+    
     #Simulate loop
     #Uses standard gillespie algorithm and chooses event until fixated or out of time
     def Simulate(self):
         self.ResetSim()
         while self.curTime < self.timeLimit:
+            if self.populationHistory == 1:
+                self.RecordFrame()
             if self.preSim:
                 self.preSim(self)
             timestep = self.GetTimeStep() #How much time until the next event?
