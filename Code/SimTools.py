@@ -202,4 +202,20 @@ def PulseWave(time, amp, width, wavelength):
         return amp
     else:
         return 0.0
+        
+#Define Summation Helper Function
+def Summation(a,b,f):
+    summ=0
+    i=a    
+    while i <= b:
+        summ+=f(i)
+        i+=1
+    return summ
 
+#Define Multiplication Helper Function
+def Product(a,b,f):
+    prod=1
+    i=a
+    while i<=b:
+        prod*=f(i)
+    return prod

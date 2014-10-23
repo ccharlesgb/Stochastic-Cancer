@@ -47,42 +47,26 @@ class Gillespie:
     def ResetSim(self):
         self.curTime = 0.0
         self.simSteps = 0
-        self.n0 = self.N
-        self.n1 = 0
-        self.n2 = 0
+        self.j = (self.N)/2
+        
     
     #Helper function to renormalize fitness of current cell population
     def AvgFitness(self):
-        return (self.r0*self.j + self.r1*(self.N-self.j)
+        return (self.r0*self.j + self.r1*(self.N-self.j))
         
     #Reaction probability for cell from 1->0
-    def GetTj+(self):
-        top = self.j*self.r0 
-        return top / self.AvgFitness()
+    def GetTJplus(self):
+        top = self.j*self.r0 *(self.N-self.j)
+        return top / (self.AvgFitness()*self.N)
 
-    def GetT20(self):
-        top = (1 - self.u1) * self.r0 * float(self.n0) * self.n2
-        return top / self.AvgFitness()
+    def GetTJminus(self):
+        top = (self.N-self.j)*self.r1*self.j
+        return top / (self.AvgFitness()*self.N)
 
-    def GetT01(self):
-        top = (self.u1 * self.r0 * self.n0 + (1-self.u2) * self.r1 * self.n1) * self.n0
-        return top / self.AvgFitness()
-
-    def GetT21(self):
-        top = (self.u1 * self.r0 * self.n0 + (1-self.u2) * self.r1 * self.n1) * self.n2
-        return top / self.AvgFitness()
-
-    def GetT02(self):
-        top = (self.u2 * self.r1 * self.n1 + self.r2 * self.n2) * self.n0
-        return top / self.AvgFitness()
-
-    def GetT12(self):
-        top = (self.u2 * self.r1 * self.n1 + self.r2 * self.n2) * self.n1
-        return top / self.AvgFitness()
 
     #Exponential parameter for frequency of events
     def GetLambda(self):
-        self.lambd = self.GetT10() + self.GetT20() + self.GetT01() + self.GetT21() + self.GetT02() + self.GetT12()
+        self.lambd = self.GetTJplus() + self.GetTJminus()    
         return self.lambd
 
     #Returns an exponentially distributed number based on the lambda parameter
@@ -95,53 +79,29 @@ class Gillespie:
     def ChooseEvent(self):
         rand = random.random()
         lam = self.GetLambda()
-        #Cell Type 1->0
-        threshold = self.GetT10()/lam
+        #Cell Type j->j+1
+        threshold = self.GetTJplus()/lam
         #print(threshold)
         if (rand < threshold):
-            self.n0 += 1
-            self.n1 -= 1
+            self.j += 1
             return
-        #Cell Type 2->0
-        threshold += self.GetT20()/lam
+        #Cell Type j->j-1
+        threshold += self.GetTJminus()/lam
         #print(threshold)
         if (rand < threshold):
-            self.n0 += 1
-            self.n2 -= 1
+            self.j -= 1
             return
-        #Cell Type 0->1
-        threshold += self.GetT01()/lam
-        #print(threshold)
-        if (rand < threshold): 
-            self.n1 += 1
-            self.n0 -= 1
-            return
-        #Cell Type 2->1
-        threshold += self.GetT21()/lam
-        #print(threshold)
-        if (rand < threshold):
-            self.n1 += 1
-            self.n2 -= 1
-            return
-        #Cell Type 0->2
-        threshold += self.GetT02()/lam
-        #print(threshold)
-        if (rand < threshold): 
-            self.n2 += 1
-            self.n0 -= 1
-            return
-        #Cell Type 1->2
-        threshold += self.GetT12()/lam
-        #print(threshold)
-        if (rand < threshold): 
-            self.n2 += 1
-            self.n1 -= 1
-            return
-    
-    #Returns true if we are at the absorbing state of n2 == N
-    def Fixated(self):
-        return self.n2 >= self.N
         
+    
+    #Returns true if we are at the absorbing state of j == N
+    def Fixated(self):
+        if self.j>=self.N:
+            return 1
+        if self.j<=0:
+            return 1
+        return 0
+        
+
     #Simulate loop
     #Uses standard gillespie algorithm and chooses event until fixated or out of time
     def Simulate(self):
