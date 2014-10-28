@@ -50,16 +50,16 @@ def FixedPointSaddle(r0,r1, u1, u2):
 
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(100)
-mySim.timeLimit = 100.0
+mySim.timeLimit = 500.0
 mySim.u1 = 0.01
 mySim.u2 = 0.01
 mySim.r1 = 1.1
 mySim.r2 = 1.2
-mySim.populationHistory = 0
+mySim.populationHistory = 1
 
-mySim.in0 = 10
-mySim.in1 = 45
-mySim.in2 = 45
+mySim.in0 = 100
+mySim.in1 = 0
+mySim.in2 = 0
 
 dataPointCount = 10
 
@@ -123,34 +123,8 @@ def RecordFP(sim):
         ReactivePos2.append(RP[2] * sim.N)
         lastFPData = sim.curTime
 
-simsPerDataPoint = 10
-
-#Initialize the array with default values
-dataPointsX = []
-dataPointsY = []
-
-drugOnMax = 0.5
-drugOnMin = 0.1
-
-for curPoint in range(0, dataPointCount):
-    startTime = time.clock() #Algorithm benchmarking
-    
-    fixationCounts = 0
-    
-    pulseOn = float(curPoint)/(dataPointCount-1) * (drugOnMax - drugOnMin) + drugOnMin
-    
-    print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
-    #Perform many simulations to get an accurate probability of the fixation probability
-    for sim in range(0, simsPerDataPoint):
-        mySim.Simulate()
-            
-        if mySim.n2 == mySim.N: #The simulation ended with fixation
-            fixationCounts += 1
-    #Once the loop is done get the fraction of fixations for this r1
-    dataPointsX.append(pulseOn)
-    dataPointsY.append(float(fixationCounts) / float(simsPerDataPoint))
-
-    print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
+#Run the simulation
+mySim.Simulate()
 
 plt.subplot(2,1,1)
 plt.plot(dataPulseTime, dataPulsePulse)
@@ -159,7 +133,17 @@ plt.ylabel("r2")
 
 #Create graph of data
 plt.subplot(2, 1, 2)
-plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "n0", linewidth = 0.5)
+plot_pulsed = plt.plot(mySim.tHist, mySim.n0Hist, label = "n0", linewidth = 0.5)
+plot_pulsed = plt.plot(mySim.tHist, mySim.n1Hist, label = "n1", linewidth = 0.5)
+plot_pulsed = plt.plot(mySim.tHist, mySim.n2Hist, label = "n2", linewidth = 0.5)
+
+plot_pulsed = plt.plot(FPTHist, BoundaryPos0, label = "Boundary0", marker = 'o', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, BoundaryPos1, label = "Boundary1", marker = '^', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, BoundaryPos2, label = "Boundary2", marker = 's', linestyle = '')
+
+plot_pulsed = plt.plot(FPTHist, ReactivePos0, label = "Reactive1", marker = 'o', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, ReactivePos1, label = "Reactive2", marker = '^', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, ReactivePos2, label = "Reactive3", marker = 's', linestyle = '')
 plt.xlabel("t")
 plt.ylabel("n_i")
 plt.legend()
