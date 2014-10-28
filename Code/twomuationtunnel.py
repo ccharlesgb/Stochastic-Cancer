@@ -18,7 +18,7 @@ r0=1.0
 r1=0.3
 r2=1.0
 u1=0.1
-u2=0.01
+u2=0.1
 curpoint=100
 
 t = 100.0
@@ -110,6 +110,7 @@ dataPoints1=[]
 dataPoints2=[]
 
 for i in range(0, datapointcount):
+    print(i)
     r1 = ((float(i) / (datapointcount - 1)) * (maxr1 - minr1)) + minr1
     CalculateValues()
     dataPointsT.append(r1)
