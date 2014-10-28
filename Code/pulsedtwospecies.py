@@ -7,7 +7,10 @@ Created on Thu Oct 23 11:41:06 2014
 
 import matplotlib.pyplot as plt
 import TwoSpecies
+import SimTools
 import time
+import math
+import anfixtime
 
 #Initialize the Gillespie simulator with 10 cells
 N=100
@@ -21,7 +24,7 @@ mySim.r1=1.0
 
 pulseOff = 0.01
 pulseOn = 0.1
-pulseWidth = 1.0
+pulseWidth = 2.0
 maxPulseWidth = 10.0
 
 pulseWavelength = 10.0
@@ -82,7 +85,7 @@ for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 #Create graph of data
-plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "Pulsed")
+plot_pulsed = plt.errorobar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint,0.5), label = "Pulsed")
 plt.xlabel("r1 Pulse Time: ")
 plt.ylabel("Fixation Time")
 plt.show()
@@ -126,7 +129,7 @@ for curPoint in range(0, dataPointCount):
 for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
-plot_averaged = plt.plot(dataPointsX, dataPointsY, label = "Averaged")
+plot_averaged = plt.errorbar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint,0.5), label = "Averaged")
 
 plt.legend()
 
@@ -134,3 +137,10 @@ plt.show()
 
 
 #theoretical non-conditional fixation time (for averaged p)
+dataPointsX = []
+dataPointsY = []
+for i in range(0,mySim.N):
+    dataPointsX.append(i,i)
+    dataPointsY.append(i,anfixtime.GetFixTimeJ(sim,i))
+
+plt.plot(dataPointsX, dataPointsY, label = "Theoretical")
