@@ -51,6 +51,11 @@ class Gillespie:
         self.n0 = self.N
         self.n1 = 0
         self.n2 = 0
+        
+        #Initial Conditions
+        self.in0 = self.N
+        self.in1 = 0
+        self.in2 = 0
 
         self.lambd = self.GetLambda()
         
@@ -60,9 +65,9 @@ class Gillespie:
     def ResetSim(self):
         self.curTime = 0.0
         self.simSteps = 0
-        self.n0 = self.N
-        self.n1 = 0
-        self.n2 = 0
+        self.n0 = self.in0
+        self.n1 = self.in1
+        self.n2 = self.in2
         
         self.tHist = []
         self.n0Hist = []
