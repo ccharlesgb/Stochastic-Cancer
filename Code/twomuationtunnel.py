@@ -18,7 +18,7 @@ r0=1.0
 r1=0.3
 r2=1.0
 u1=0.1
-u2=0.1
+u2=0.01
 curpoint=100
 
 t = 100.0
@@ -69,16 +69,9 @@ def CalculateValues():
     rho3 = 1.0 - (r0 * (1.0-u1) / (r2 + r1 * u2))
     rho3 = rho3 / (1.0 - math.pow((r0 * (1.0-u1) / (r2 + r1 * u2)) , N))
 
-    
-<<<<<<< Updated upstream
     V1=Vi.GetV_i(1, r0, r1, r2, u1, u2, N)
     #print("V1: {0}".format(V1))
     
-=======
-    V1=Vi.GetV_i(1, r0, r1, r2, u1, u2, N)   
-    print("V1: {0}".format(V1))
-
->>>>>>> Stashed changes
     a=N*u1*rho1
     b=N*u1*(1.0-V1-rho1)
     c=N*u2*(1.0-r1/r2)/(1.0-(math.pow((r1/r2) , N)))
@@ -139,9 +132,11 @@ plt.plot(dataPointsT, dataPointsY, linewidth=4.0, label="X2(t)")
 plt.legend()
 plt.show()
 
+'''
 ind=[] 
 V=[]           
 for i in range(0,N):
     ind.append(i)
     V.append(Vi.GetV_i(i, r0, r1, r2, u1, u2, N))
 plt.plot(ind, V, linewidth=4.0, label="V_i")
+'''

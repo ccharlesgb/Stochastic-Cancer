@@ -56,7 +56,8 @@ def GetQk(k_return, t, r0, r1, r2, u1, u2, N):
     
    # print("Final T {0}   {1}".format(curt, t))
     return q[k_return]
-         
+    
+'''
 datapointcount = 100           
            
 dataPointsq=[]
@@ -99,3 +100,4 @@ plt.plot(dataPointst, dataPointsq, label = "qk")
 plt.plot(dataPointst, dataPointsG, label = "G(t)", ls = '--')
 plt.legend()
 plt.show()
+'''
