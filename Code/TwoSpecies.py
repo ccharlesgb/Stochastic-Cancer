@@ -57,10 +57,12 @@ class Gillespie:
     #Reaction probability for cell from 1->0
     def GetTJplus(self):
         top = self.j*self.r0 *(self.N-self.j)
+        print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
         return top / (self.AvgFitness()*self.N)
 
     def GetTJminus(self):
         top = (self.N-self.j)*self.r1*self.j
+        print("TJminus {0}".format(top / (self.AvgFitness()*self.N)) )        
         return top / (self.AvgFitness()*self.N)
 
 

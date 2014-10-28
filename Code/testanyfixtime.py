@@ -16,8 +16,8 @@ mySim = TwoSpecies.Gillespie(N)
 mySim.timeLimit = 1000000
 dataPointCount = 25
 mySim.j = int(N/2)
-mySim.r0=1.0
-mySim.r1=1.0
+mySim.r0=1.1
+mySim.r1=1.5
 
 dataPointsX = []
 dataPointsY = []
