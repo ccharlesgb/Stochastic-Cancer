@@ -11,13 +11,12 @@ import TwoSpecies
 import anfixtime
 
 #Initialize the Gillespie simulator with 10 cells
-N=10
-mySim = TwoSpecies.Gillespie(N)
+mySim = TwoSpecies.Gillespie(10)
 mySim.timeLimit = 1000000
 dataPointCount = 25
-mySim.j = int(N/2)
+mySim.j = int(mySim.N/2)
 mySim.r0=1.1
-mySim.r1=1.5
+mySim.r1=1.1
 
 dataPointsX = []
 dataPointsY = []

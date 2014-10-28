@@ -1,24 +1,6 @@
 import random
 import math
 
-random.seed()
-
-class SimParam:
-    def __init__(self, numCells):
-        self.timeLimit = 0.0
-        
-        self.r0 = 0.0
-        self.r1 = 0.0
-        
-        self.u1 = 0.0
-        
-        self.N = 0
-        
-        self.j = 0
-
-        
-        
-
 #Class for simulating cancer dynamics with the Gillespie algorithm
 class Gillespie:
     def __init__(self, numCells):
@@ -36,6 +18,7 @@ class Gillespie:
         self.N = numCells
 
         #Type Counts
+        self.ij = (self.N)/2
         self.j = self.N
   
 
@@ -47,7 +30,8 @@ class Gillespie:
     def ResetSim(self):
         self.curTime = 0.0
         self.simSteps = 0
-        self.j = (self.N)/2
+        self.j = self.ij
+        
         
     
     #Helper function to renormalize fitness of current cell population
@@ -57,12 +41,12 @@ class Gillespie:
     #Reaction probability for cell from 1->0
     def GetTJplus(self):
         top = self.j*self.r0 *(self.N-self.j)
-        print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
+        #print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
         return top / (self.AvgFitness()*self.N)
 
     def GetTJminus(self):
         top = (self.N-self.j)*self.r1*self.j
-        print("TJminus {0}".format(top / (self.AvgFitness()*self.N)) )        
+        #print("TJminus {0}".format(top / (self.AvgFitness()*self.N)) )        
         return top / (self.AvgFitness()*self.N)
 
 
@@ -111,31 +95,13 @@ class Gillespie:
         while self.curTime < self.timeLimit:
             if self.preSim:
                 self.preSim(self)
-            timestep = self.GetTimeStep() #How much time until the next event?
-            self.ChooseEvent() #Chose what kind of event and update cell counts
             if self.Fixated(): #Are we at absorbing state? If so quit
                 return
+            timestep = self.GetTimeStep() #How much time until the next event?
+            self.ChooseEvent() #Chose what kind of event and update cell counts
+
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
 #END CLASS DEFINTION
 
-#Helper functions
-
-#Saves an array of xy data to a file
-def SaveXYToFile(filename, dataX, dataY):
-    f = open(filename, 'w')
-
-    #Dump data to file
-    for i in range(0, len(dataX)):
-        f.write(str(dataX[i]) + "    " + str(dataY[i]) + "\n")
-    
-    f.close()
-
-#Pulse wave function
-def PulseWave(time, amp, width, wavelength):
-    x,y = divmod(time, wavelength)
-    if (y < width):
-        return amp
-    else:
-        return 0.0
 
