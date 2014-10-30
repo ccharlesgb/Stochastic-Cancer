@@ -17,10 +17,12 @@ def GetFixProb1(sim):
             prod*=GetGammaj(sim) 
         sumf+=prod
     
+    sim.j=1.0
     print("FP1 for {0} is {1}".format(sim.j, 1.0/(1.0+sumf)))
     return 1.0/(1.0+sumf)
 
 def GetFixTime1(sim):
+    
     sum_k=0    #initialise sum over the upper limit of the the sum over TJplus 
     for k in range(1,sim.N):    
         sum_Tplus=0.0 #initialise sum over TJplus
@@ -28,7 +30,7 @@ def GetFixTime1(sim):
         for l in range(1,k+1):
             sim.j=l           #at each loop, vary j, so that gamma_j is different
             sum_Tplus_term = (1.0/sim.GetTJplus())
-            print("SUM T PLUS {0}".format(sum_Tplus_term))
+            #print("J={0} TJplus={1}".format(l,sim.GetTJplus()))
             prod_of_gamma=1.0    #initialise the product over gamma j
             
             for j in range(l+1,k+1):
@@ -40,7 +42,7 @@ def GetFixTime1(sim):
             sum_Tplus += sum_Tplus_term
             
         sum_k+=sum_Tplus 
-        
+    print("fixtime1 ={0}".format((1.0/(GetFixProb1(sim)))*sum_k))
     return (1.0/(GetFixProb1(sim)))*sum_k
     
 def GetFixTimeJ(sim,j):
@@ -58,6 +60,9 @@ def GetFixTimeJ(sim,j):
     print("FixTime1 {0}".format(GetFixTime1(sim)))
     part1=-GetFixTime1(sim)*sumf #multiply by the fixation time of j=1 to get the first term
     
+    
+    #second term
+    
     sum1=0.0    #initialise first sum in second term
     
     for k in range(j,sim.N):    #loop upper index of subsequent sum and product
@@ -66,6 +71,7 @@ def GetFixTimeJ(sim,j):
         for l in range(1,k+1): #loop over j's to get sum of 1/Tj+
             sim.j=l         #change j every time
             sum2_term =(1.0/sim.GetTJplus())  #perform summation
+            #print("J={0} TJplus={1}".format(l,sim.GetTJplus()))
             prod=1.0       #intialise product
             
             for m in range(l+1,k+1): #loop over product of gamma j for l+1 to k+1

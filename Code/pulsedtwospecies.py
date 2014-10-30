@@ -11,15 +11,17 @@ import SimTools
 import time
 import math
 import anfixtime
+import numpy as np
+import copy
 
 #Initialize the Gillespie simulator with 10 cells
-N=50
+N=10
 mySim = TwoSpecies.Gillespie(N)
-mySim.timeLimit = 1000
+mySim.timeLimit = 300
 dataPointCount = N
-mySim.j = int(N/2)
-mySim.r0=1.0
-mySim.r1=1.0
+#mySim.j = int(N/2)
+mySim.r0=0.5
+mySim.r1=0.5
 
 
 pulseOff = 0.01
@@ -30,11 +32,14 @@ maxPulseWidth = 10.0
 pulseWavelength = 10.0
 
 #Pre Simulate callback (called every frame before a timestep)
+
+
 def pulse_r1(sim):
     global curPoint
     global dataPointCount
     global pulseWidth
-
+    global curTime    
+    
     pulseWidth = (float(curPoint) / (dataPointCount - 1)) * maxPulseWidth
     sim.r1 = SimTools.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulseWavelength) + pulseOff
 
@@ -61,6 +66,14 @@ for i in range(0, dataPointCount):
     dataPointsY.insert(i,0.0)
 
 
+#initialise array to count indiviual fixation times to get distribution
+    indiv_distrib = []
+    total_distrib =[]
+for i in range(0, simsPerDataPoint):
+    indiv_distrib.insert(i,0.0)
+    
+for i in range(0,dataPointCount):    
+    total_distrib.insert(i,0.0)
 
 for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
@@ -69,23 +82,47 @@ for curPoint in range(0, dataPointCount):
     mySim.ij = int(float(curPoint)/(dataPointCount-1) * mySim.N)
     print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
     #Perform many simulations to get an accurate probability of the fixation probability
-    for sim in range(0, simsPerDataPoint):
+    for i in range(0, simsPerDataPoint):
         mySim.Simulate()
             
         if mySim.j == mySim.N or mySim.j==0: #The simulation ended with fixation
             fixationTime += mySim.curTime
+            indiv_distrib[i] = copy.copy(mySim.curTime) #add distribution of fix times to array for each iteration
+    total_distrib[curPoint]= copy.copy(indiv_distrib) #add each data points fix time distribution to an array containing all distribs
+    
     #Once the loop is done get the fraction of fixations for this r1
     dataPointsX[curPoint] = mySim.ij
     dataPointsY[curPoint] = float(fixationTime) / float(simsPerDataPoint)
 
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
 
+
+
+
+
+
+
+#plot distribution of fixation times for different data points
+for i in range(0, dataPointCount):
+    hist, bins = np.histogram(total_distrib[i], bins=20)
+    width = (bins[1] - bins[0])
+    center = (bins[:-1] + bins[1:]) / 2
+    plt.bar(center, hist, align='center', width=width)
+    plt.title("Data Point:{0} Average Value:{1}".format(i+1,sum(total_distrib[i])/len(total_distrib[i])))    
+    plt.xlabel("Fixation Time: ")
+    plt.ylabel("Counts")    
+    plt.show()
+
+
+
+
+
 #Dump data to console
 for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 #Create graph of data
-plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint,0.5), label = "Pulsed")
+plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint,-0.5), label = "Pulsed")
 plt.xlabel("r1 Pulse Time: ")
 plt.ylabel("Fixation Time")
 plt.show()
@@ -128,14 +165,14 @@ for curPoint in range(0, dataPointCount):
 #Dump data to console
 for i in range(0, dataPointCount):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
-'''
+
 plot_averaged = plt.errorbar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint,0.5), label = "Averaged")
 
 plt.legend()
 
 plt.show()
 
-'''
+
 #theoretical non-conditional fixation time (for averaged p)
 dataPointsX = []
 dataPointsY = []

@@ -14,9 +14,9 @@ import anfixtime
 mySim = TwoSpecies.Gillespie(10)
 mySim.timeLimit = 1000000
 dataPointCount = 25
-mySim.j = int(mySim.N/2)
-mySim.r0=1.1
-mySim.r1=1.1
+#mySim.j = int(mySim.N/2)
+mySim.r0=0.5
+mySim.r1=0.5
 
 dataPointsX = []
 dataPointsY = []
