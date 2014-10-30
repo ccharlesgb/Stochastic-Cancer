@@ -11,7 +11,7 @@ class HaenoModel:
         self.r2 = 1.0
         
         self.u1 = 0.1
-        self.u2 = 0.5
+        self.u2 = 0.1
         
         self.t = 100.0
         
@@ -32,7 +32,7 @@ class HaenoModel:
         return self.N * self.u1 * self.rho1
 
     def Getb(self):
-        return self.N * self.u1 * (1.0 - self.V[1] - self.rho1)
+        return self.N * self.u1 * (1.0 - self.V[2] - self.rho1)
 
     def Getrho1(self):
         rho1 = 1.0 - ((self.r0 * (1.0-self.u1)) / (self.r1 + self.r0 * self.u1)) 
@@ -52,7 +52,8 @@ class HaenoModel:
             self.V.append(val)
         
         MAX_ITER = 1000
-        for iter in range(0,MAX_ITER):
+        for itere in range(0,MAX_ITER):
+            maxChange = -1.0
             for i in range(1, self.N):
                 prv = self.V[i-1]
                 nxt = self.V[i+1]
@@ -62,7 +63,12 @@ class HaenoModel:
                 new = self.r1 * (1.0 - self.u2) * nxt + self.r0 * prv
                 new = new / (self.r1 * self.u2 * self.rho3/Pi + self.r1 * (1.0 - self.u2) + self.r0)
                 
+                if abs(new - self.V[i]) > maxChange:
+                    maxChange = abs(new-self.V[i])                
+                
                 self.V[i] = new
+            if maxChange < 1e-15:
+                break
         
     def CalculateParameters(self):
         self.rho1 = self.Getrho1()
@@ -89,7 +95,13 @@ class HaenoModel:
     
     def UpdateQ0(self):
         self.Q0_vals = []
+        reachedMax = 0 #If a q0 = 1.0 it will remain 1.0
         for t_it in range(0, self.Q0_points):
+
+            if reachedMax == 1:
+                self.Q0_vals.append(1.0)
+                continue
+            
             maxT = float(t_it) / (self.Q0_points - 1) * self.t
     
             #Initialise Q with I conditions
@@ -114,6 +126,10 @@ class HaenoModel:
                     newQ = q[k] + q_dots[k] * deltaT
                     q[k] = newQ
                 curT += deltaT
+            
+            if (abs(q[0] - 1.0) < 0.0000001):
+                reachedMax = 1 #Stop calculating all other q0 will be 1.0 for extra time
+                print("REACHED MAX")
             
             print("Q_{0} = {1}".format(maxT, q[0]))
             self.Q0_vals.append(q[0])
@@ -150,23 +166,3 @@ class HaenoModel:
         return tunnelTerm + L_term
         
 
-myHaeno = HaenoModel()
-
-datapointcount = 15
-
-minr1 = 0.1
-maxr1 = 3.0
-dataPointsY=[]
-dataPointsT=[]
-
-for i in range(0, datapointcount):
-    print(i)
-    r1 = ((float(i) / (datapointcount - 1)) * (maxr1 - minr1)) + minr1
-    dataPointsT.append(r1)
-    myHaeno.r1 = r1
-    X2 = myHaeno.GetX2()
-    print("X2 is {0}".format(X2))
-    dataPointsY.append(X2)
-
-
-plt.plot(dataPointsT, dataPointsY, linewidth=4.0, label="X2(t)")
