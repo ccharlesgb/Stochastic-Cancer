@@ -51,8 +51,8 @@ def FixedPointSaddle(r0,r1, u1, u2):
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(100)
 mySim.timeLimit = 100.0
-mySim.u1 = 0.01
-mySim.u2 = 0.01
+mySim.u1 = 0.1
+mySim.u2 = 0.1
 mySim.r1 = 1.1
 mySim.r2 = 1.2
 mySim.populationHistory = 0
@@ -91,13 +91,7 @@ pulseWavelength = 10.0
 
 #Pre Simulate callback (called every frame before a timestep)
 def pulse_r2(sim):
-    global treatmentOn
-    if float(sim.n0) / sim.N > n0Threshold and treatmentOn == 0:
-        sim.r1 = pulseOff
-    else:
-        treatmentOn = 1
-        sim.r1 = SimTools.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulseWavelength) + pulseOff
-        sim.r2 = sim.r1 + 0.1
+    sim.r1 = SimTools.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulseWavelength) + pulseOff
     
     dataPulseTime.append(sim.curTime)
     dataPulsePulse.append(sim.r2)    
@@ -129,16 +123,23 @@ simsPerDataPoint = 10
 dataPointsX = []
 dataPointsY = []
 
-drugOnMax = 0.5
-drugOnMin = 0.1
+maxArea = 1.0
+
+wavMin = 0.1
+wavMax = 1.0
 
 for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
     
     fixationCounts = 0
     
-    pulseOn = float(curPoint)/(dataPointCount-1) * (drugOnMax - drugOnMin) + drugOnMin
+    pulseWavelength = float(curPoint)/(dataPointCount-1) * (wavMax - wavMin) + wavMin
+    pulseWidth = pulseWavelength / 2.0    
     
+    #pulseOn = float(curPoint)/(dataPointCount-1) * (drugOnMax - drugOnMin) + drugOnMin
+    pulseOn = maxArea / pulseWidth
+    
+    print("Pulse on: {0}".format(pulseOn))
     print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
     #Perform many simulations to get an accurate probability of the fixation probability
     for sim in range(0, simsPerDataPoint):
@@ -147,21 +148,14 @@ for curPoint in range(0, dataPointCount):
         if mySim.n2 == mySim.N: #The simulation ended with fixation
             fixationCounts += 1
     #Once the loop is done get the fraction of fixations for this r1
-    dataPointsX.append(pulseOn)
+    dataPointsX.append(pulseWavelength)
     dataPointsY.append(float(fixationCounts) / float(simsPerDataPoint))
 
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
 
-plt.subplot(2,1,1)
-plt.plot(dataPulseTime, dataPulsePulse)
-plt.xlabel("time")
-plt.ylabel("r2")
-
-#Create graph of data
-plt.subplot(2, 1, 2)
-plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "n0", linewidth = 0.5)
-plt.xlabel("t")
-plt.ylabel("n_i")
+plot_pulsed = plt.plot(dataPointsX, dataPointsY, label = "Fixation", linewidth = 1.0)
+plt.xlabel("Pulse Wavelength")
+plt.ylabel("Fixation")
 plt.legend()
 plt.show()
 

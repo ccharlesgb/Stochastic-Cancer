@@ -32,7 +32,7 @@ class HaenoModel:
         return self.N * self.u1 * self.rho1
 
     def Getb(self):
-        return self.N * self.u1 * (1.0 - self.V[2] - self.rho1)
+        return self.N * self.u1 * (1.0 - self.V[1] - self.rho1)
 
     def Getrho1(self):
         rho1 = 1.0 - ((self.r0 * (1.0-self.u1)) / (self.r1 + self.r0 * self.u1)) 
@@ -46,10 +46,12 @@ class HaenoModel:
         
     def UpdateV(self):
         self.V = []
+        newV = []
         #Set up initial linear distribution of V
         for i in range(0,self.N+1):
             val = 1.0 - float(i)/self.N
             self.V.append(val)
+            newV.append(val)
         
         MAX_ITER = 1000
         for itere in range(0,MAX_ITER):
@@ -66,7 +68,13 @@ class HaenoModel:
                 if abs(new - self.V[i]) > maxChange:
                     maxChange = abs(new-self.V[i])                
                 
-                self.V[i] = new
+                newV[i] = new
+                #self.V[i]= new
+            
+            for i in range(1, self.N):          
+                self.V[i] = newV[i]
+                newV[i] = self.V[i]
+                
             if maxChange < 1e-15:
                 break
         
@@ -79,6 +87,8 @@ class HaenoModel:
         
         self.a = self.Geta()
         self.b = self.Getb()
+        if self.b < 0.0:
+            self.b = 0.0
         
         print("A = {0} B = {1}".format(self.a, self.b))
     

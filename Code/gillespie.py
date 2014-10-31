@@ -5,12 +5,18 @@ import time
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 mySim.timeLimit = 100
+mySim.u1 = 0.1
 mySim.u2 = 0.1
-dataPointCount = 25
+
+mySim.r0 = 1.0
+mySim.r1 = 1.0
+mySim.r2 = 1.0
+
+dataPointCount = 15
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 400
+simsPerDataPoint = 5000
 
 #Initialize the array with default values
 dataPointsX = []
@@ -43,7 +49,7 @@ for i in range(0, dataPointCount):
     print("r1: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 #Create graph of data
-plt.plot(dataPointsX, dataPointsY)
+plt.plot(dataPointsX, dataPointsY, linestyle = '', marker = 'o')
 plt.xlabel("Type 1 Fitness r1")
 plt.ylabel("Type 2 Fixation %")
 plt.show()
