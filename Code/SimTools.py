@@ -25,18 +25,16 @@ class Gillespie:
         #Mutation Rates
         self.u1 = 0.1
         self.u2 = 0.1
-
-        self.N = numCells
-
-        #Type Counts
-        self.n0 = self.N
-        self.n1 = 0
-        self.n2 = 0
         
         #Initial Conditions
-        self.in0 = self.N
+        self.in0 = numCells
         self.in1 = 0
         self.in2 = 0
+
+        #Type Counts
+        self.n0 = self.in0
+        self.n1 = self.in1
+        self.n2 = self.in2
 
         self.lambd = self.GetLambda()
         
@@ -49,6 +47,8 @@ class Gillespie:
         self.n0 = self.in0
         self.n1 = self.in1
         self.n2 = self.in2
+        
+        self.N = self.in0 + self.in1 + self.in2
         
         self.tHist = []
         self.n0Hist = []

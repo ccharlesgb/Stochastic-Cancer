@@ -15,7 +15,7 @@ class HaenoModel:
         
         self.t = 100.0
         
-        self.N = 10
+        self.N = 100
         
         self.a = 0.0
         self.b = 0.0

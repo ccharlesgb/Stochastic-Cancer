@@ -3,7 +3,8 @@ import SimTools
 import time
 
 #Initialize the Gillespie simulator with 10 cells
-mySim = SimTools.Gillespie(10)
+mySim = SimTools.Gillespie(100)
+mySim.in0 = 100
 mySim.timeLimit = 100
 mySim.u1 = 0.1
 mySim.u2 = 0.1
@@ -16,7 +17,7 @@ dataPointCount = 15
 
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 5000
+simsPerDataPoint = 500
 
 #Initialize the array with default values
 dataPointsX = []

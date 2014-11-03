@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+#Haeno Analysis Testing
+#Sweeps r1
+
 import math
 import matplotlib.pyplot as plt
 import HaenoModel
@@ -7,12 +10,13 @@ import HaenoModel
 
 myHaeno = HaenoModel.HaenoModel()
 
+myHaeno.N = 100
 myHaeno.r0 = 1.0
 myHaeno.r1 = 1.1
 myHaeno.r2 = 1.0
 
 myHaeno.u1 = 0.1
-myHaeno.u2 = 0.001
+myHaeno.u2 = 0.1
 
 datapointcount = 40
 
