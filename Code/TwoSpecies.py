@@ -23,7 +23,8 @@ class Gillespie:
         self.N = numCells
 
         #Type Counts
-        self.ij = (self.N)/2
+        #self.ij = (self.N)/2
+        self.ij=1        
         self.j = self.N
   
 
@@ -36,11 +37,12 @@ class Gillespie:
         self.curTime = 0.0
         self.simSteps = 0
         self.j = self.ij
+        #self.j=self.N
         
         self.tHist = []
         self.n0Hist = []
         self.n1Hist = []
-        self.n2Hist = []
+
         
     
     #Helper function to renormalize fitness of current cell population
@@ -127,3 +129,10 @@ class Gillespie:
 #END CLASS DEFINTION
 
 
+#Pulse wave function
+def PulseWave(time, amp, width, period):
+    x,y = divmod(time, float(period))
+    if (y < width):
+        return amp
+    else:
+        return 0.0
