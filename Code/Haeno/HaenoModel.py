@@ -105,7 +105,7 @@ class HaenoModel:
             self.b = 0.0
         
         print("A = {0} B = {1}".format(self.a, self.b))
-        self.VerifyV()
+        #self.VerifyV()
     
     def GetLambdaK(self, k):
         res = (self.N - k) * ((self.N - k) * self.r1 * self.u2 + self.r2 * k)

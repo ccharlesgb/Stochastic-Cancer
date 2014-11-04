@@ -3,6 +3,8 @@ import math
 
 random.seed()
 
+
+
 #Class for simulating cancer dynamics with the Gillespie algorithm
 class Gillespie:
     def __init__(self, numCells):

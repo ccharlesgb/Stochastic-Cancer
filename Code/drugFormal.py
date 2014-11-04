@@ -71,13 +71,9 @@ mySim.in0 = 10
 mySim.in1 = 0
 mySim.in2 = 0
 
-dataPointCount = 10
+dataPointCount = 15
 
-simsPerDataPoint = 4000
-
-#Initialize the array with default values
-dataPointsX = []
-dataPointsY = []
+simsPerDataPoint = 2000
 
 maxArea = 1.0
 
@@ -98,39 +94,48 @@ r2Origin = r2Origin + normGrad * (-dist)
 
 print("r1Origin = {0} r2Origin = {1}".format(r1Origin, r2Origin))
 
-drugEffect = 0.9
-
-for curPoint in range(0, dataPointCount):
-    startTime = time.clock() #Algorithm benchmarking
+for g in range(0,5):
+        
+    #Initialize the array with default values
+    dataPointsX = []
+    dataPointsY = []
     
-    fixationCounts = 0
+    mySim.u2 = (0.1-0.01) * float(g)/4 + 0.01
     
-    drugAng = (float(curPoint) / (dataPointCount - 1)) * (math.pi / 2.0)
+    drugEffect = (0.9-0.5)*float(0)/4 + 0.5
     
-    mySim.r1 = r1Origin + math.sin(drugAng) * drugEffect
-    mySim.r2 = r2Origin - math.cos(drugAng) * drugEffect
-
-    print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
-    print("R1 = {0}".format(mySim.r1))
-    print("R2 = {0}".format(mySim.r2))
+    for curPoint in range(0, dataPointCount):
+        startTime = time.clock() #Algorithm benchmarking
+        
+        fixationCounts = 0
+        
+        drugAng = (float(curPoint) / (dataPointCount - 1)) * (math.pi / 2.0)
+        
+        mySim.r1 = r1Origin + math.cos(drugAng) * drugEffect
+        mySim.r2 = r2Origin - math.sin(drugAng) * drugEffect
     
-    #Perform many simulations to get an accurate probability of the fixation probability
-    for sim in range(0, simsPerDataPoint):
-        mySim.Simulate()
-            
-        if mySim.n2 == mySim.N: #The simulation ended with fixation
-            fixationCounts += 1
-    #Once the loop is done get the fraction of fixations for this r1
-    dataPointsX.append(drugAng * 180.0 / math.pi)
-    dataPointsY.append(float(fixationCounts) / float(simsPerDataPoint))
-
-    print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
-
-err = 1.0 / math.sqrt(simsPerDataPoint)
-plot_pulsed = plt.errorbar(dataPointsX, dataPointsY,yerr = err, label = "D_dose = {0}".format(drugEffect), linewidth = 1.0)
-plt.xlabel("Drug Angle (deg")
-plt.ylabel("Fixation")
-plt.legend()
+        print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
+        print("R1 = {0}".format(mySim.r1))
+        print("R2 = {0}".format(mySim.r2))
+        
+        #Perform many simulations to get an accurate probability of the fixation probability
+        for sim in range(0, simsPerDataPoint):
+            mySim.Simulate()
+                
+            if mySim.n2 == mySim.N: #The simulation ended with fixation
+                fixationCounts += 1
+        #Once the loop is done get the fraction of fixations for this r1
+        dataPointsX.append(drugAng * 180.0 / math.pi)
+        dataPointsY.append(float(fixationCounts) / float(simsPerDataPoint))
+    
+        print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
+    
+    err = 1.0 / math.sqrt(simsPerDataPoint)
+    plt.errorbar(dataPointsX, dataPointsY,yerr = err, label = "D_dose = {0}".format(drugEffect))
+    plt.xlabel("Drug Angle (deg")
+    plt.ylabel("Fixation")
+    plt.legend()
+    
 plt.show()
 
         
