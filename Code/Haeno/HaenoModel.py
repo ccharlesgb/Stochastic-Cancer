@@ -77,6 +77,20 @@ class HaenoModel:
                 
             if maxChange < 1e-15:
                 break
+            
+    def VerifyV(self):
+        for i in range(1, self.N):
+            Pi = float(i*(self.N-i))
+            Pi /= (i*self.r1*(1.0-self.u2) + self.r0*(self.N-i))
+
+            Vi = self.V[i]            
+            prv = self.V[i-1]
+            nxt = self.V[i+1]
+            
+            res = -self.r1 * self.u2 * self.rho3 * Vi + (self.r1*(1 - self.u2)*(nxt - Vi) + self.r0*(prv - Vi))*Pi
+            print("VERIFY VI: {0}".format(res))
+            if res > 0.001:
+                res = 1.0/0.0
         
     def CalculateParameters(self):
         self.rho1 = self.Getrho1()
@@ -91,6 +105,7 @@ class HaenoModel:
             self.b = 0.0
         
         print("A = {0} B = {1}".format(self.a, self.b))
+        self.VerifyV()
     
     def GetLambdaK(self, k):
         res = (self.N - k) * ((self.N - k) * self.r1 * self.u2 + self.r2 * k)

@@ -10,7 +10,7 @@ import HaenoModel
 
 myHaeno = HaenoModel.HaenoModel()
 
-myHaeno.N = 100
+myHaeno.N = 10
 myHaeno.r0 = 1.0
 myHaeno.r1 = 1.1
 myHaeno.r2 = 1.0
