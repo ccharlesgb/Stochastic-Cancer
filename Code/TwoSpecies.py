@@ -8,7 +8,12 @@ class Gillespie:
         self.curTime = 0.0
         self.timeLimit = 100.0
         self.simSteps = 0
-
+        
+        #initialise population history
+        self.populationHistory = 0      
+        self.tHist = []
+        self.n0Hist = []
+        self.n1Hist = []
         
         #The fitness
         self.r0 = 1.0
@@ -32,17 +37,28 @@ class Gillespie:
         self.simSteps = 0
         self.j = self.ij
         
+        self.tHist = []
+        self.n0Hist = []
+        self.n1Hist = []
+        self.n2Hist = []
         
     
     #Helper function to renormalize fitness of current cell population
-    def AvgFitness(self):
-        return (self.r0*self.j + self.r1*(self.N-self.j))
+    def AvgFitness(self, j=None):
+        if j==None:
+            return (self.r0*self.j + self.r1*(self.N-self.j))
+        return (self.r0*j + self.r1*(self.N-j))
         
     #Reaction probability for cell from 1->0
-    def GetTJplus(self):
-        top = self.j*self.r0 *(self.N-self.j)
+    def GetTJplus(self, j=None):
+        if j == None:                
+            top = self.j*self.r0 *(self.N-self.j)
+            #print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
+            return top / (self.AvgFitness()*self.N)
+        
+        top = j*self.r0 *(self.N-j)
         #print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
-        return top / (self.AvgFitness()*self.N)
+        return top / (self.AvgFitness(j)*self.N)
 
     def GetTJminus(self):
         top = (self.N-self.j)*self.r1*self.j
@@ -86,7 +102,11 @@ class Gillespie:
         if self.j<=0:
             return 1
         return 0
-        
+    
+    def RecordFrame(self):
+        self.tHist.append(self.curTime)
+        self.n0Hist.append(self.j)
+        self.n1Hist.append(self.N-self.j)
 
     #Simulate loop
     #Uses standard gillespie algorithm and chooses event until fixated or out of time
@@ -95,6 +115,8 @@ class Gillespie:
         while self.curTime < self.timeLimit:
             if self.preSim:
                 self.preSim(self)
+            if self.populationHistory == 1:
+                self.RecordFrame()
             if self.Fixated(): #Are we at absorbing state? If so quit
                 return
             timestep = self.GetTimeStep() #How much time until the next event?

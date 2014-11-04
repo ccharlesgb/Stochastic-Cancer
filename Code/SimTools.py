@@ -183,7 +183,7 @@ def SaveXYToFile(filename, dataX, dataY):
 
 #Pulse wave function
 def PulseWave(time, amp, width, wavelength):
-    x,y = divmod(time, wavelength)
+    x,y = divmod(time, float(wavelength)
     if (y < width):
         return amp
     else:
