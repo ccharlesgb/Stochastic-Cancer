@@ -18,7 +18,9 @@ class Gillespie:
         #The fitness
         self.r0 = 1.0
         self.r1 = 2.0
-
+        
+        #the mutation rate
+        self.u1=0.1
 
         self.N = numCells
 
@@ -50,14 +52,14 @@ class Gillespie:
         return (self.r1*self.j + self.r0*(self.N-self.j))
     
         
-    #Reaction probability for cell from 1->0
+    #Reaction probability for j -> j+1
     def GetTJplus(self):
-        top = self.j*self.r1 *(self.N-self.j)
+        top = (self.N-self.j)*( (self.j * self.r1) +self.u1 * self.r0 * (self.N - self.j))
         return top / (self.AvgFitness()*self.N)
     
-
+    #probability for j -> j-1
     def GetTJminus(self):
-        top = (self.N-self.j)*self.r0*self.j
+        top = self.j * (self.N - self.j) * self.r0 * (1.0 - self.u1)
         return top / (self.AvgFitness()*self.N)
 
 
@@ -93,8 +95,6 @@ class Gillespie:
     #Returns true if we are at the absorbing state of j == N
     def Fixated(self):
         if self.j>=self.N:
-            return 1
-        if self.j<=0:
             return 1
         return 0
     

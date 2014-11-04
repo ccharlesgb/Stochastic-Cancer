@@ -20,8 +20,9 @@ mySim.timeLimit = 3000
 dataPointCount = 25
 mySim.r0=1.0
 mySim.r1=1.0
+mySim.u1=0.5
 
-simsPerDataPoint = 5000
+simsPerDataPoint = 500
 dataPointCount = 25
 
 #average_r1=1.0
@@ -103,20 +104,21 @@ for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
     
     fixationTime = 0
-    successful_fixations =  0 #to exclude simulations that fix at j=0 
+    #successful_fixations =  0 #to exclude simulations that fix at j=0 
     #mySim.ij = int(float(curPoint)/(dataPointCount-1) * mySim.N)
     mySim.ij=1
     print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
-    #Perform many simulations to get an accurate probability of the fixation probability
-    while successful_fixations < simsPerDataPoint:    
-    #for i in range(0, simsPerDataPoint):
+    
+    
+    #Perform many simulations to get an accurate probability of the fixation probabilities
+    #while successful_fixations < simsPerDataPoint:    
+    for i in range(0, simsPerDataPoint):
         mySim.Simulate()
             
         if mySim.j == mySim.N: #or mySim.j==0: #The simulation ended with fixation
             fixationTime += mySim.curTime
-            
-            indiv_distrib[successful_fixations] = copy.copy(mySim.curTime) #add distribution of fix times to array for each iteration
-            successful_fixations += 1 
+            indiv_distrib[i] = copy.copy(mySim.curTime) #add distribution of fix times to array for each iteration
+            #successful_fixations += 1 
     
     total_distrib[curPoint]= copy.copy(indiv_distrib) #add each data points fix time distribution to an array containing all distribs
     
@@ -136,7 +138,7 @@ for i in range(0, dataPointCount):
     plt.subplot(2, 1, 1)    
     plt.bar(center, hist, align='center', width=width)
     plt.title("Data Point:{0} Average Value:{1}".format(i+1,sum(total_distrib[i])/len(total_distrib[i])))    
-    plt.xlabel("Fixation Time: ")
+    plt.xlabel("Fixation Time")
     plt.ylabel("Counts")
     #fname="FixTimeDistribFiguresDataPoint_{0}_Frequency={1}MaxPulse={2}MinPulse={3}PulseWidth={4}.png".format(i, pulseWavelength, pulseOn, pulseOff, (float(i) / (dataPointCount - 1)) * maxPulseWidth)
     #plt.savefig(fname)
@@ -176,7 +178,7 @@ for i in range(0, dataPointCount):
 
 #Create graph of data
 plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint,-0.5), label = "Pulsed")
-plt.xlabel("r1 Pulse Time: ")
+plt.xlabel("r1 Pulse Frequency: ")
 plt.ylabel("Fixation Time")
 plt.show()
 
