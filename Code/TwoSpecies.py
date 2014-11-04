@@ -46,25 +46,18 @@ class Gillespie:
         
     
     #Helper function to renormalize fitness of current cell population
-    def AvgFitness(self, j=None):
-        if j==None:
-            return (self.r0*self.j + self.r1*(self.N-self.j))
-        return (self.r0*j + self.r1*(self.N-j))
+    def AvgFitness(self):
+        return (self.r1*self.j + self.r0*(self.N-self.j))
+    
         
     #Reaction probability for cell from 1->0
-    def GetTJplus(self, j=None):
-        if j == None:                
-            top = self.j*self.r0 *(self.N-self.j)
-            #print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
-            return top / (self.AvgFitness()*self.N)
-        
-        top = j*self.r0 *(self.N-j)
-        #print("TJplus = {0}".format(top / (self.AvgFitness()*self.N)))
-        return top / (self.AvgFitness(j)*self.N)
+    def GetTJplus(self):
+        top = self.j*self.r1 *(self.N-self.j)
+        return top / (self.AvgFitness()*self.N)
+    
 
     def GetTJminus(self):
-        top = (self.N-self.j)*self.r1*self.j
-        #print("TJminus {0}".format(top / (self.AvgFitness()*self.N)) )        
+        top = (self.N-self.j)*self.r0*self.j
         return top / (self.AvgFitness()*self.N)
 
 
@@ -107,8 +100,8 @@ class Gillespie:
     
     def RecordFrame(self):
         self.tHist.append(self.curTime)
-        self.n0Hist.append(self.j)
-        self.n1Hist.append(self.N-self.j)
+        self.n0Hist.append(self.N-self.j)
+        self.n1Hist.append(self.j)
 
     #Simulate loop
     #Uses standard gillespie algorithm and chooses event until fixated or out of time

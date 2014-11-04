@@ -18,30 +18,23 @@ N=10
 mySim = TwoSpecies.Gillespie(N)
 mySim.timeLimit = 3000
 dataPointCount = 25
-#mySim.j = int(N/2)
 mySim.r0=1.0
 mySim.r1=1.0
 
+simsPerDataPoint = 5000
+dataPointCount = 25
 
 #average_r1=1.0
 #pulseWidth = 2.0
 #maxPulseWidth = 1.0
-pulseOn=1.5
-pulseOff=0.5
+#pulseOn=1.5
+#pulseOff=0.5
 
 maxPulsePeriod = 2.0
 multiplier=10.0
 
 
 #Pre Simulate callback (called every frame before a timestep)
-'''
-def GetAmp(average_r1, period, width):
-    amp= average_r1*period/width
-    pulseOn=average_r1 + (amp/2.0)
-    pulseOff=average_r1 - (amp/2.0)
-    
-    return pulseOn, pulseOff
-'''
 
 #set up pulsed function for r1
 def pulse_r1(sim, ret = None):
@@ -51,14 +44,14 @@ def pulse_r1(sim, ret = None):
     global curTime
     global multiplier
     
-    pulsePeriod = multiplier*((float(dataPointCount) ) / (float(curPoint)+1.0)) * maxPulsePeriod
+    pulseOn = 1.3    #set the maximum and minimum values of the pulses r1
+    pulseOff = 0.7    
     
-    #pulseOn,pulseOff = GetAmp(average_r1, pulsePeriod,pulseWidth)
-    #pulseOn = 1.3
-    #pulseOff = 0.7
-    pulseWidth=pulsePeriod/2.0
-    sim.r1 = TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulsePeriod) + pulseOff
-    #print(sim.r1)
+    pulsePeriod = multiplier*((float(dataPointCount) ) / (float(curPoint)+1.0)) * maxPulsePeriod #how the time period varies with time - time period is reciprical to the frequency
+    pulseWidth=pulsePeriod/2.0  #this is to keep the average value constatnt
+    
+    sim.r1 = TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulsePeriod) + pulseOff #set the simulations r1 to the pulse wave
+    
     if ret !=None: #optional parameter to allow east plotting of the pulse function
         return TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulsePeriod) + pulseOff
 
@@ -73,27 +66,19 @@ def avgpulse_r1(sim):
     sim.r1 = (pulseOn - pulseOff) * (pulseWidth / pulseWavelength) + pulseOff
    ''' 
 
-
-
-
-
-#compare the variance of the distributions with the pulse time
+#defien function to get the standard deviation of a distribution
 def GetStandardDev(distribution):
-    dist2=[]    
-    for i in range(0,len(distribution)):    
-        dist2.append(math.pow(distribution[i],2))
+    dist2=[]    #intitalise the squared distribution array
+    for i in range(0,len(distribution)):
+        dist2.append(math.pow(distribution[i],2)) #square each term in the distribution
     
-    term1=sum(dist2)/len(dist2)
-    term2=math.pow((sum(distribution)/len(distribution)),2)
-    variance = term1-term2
-    standard_dev=math.pow(variance,0.5)
+    term1=sum(dist2)/len(dist2) #find <x^2>
+    term2=math.pow((sum(distribution)/len(distribution)),2) #find <x>^2
+    variance = term1-term2 #get the variance by subtracting the two terms
+    standard_dev=math.pow(variance,0.5) #root the variance to get the standard deviation
     return standard_dev
     
 
-
-#Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
-#Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 5000
 
 #Initialize the array with default values
 dataPointsX = []
@@ -113,19 +98,7 @@ for i in range(0, simsPerDataPoint):
 for i in range(0,dataPointCount):    
     total_distrib.insert(i,0.0)
 
-'''
-#for pltting r1 pulse
-pulse_time=[]
-pulse_mag=[]
-#preallocate array to plot the r1 pulse function
-for j in range (0,dataPointCount):
-    pulse_time.append(0.0) 
-    pulse_mag.append(0.0)
-    for i in range(0,mySim.timeLimit):
-        pulse_time[j].append(0.0)
-        pulse_mag[j].append(0.0)
-'''
-
+#SIMULATION
 for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
     
@@ -149,22 +122,17 @@ for curPoint in range(0, dataPointCount):
     
     #Once the loop is done get the fraction of fixations for this r1
     dataPointsX[curPoint] = multiplier*((float(dataPointCount) ) / (float(curPoint)+1.0)) * maxPulsePeriod #this is the pulse frequency
-    dataPointsY[curPoint] = float(fixationTime) / (float(simsPerDataPoint))
+    dataPointsY[curPoint] = float(fixationTime) / (float(simsPerDataPoint)) #fixation time
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
-'''    
-    if successful_fixations!=0:
-        dataPointsY[curPoint] = float(fixationTime) / (float(successful_fixations))
-    else:
-        dataPointsY[curPoint] = 0
-'''
-    
+
     
 
 #plot distribution of fixation times for different data points
 for i in range(0, dataPointCount):
-    hist, bins = np.histogram(total_distrib[i], bins=50)
-    width = (bins[1] - bins[0])
+    hist, bins = np.histogram(total_distrib[i], bins=50) #create histogram for each data points distribution with set number of bins
+    width = (bins[1] - bins[0]) 
     center = (bins[:-1] + bins[1:]) / 2
+    
     plt.subplot(2, 1, 1)    
     plt.bar(center, hist, align='center', width=width)
     plt.title("Data Point:{0} Average Value:{1}".format(i+1,sum(total_distrib[i])/len(total_distrib[i])))    
@@ -219,6 +187,10 @@ filename = "TwoSpeciesPulsed_sim_N={0}_r0={1}_r1={2}_SPDP={3}".format(mySim.N, m
 #Save the data to a file
 #SimTools.SaveXYToFile(filename, dataPointsX, dataPointsY)
 
+
+
+
+
 #Do the average of the pulse and see how it compares
 #Initialize the array with default values
 '''
@@ -257,13 +229,4 @@ plot_averaged = plt.errorbar(dataPointsX, dataPointsY, math.pow(simsPerDataPoint
 plt.legend()
 
 plt.show()
-
-
-#theoretical non-conditional fixation time (for averaged p)
-dataPointsX = []
-dataPointsY = []
-for i in range(0,mySim.N):
-    dataPointsX.append(i,i)
-    dataPointsY.append(i,anfixtime.GetFixTimeJ(sim,i))
-
-plt.plot(dataPointsX, dataPointsY, label = "Theoretical")'''
+'''
