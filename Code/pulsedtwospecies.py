@@ -20,7 +20,7 @@ mySim.timeLimit = 3000
 dataPointCount = 25
 mySim.r0=1.0
 mySim.r1=1.0
-mySim.u1=0.5
+mySim.u1=0.1
 
 simsPerDataPoint = 500
 dataPointCount = 25
@@ -33,7 +33,7 @@ dataPointCount = 25
 
 maxPulsePeriod = 2.0
 multiplier=10.0
-
+maxFrequency = 1.0/28.0
 
 #Pre Simulate callback (called every frame before a timestep)
 
@@ -48,13 +48,14 @@ def pulse_r1(sim, ret = None):
     pulseOn = 1.3    #set the maximum and minimum values of the pulses r1
     pulseOff = 0.7    
     
-    pulsePeriod = multiplier*((float(dataPointCount) ) / (float(curPoint)+1.0)) * maxPulsePeriod #how the time period varies with time - time period is reciprical to the frequency
-    pulseWidth=pulsePeriod/2.0  #this is to keep the average value constatnt
+    #pulsePeriod = multiplier*((float(dataPointCount) ) / (float(curPoint)+1.0)) * maxPulsePeriod #how the time period varies with time - time period is reciprical to the frequency
+    frequency = float(curPoint)/(float(dataPointCount)-1.0)*maxFrequency
+    #pulseWidth=pulsePeriod/2.0  #this is to keep the average value constatnt
     
-    sim.r1 = TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulsePeriod) + pulseOff #set the simulations r1 to the pulse wave
+    sim.r1 = TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, frequency) + pulseOff #set the simulations r1 to the pulse wave
     
     if ret !=None: #optional parameter to allow east plotting of the pulse function
-        return TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, pulseWidth, pulsePeriod) + pulseOff
+        return TwoSpecies.PulseWave(sim.curTime, pulseOn - pulseOff, frequency) + pulseOff
 
 mySim.preSim = pulse_r1 #IMPORTANT assign the callback (called in the class sim loop)
 '''
@@ -123,7 +124,7 @@ for curPoint in range(0, dataPointCount):
     total_distrib[curPoint]= copy.copy(indiv_distrib) #add each data points fix time distribution to an array containing all distribs
     
     #Once the loop is done get the fraction of fixations for this r1
-    dataPointsX[curPoint] = multiplier*((float(dataPointCount) ) / (float(curPoint)+1.0)) * maxPulsePeriod #this is the pulse frequency
+    dataPointsX[curPoint] = float(curPoint)/(float(dataPointCount)-1.0)*maxFrequency #this is the pulse frequency
     dataPointsY[curPoint] = float(fixationTime) / (float(simsPerDataPoint)) #fixation time
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
 

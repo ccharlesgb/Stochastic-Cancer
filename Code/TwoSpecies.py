@@ -123,9 +123,24 @@ class Gillespie:
 
 
 #Pulse wave function
+def PulseWave(time, amp, frequency):
+    if frequency == 0:
+        return amp/2.0
+    
+    period=1.0/frequency
+    width=period/2.0
+    x,y = divmod(time, float(period))
+    if (y < width):
+        return amp
+    else:
+        return 0.0
+
+'''
+#Pulse wave function
 def PulseWave(time, amp, width, period):
     x,y = divmod(time, float(period))
     if (y < width):
         return amp
     else:
         return 0.0
+'''
