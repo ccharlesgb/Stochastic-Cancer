@@ -11,6 +11,7 @@ import math
 def GetGammaj(sim):
 #    return sim.r1/sim.r0 #simplified version of gamma
     return sim.GetTJminus()/sim.GetTJplus()
+    
 def GetFixProb1(sim):
     sumf=0.0 #intialise sum
     for k in range(1,sim.N): #loop over 1
@@ -103,7 +104,7 @@ def GetFixTimeJ(sim,j):
 
         
     
-    Rate = sim.N * sim.u1 * rho    
+    Rate = sim.u1
     
     
     

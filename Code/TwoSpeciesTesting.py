@@ -12,22 +12,22 @@ import anfixtime
 import matplotlib.pyplot as plt
 
 mySim = TwoSpecies.Gillespie(10)
-mySim.timeLimit = 30000
+mySim.timeLimit = 100000
 mySim.u1 = 0.1
 mySim.ij=0
-dataPointCount = 50
+dataPointCount = 20
 
 minu1 = 0.002
 maxu1 = 0.05
 
-sdp = 1000 #simsperdatapoint
+sdp = 200 #simsperdatapoint
 
 dataX = []
 dataFix = []
 
 dataTheory = []
 
-mySim.r0 = 1.0
+mySim.r0 = 1.1
 mySim.r1 = 1.0
 
 for i in range(0,dataPointCount):
@@ -55,5 +55,5 @@ for i in range(0,dataPointCount):
     '''
 
 
-plt.plot(dataX,dataFix)
+plt.plot(dataX,dataFix, '^')
 plt.plot(dataX,dataTheory)
