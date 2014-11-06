@@ -5,7 +5,6 @@ import numpy as np
 
 import SimTools
 
-
 def FixedPointExists(r1, r2, u2):
     condition = r2 / (1.0 - u2)
     return r1 > condition and r2 < condition
@@ -22,7 +21,7 @@ maxr1 = 1.5
 minr2 = 0.5
 maxr2 = 1.5
 
-mapSize = 30
+mapSize = 60
 
 mySim = SimTools.Gillespie(100)
 mySim.r0 = 1.0
@@ -32,7 +31,7 @@ mySim.u1 = 0.1
 mySim.u2 = 0.1
 mySim.timeLimit = 100.0
 
-simsPerDataPoint = 20
+simsPerDataPoint = 75
 
 avgGoneTime = np.zeros((mapSize, mapSize))
 
@@ -62,7 +61,7 @@ for ir1 in range(0, mapSize):
                 totalGoneTime += mySim.n0Extinct
             else:
                 totalGoneTime += mySim.timeLimit
-        
+
         avgGoneTime[ir2, ir1] = totalGoneTime / float(simsPerDataPoint)
 
 dy = (maxr2 - minr2) / mapSize

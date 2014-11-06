@@ -2,7 +2,6 @@
 
 import scipy.integrate as integrate
 import math
-import matplotlib.pyplot as plt
 
 class HaenoModel:
     def __init__(self):
@@ -20,9 +19,11 @@ class HaenoModel:
         self.a = 0.0
         self.b = 0.0
         
+        self.clampB = 0 #Clamp b to positive values
+        
         self.V = []
         
-        self.Q0_points = 20
+        self.Q0_points = 11
         self.Q0_vals = []
         
         self.rho1 = 0.0
@@ -44,6 +45,44 @@ class HaenoModel:
         rho3 = rho3 / (1.0 - math.pow((self.r0 * (1.0-self.u1) / (self.r2 + self.r1 * self.u2)) , self.N))
         return rho3
         
+    def UpdateV2(self):
+        self.V = []
+        newV = []
+        #Set up initial linear distribution of V
+        for i in range(0,self.N+1):
+            val = 1.0 - float(i)/self.N
+            self.V.append(val)
+            newV.append(val)
+        
+        MAX_ITER = 1000
+        for itere in range(0,MAX_ITER):
+            maxChange = -1.0
+            for i in range(1, self.N):
+                prv = self.V[i-1]
+                nxt = self.V[i+1]
+                
+                Pi = (i * self.r1 + (self.N - i) )
+                Pi = float(Pi) / float(self.N - i)
+                
+                new = (self.r1 * nxt + prv)
+
+                rho_a = (1.0 - self.r2) / (1.0 - math.pow(self.r2, self.N))
+                
+                new = new / (self.r1 * self.u2 * rho_a * Pi + self.r1 + 1.0)
+                
+                if abs(new - self.V[i]) > maxChange:
+                    maxChange = abs(new-self.V[i])                
+                
+                newV[i] = new
+                #self.V[i]= new
+            
+            for i in range(1, self.N):          
+                self.V[i] = newV[i]
+                newV[i] = self.V[i]
+                
+            if maxChange < 1e-15:
+                break
+    
     def UpdateV(self):
         self.V = []
         newV = []
@@ -69,7 +108,6 @@ class HaenoModel:
                     maxChange = abs(new-self.V[i])                
                 
                 newV[i] = new
-                #self.V[i]= new
             
             for i in range(1, self.N):          
                 self.V[i] = newV[i]
@@ -89,19 +127,20 @@ class HaenoModel:
             
             res = -self.r1 * self.u2 * self.rho3 * Vi + (self.r1*(1 - self.u2)*(nxt - Vi) + self.r0*(prv - Vi))*Pi
             print("VERIFY VI: {0}".format(res))
-            if res > 0.001:
+            if abs(res) > 0.001:
                 res = 1.0/0.0
         
-    def CalculateParameters(self):
+    def CalculateParameters(self, noQ0 = 0):
         self.rho1 = self.Getrho1()
         self.rho3 = self.Getrho3()
         
         self.UpdateV()
-        self.UpdateQ0()
+        if noQ0 == 0:
+            self.UpdateQ0()
         
         self.a = self.Geta()
         self.b = self.Getb()
-        if self.b < 0.0:
+        if self.b < 0.0 and self.clampB:
             self.b = 0.0
         
         print("A = {0} B = {1}".format(self.a, self.b))
@@ -152,11 +191,11 @@ class HaenoModel:
                     q[k] = newQ
                 curT += deltaT
             
-            if (abs(q[0] - 1.0) < 0.0000001):
+            if (abs(q[0] - 1.0) < 0.0001):
                 reachedMax = 1 #Stop calculating all other q0 will be 1.0 for extra time
                 print("REACHED MAX")
             
-            print("Q_{0} = {1}".format(maxT, q[0]))
+            #print("Q_{0} = {1}".format(maxT, q[0]))
             self.Q0_vals.append(q[0])
     
     #Fetch Cached Q0
@@ -182,11 +221,38 @@ class HaenoModel:
     def GetL(self):
         result, error = integrate.quad(lambda z: self.Q0(z) * self.a * math.exp(-(self.a + self.b)*(self.t - z)), 0, self.t)
         return result
+        
+    def GetL2(self):
+        curT = 0.0
+        deltaT = 0.0005  
+        maxT = self.t
+
+        curL = 0.0 #Initial Condition        
+        
+        while curT < maxT:
+            Ldot = self.a * self.Q0(curT) - (self.a + self.b) * curL
+            for k in range(0,self.N):
+                newL = curL + Ldot * deltaT
+                curL = newL
+            curT += deltaT
+        
+        return curL
+    
+    def GetX0(self):
+        self.CalculateParameters(noQ0 = 1)
+        
+        res = math.exp(self.N * self.u1 * (self.V[1] - 1.0) * self.t)
+        return res
     
     def GetX2(self):
         self.CalculateParameters()
         tunnelTerm = self.GetTunnelTerm()
+    
         L_term = self.GetL()
+        #L_term2 = self.GetL()
+
+        #print("OLD L: {0} NEW L: {1}".format(L_term, L_term2))        
+        
         print("TT {0} LT {1}".format(tunnelTerm, L_term))
         return tunnelTerm + L_term
         

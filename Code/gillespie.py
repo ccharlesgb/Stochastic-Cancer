@@ -4,10 +4,10 @@ import time
 
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(100)
-mySim.in0 = 100
+mySim.in0 = 10
 mySim.timeLimit = 100
 mySim.u1 = 0.1
-mySim.u2 = 0.1
+mySim.u2 = 0.01
 
 mySim.r0 = 1.0
 mySim.r1 = 1.0
