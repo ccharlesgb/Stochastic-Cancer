@@ -23,6 +23,31 @@ def GetFixProb1(sim):
     #print("FP1 for {0} is {1}".format(sim.j, 1.0/(1.0+sumf)))
     return 1.0/(1.0+sumf)
 
+def GetFixProbi(sim,i):
+    sum_k=0 #intialise sum over gamma
+    for k in range(1,i+1):
+        prod_gamma=1
+        for  j in range(1,k):
+            sim.j=j
+            prod_gamma*=GetGammaj(sim)
+        sum_k+=prod_gamma
+        
+    return GetFixProb1(sim)*sum_k
+
+
+def GetCondFixTime(sim):
+    sum_k=0
+    for k in range(1,sim.N):
+        sum_l=0
+        for l in range(l,k):
+            prod_gamma=1.0
+            for m in range(l+1,k):
+                sim.j=m
+                prod_gamma *= GetGammaj(sim)
+        
+            sim.j=l            
+            sum_l+=GetFixProbi(sim,l)/sim.GetTJplus()
+
 def GetFixTime1(sim):
     
     sum_k=0    #initialise sum over the upper limit of the the sum over TJplus 

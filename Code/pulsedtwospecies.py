@@ -14,15 +14,15 @@ import numpy as np
 import copy
 
 #Initialize the Gillespie simulator with 10 cells
-N=10
+N=100
 mySim = TwoSpecies.Gillespie(N)
 mySim.timeLimit = 3000
-dataPointCount = 25
+dataPointCount = 50
 mySim.r0=1.0
 mySim.r1=1.0
 mySim.u1=0.1
 
-simsPerDataPoint = 500
+simsPerDataPoint = 5000
 dataPointCount = 25
 
 #average_r1=1.0
