@@ -12,8 +12,8 @@ class Gillespie:
         #initialise population history
         self.populationHistory = 0      
         self.tHist = []
-        self.n0Hist = []
-        self.n1Hist = []
+        self.jHist = []
+        self.minusjHist = []
         
         #The fitness
         self.r0 = 1.0
@@ -25,9 +25,8 @@ class Gillespie:
         self.N = numCells
 
         #Type Counts
-        #self.ij = (self.N)/2
-        self.ij=1        
-        self.j = self.N
+        self.ij=0      
+        self.j = self.ij
   
 
         self.lambd = self.GetLambda()
@@ -39,11 +38,10 @@ class Gillespie:
         self.curTime = 0.0
         self.simSteps = 0
         self.j = self.ij
-        #self.j=self.N
         
         self.tHist = []
-        self.n0Hist = []
-        self.n1Hist = []
+        self.jHist = []
+        self.minusjHist = []
 
         
     
@@ -54,7 +52,7 @@ class Gillespie:
         
     #Reaction probability for j -> j+1
     def GetTJplus(self):
-        top = (self.N-self.j)*( (self.j * self.r1) +self.u1 * self.r0 * (self.N - self.j))
+        top = (self.N-self.j)*( (self.j * self.r1) + self.u1 * self.r0 * (self.N - self.j))
         return top / (self.AvgFitness()*self.N)
     
     #probability for j -> j-1
