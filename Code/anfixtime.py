@@ -35,30 +35,15 @@ def GetFixProbi(sim,i):
         
     return GetFixProb1(sim)*sum_k
 
-'''
-#def GetCondFixTime(sim):
-    sum_k=0
-    for k in range(1,sim.N):
-        sum_l=0
-        for l in range(l,k):
-            prod_gamma=1.0
-            for m in range(l+1,k):
-                sim.j=m
-                prod_gamma *= GetGammaj(sim)
-        
-            sim.j=l            
-            sum_l+=GetFixProbi(sim,l)/sim.GetTJplus()
-'''
 
 def GetFixTime1(sim):
-    
     sum_k=0    #initialise sum over the upper limit of the the sum over TJplus 
     for k in range(1,sim.N):    
         sum_Tplus=0.0 #initialise sum over TJplus
         
         for l in range(1,k+1):
             sim.j=l           #at each loop, vary j, so that gamma_j is different
-            sum_Tplus_term = (1.0/sim.GetTJplus())
+            sum_Tplus_term = 1.0/(sim.GetTJplus() / sim.N)
             #print("J={0} TJplus={1}".format(l,sim.GetTJplus()))
             
             
@@ -73,7 +58,7 @@ def GetFixTime1(sim):
             
         sum_k+=sum_Tplus
     
-    print(sum_k)
+    #print(sum_k)
     #print("fixtime1 ={0}".format((1.0/(GetFixProb1(sim)))*sum_k))
     return (GetFixProb1(sim))*sum_k
     #return (1.0/0.1)*sum_k
@@ -97,20 +82,16 @@ def GetFixTimeJ(sim,j):
         sumf+=prod        #multiply the product to each term in the sum
     
     rho = Rho(sim.r0 * (1.0 - sim.u1), (sim.r1 + sim.r0 * sim.u1), sim.N)
-    print("RHO IS {0}".format(rho))
+    #print("RHO IS {0}".format(rho))
     #rho = Rho((sim.r1 + sim.r0 * sim.u1) ,sim.r0 * (1.0 - sim.u1), sim.N)
     #rho = (1.0 - () / )
     #rho = rho / (1.0 - math.pow(sim.r0 * (1.0 - sim.u1) / (sim.r1 + sim.r0 * sim.u1), sim.N))
 
-        
-    
-    Rate = sim.u1
-    
-    
+    Rate = sim.u1 * sim.N
     
     #print("FixTime1 {0}".format(GetFixTime1(sim)))
     #part1=-fixTime1*sumf #multiply by the fixation time of j=1 to get the first term
-    part1=1.0/(Rate)*sumf
+    part1=1.0/(Rate) * sumf
     #part1=-GetFixTime1(sim)*sumf #multiply by the fixation time of j=1 to get the first term
     #-GetFixTime1(sim)*sumf
     
@@ -123,7 +104,7 @@ def GetFixTimeJ(sim,j):
         
         for l in range(1,k+1): #loop over j's to get sum of 1/Tj+
             sim.j=l         #change j every time
-            sum2_term =(1.0/sim.GetTJplus())  #perform summation
+            sum2_term = 1.0/(sim.GetTJplus() / sim.N)  #perform summation
             #print("J={0} TJplus={1}".format(l,sim.GetTJplus()))
             prod=1.0       #intialise product
             
@@ -136,9 +117,10 @@ def GetFixTimeJ(sim,j):
             sum2 += sum2_term
         sum1+=sum2
         
-    part2=sum1
-    print("P1 {0} P2 {1}".format(part1,part2))
+    part2=sum1 / sim.N
+    #print("P1 {0} P2 {1}".format(part1,part2))
     return part1+part2
+    
 '''    
 #Initialize the Gillespie simulator with 10 cells
 mySim = TwoSpecies.Gillespie(100)

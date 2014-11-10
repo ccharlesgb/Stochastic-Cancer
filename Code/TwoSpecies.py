@@ -53,12 +53,12 @@ class Gillespie:
     #Reaction probability for j -> j+1
     def GetTJplus(self):
         top = (self.N-self.j)*( (self.j * self.r1) + self.u1 * self.r0 * (self.N - self.j))
-        return top / (self.AvgFitness()*self.N)
+        return top / (self.AvgFitness())
     
     #probability for j -> j-1
     def GetTJminus(self):
         top = self.j * (self.N - self.j) * self.r0 * (1.0 - self.u1)
-        return top / (self.AvgFitness()*self.N)
+        return top / (self.AvgFitness())
 
 
     #Exponential parameter for frequency of events

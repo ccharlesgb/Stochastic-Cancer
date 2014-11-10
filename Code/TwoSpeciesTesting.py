@@ -27,7 +27,7 @@ dataFix = []
 
 dataTheory = []
 
-mySim.r0 = 1.1
+mySim.r0 = 1.0
 mySim.r1 = 1.0
 
 for i in range(0,dataPointCount):
