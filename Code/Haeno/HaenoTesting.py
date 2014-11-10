@@ -12,8 +12,8 @@ myHaeno = HaenoModel.HaenoModel()
 
 myHaeno.N = 10
 myHaeno.r0 = 1.0
-myHaeno.r1 = 1.1
-myHaeno.r2 = 1.1
+myHaeno.r1 = 1.0
+myHaeno.r2 = 1.0
 
 myHaeno.u1 = 0.1
 myHaeno.u2 = 0.01

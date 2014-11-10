@@ -22,9 +22,12 @@ class HaenoModel:
         self.clampB = 0 #Clamp b to positive values
         
         self.V = []
+        self.V_accuracy = 1e-15 #When to stop iterating (V_i has been solved to within this value)
+        self.V_maxIter = 1000 #How many iterations to do before time out
         
         self.Q0_points = 11
         self.Q0_vals = []
+        self.Q0_limit = 0.0001 #Q0 approaches 1.0. How far from 1.0 should we be until assumed = 1.0
         
         self.rho1 = 0.0
         self.rh03 = 0.0
@@ -80,8 +83,10 @@ class HaenoModel:
                 self.V[i] = newV[i]
                 newV[i] = self.V[i]
                 
-            if maxChange < 1e-15:
+            if maxChange < self.V_accuracy:
                 break
+            elif itere >= MAX_ITER - 1:
+                print("WARNING: V_i solver reached MAX_ITER before V_accuracy was achieved.")
     
     def UpdateV(self):
         self.V = []
@@ -92,7 +97,7 @@ class HaenoModel:
             self.V.append(val)
             newV.append(val)
         
-        MAX_ITER = 1000
+        MAX_ITER = self.V_maxIter
         for itere in range(0,MAX_ITER):
             maxChange = -1.0
             for i in range(1, self.N):
@@ -191,7 +196,7 @@ class HaenoModel:
                     q[k] = newQ
                 curT += deltaT
             
-            if (abs(q[0] - 1.0) < 0.0001):
+            if (abs(q[0] - 1.0) < self.Q0_limit):
                 reachedMax = 1 #Stop calculating all other q0 will be 1.0 for extra time
                 print("REACHED MAX")
             
