@@ -61,21 +61,20 @@ for j in curTime:
    r1_pulse_term , r2_pulse_term = multiple_pulse(mySim, strength, angle, init_r1, init_r2, r1_offset=r1_offset_frac, r2_offset=r2_offset_frac, r1_width=r1_width_frac , r2_width=r2_width_frac, ret=1)
    r1_pulse.append(r1_pulse_term)
    r2_pulse.append(r2_pulse_term)
-   total_pulse.append(r1_pulse_term+r2_pulse_term)
+   total_pulse.append(math.pow((math.pow(r1_pulse_term,2)+math.pow(r2_pulse_term,2)),0.5))
    
-plt.subplot(2, 1, 1)
+plt.subplot(3, 1, 1)
 plt.plot(curTime,r1_pulse)
 plt.xlabel("Time")
 plt.ylabel("r1")
 plt.title
-plt.subplot(2, 1, 2)
+plt.subplot(3, 1, 2)
 plt.plot(curTime,r2_pulse)
 plt.xlabel("Time")
-plt.ylabel("r1")
-'''
+plt.ylabel("r2")
+
 plt.subplot(3, 1, 3)
 plt.plot(curTime,total_pulse)
 plt.xlabel("Time")
 plt.ylabel("r1")
 plt.show()
-'''

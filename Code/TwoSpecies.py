@@ -53,12 +53,12 @@ class Gillespie:
     #Reaction probability for j -> j+1
     def GetTJplus(self):
         top = (self.N-self.j)*( (self.j * self.r1) + self.u1 * self.r0 * (self.N - self.j))
-        return top / (self.AvgFitness())
+        return top / (self.AvgFitness()*self.N)
     
     #probability for j -> j-1
     def GetTJminus(self):
         top = self.j * (self.N - self.j) * self.r0 * (1.0 - self.u1)
-        return top / (self.AvgFitness())
+        return top / (self.AvgFitness()*self.N)
 
 
     #Exponential parameter for frequency of events
@@ -121,17 +121,18 @@ class Gillespie:
 
 
 #Pulse wave function
-def PulseWave(time, amp, frequency):
+def PulseWave(time, amp, frequency, width_frac=0.5, offset=0):
     if frequency == 0:
-        return amp/2.0
+        return amp #no frequency means that there is no treatment - therefore fitness/mutation rate should not be varied from its maxium
     
     period=1.0/frequency
-    width=period/2.0
+    time+=offset*period
+    width=period*width_frac
     x,y = divmod(time, float(period))
     if (y < width):
-        return amp
+        return 0
     else:
-        return 0.0
+        return amp
 
 '''
 #Pulse wave function
