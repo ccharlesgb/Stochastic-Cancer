@@ -18,7 +18,7 @@ maxu2 = 0.2
 mapSize = 20
 
 sim3 = SimTools.Gillespie(10)
-sim3.timeLimit = 10000
+sim3.timeLimit = 100000
 sim3.u1 = 0.1
 sim3.u2 = 0.01
 sim3.in0 = 10
@@ -45,7 +45,7 @@ sim12.r1 = sim3.r2
 
 sim01.ij = 0
 
-simsPerDataPoint = 30
+simsPerDataPoint = 1000
 
 fixTimeError = np.zeros((mapSize, mapSize))
 
@@ -69,6 +69,8 @@ for ir2 in range(0, mapSize):
         for sim in range(0,simsPerDataPoint):
             sim3.Simulate()
             totalFixTime += sim3.curTime
+            if sim3.Fixated() == 0:
+                print("WARNING u2 = {0} r2 = {1} NO FIXATE".format(u2,r2))
         
         sim01.u1 = sim3.u1
         sim12.u1 = sim3.u2

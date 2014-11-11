@@ -19,9 +19,9 @@ sim3.u1 = 0.1
 sim3.u2 = 0.2
 sim3.in0 = 10
 
-sim3.r0 = 1.5
+sim3.r0 = 1.0
 sim3.r1 = 1.0
-sim3.r2 = 1.5
+sim3.r2 = 1.0
 
 sim3.n1DidFix = 0
 sim3.n1FixTime = 0.0
