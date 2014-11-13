@@ -130,9 +130,9 @@ def PulseWave(time, amp, frequency, width_frac=0.5, offset=0):
     width=period*width_frac
     x,y = divmod(time, float(period))
     if (y < width):
-        return 0
-    else:
         return amp
+    else:
+        return 0
 
 '''
 #Pulse wave function
