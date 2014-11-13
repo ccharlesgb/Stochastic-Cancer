@@ -189,17 +189,21 @@ class Gillespie:
         while self.curTime < self.timeLimit:
             if self.preSim:
                 self.preSim(self)
+                
             timestep = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Chose what kind of event and update cell counts
-            if self.Fixated(): #Are we at absorbing state? If so quit
-                return
+            
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
+            
             if self.populationHistory >= 1:
                 self.RecordFrame()
                 
             if self.postSim:
                 self.postSim(self)
+                
+            if self.Fixated(): #Are we at absorbing state? If so quit
+                return
 #END CLASS DEFINTION
 
 #Helper functions

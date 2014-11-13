@@ -9,20 +9,22 @@ import math
 mySim = SimTools.Gillespie(10)
 
 mySim.in0 = 10
-mySim.timeLimit = 2500.0
+mySim.timeLimit = 100.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
 
+mySim.populationHistory = 1
+
 minSmokeTime = 0.0
-maxSmokeTime = 100.0
+maxSmokeTime = mySim.timeLimit / 10.0
 
 smokeTime = 0.0
 
-quit_u1 = 1e-7
-quit_u2 = 1e-4
+quit_u1 = 0.01
+quit_u2 = 0.1
 
-smoke_u1 = quit_u1 * 5.0
-smoke_u2 = quit_u2 * 5.0
+smoke_u1 = quit_u1 * 10.0
+smoke_u2 = quit_u2 * 10.0
 
 #Pre Simulate callback (called every frame before a timestep)
 def increaseMutation(sim):
@@ -54,8 +56,6 @@ dataPointsY = []
 for i in range(0, dataPointCount):
     dataPointsX.insert(i,0.0)
     dataPointsY.insert(i,0.0)
-
-maxSmokeTime = 2500
 
 DO_SAMPLE = 1
 
@@ -98,7 +98,7 @@ for curPoint in range(0, dataPointCount):
         plt.plot(smokeX,smokeY)
         #plt.title("SMOKE TIME = {}".format(smokeTime))
         plt.show()
-        plt.xlim(0, 2500)
+        plt.xlim(0, mySim.timeLimit)
     
     #Once the loop is done get the fraction of fixations for this r1
     dataPointsY[curPoint] = float(totFixTime) / float(simsPerDataPoint)
