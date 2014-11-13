@@ -48,10 +48,15 @@ class Gillespie:
 
         self.lambd = self.GetLambda()
         
+        self.onReset = 0
         self.preSim = 0
+        self.postSim = 0
     
     #Reset parameters to default values
     def ResetSim(self):
+        if self.onReset: #Call reset callback
+            self.onReset(self)
+            
         self.curTime = 0.0
         self.simSteps = 0
         self.n0 = self.in0
@@ -194,6 +199,9 @@ class Gillespie:
             self.simSteps+= 1 #Increase event count
             if self.populationHistory >= 1:
                 self.RecordFrame()
+                
+            if self.postSim:
+                self.postSim(self)
 #END CLASS DEFINTION
 
 #Helper functions
