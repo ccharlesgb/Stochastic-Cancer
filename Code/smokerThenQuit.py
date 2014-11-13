@@ -8,18 +8,18 @@ import math
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 
-mySim.in0 = 1000
+mySim.in0 = 10
 mySim.timeLimit = 2500.0
-mySim.r1 = 0.99
-mySim.r2 = 0.99
+mySim.r1 = 1.0
+mySim.r2 = 1.0
 
 minSmokeTime = 0.0
 maxSmokeTime = 100.0
 
 smokeTime = 0.0
 
-quit_u1 = 0.0001
-quit_u2 = 0.001
+quit_u1 = 1e-7
+quit_u2 = 1e-4
 
 smoke_u1 = quit_u1 * 5.0
 smoke_u2 = quit_u2 * 5.0

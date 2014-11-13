@@ -3,8 +3,6 @@ import math
 
 random.seed()
 
-
-
 #Class for simulating cancer dynamics with the Gillespie algorithm
 class Gillespie:
     def __init__(self, numCells):
@@ -30,7 +28,7 @@ class Gillespie:
         self.u1 = 0.1
         self.u2 = 0.1
         
-        if self.populationHistory >= 2
+        if self.populationHistory >= 2:
             self.r1Hist = []
             self.r2Hist = []
             self.u1Hist = []
