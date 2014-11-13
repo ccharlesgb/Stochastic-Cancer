@@ -15,7 +15,7 @@ maxr2 = 1.5
 minu2 = 0.01
 maxu2 = 0.2
 
-mapSize = 20
+mapSize = 10
 
 sim3 = SimTools.Gillespie(10)
 sim3.timeLimit = 100000
@@ -45,7 +45,7 @@ sim12.r1 = sim3.r2
 
 sim01.ij = 0
 
-simsPerDataPoint = 1000
+simsPerDataPoint = 200
 
 fixTimeError = np.zeros((mapSize, mapSize))
 
@@ -84,7 +84,7 @@ for ir2 in range(0, mapSize):
 
         avgFixTime = (totalFixTime / float(simsPerDataPoint))        
         
-        fixTimeError[iu2, ir2] = abs(theoryTot - avgFixTime) / avgFixTime
+        fixTimeError[iu2, ir2] = (theoryTot - avgFixTime) / avgFixTime
         print("FixTimeErr {0}".format(fixTimeError[iu2, ir2]))
 
         
