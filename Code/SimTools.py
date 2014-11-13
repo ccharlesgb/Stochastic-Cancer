@@ -13,11 +13,13 @@ class Gillespie:
         self.timeLimit = 100.0
         self.simSteps = 0
         
-        self.populationHistory = 0      
-        self.tHist = []
-        self.n0Hist = []
-        self.n1Hist = []
-        self.n2Hist = []
+        self.populationHistory = 0  
+        
+        if self.populationHistory >= 1:
+            self.tHist = []
+            self.n0Hist = []
+            self.n1Hist = []
+            self.n2Hist = []
         
         #The fitness
         self.r0 = 1.0
@@ -27,6 +29,12 @@ class Gillespie:
         #Mutation Rates
         self.u1 = 0.1
         self.u2 = 0.1
+        
+        if self.populationHistory >= 2
+            self.r1Hist = []
+            self.r2Hist = []
+            self.u1Hist = []
+            self.u2Hist = []
         
         #Initial Conditions
         self.in0 = numCells
@@ -52,10 +60,17 @@ class Gillespie:
         
         self.N = self.in0 + self.in1 + self.in2
         
-        self.tHist = []
-        self.n0Hist = []
-        self.n1Hist = []
-        self.n2Hist = []
+        if self.populationHistory >= 1:
+            self.tHist = []
+            self.n0Hist = []
+            self.n1Hist = []
+            self.n2Hist = []
+        
+        if self.populationHistory >= 2:
+            self.r1Hist = []
+            self.r2Hist = []
+            self.u1Hist = []
+            self.u2Hist = []
     
     #Helper function to renormalize fitness of current cell population
     def AvgFitness(self):
@@ -153,14 +168,22 @@ class Gillespie:
         self.n0Hist.append(self.n0)
         self.n1Hist.append(self.n1)
         self.n2Hist.append(self.n2)
+        
+        if self.populationHistory >= 2:
+            self.r1Hist.append(self.r1)
+            self.r2Hist.append(self.r2)
+            
+            self.u1Hist.append(self.u1)
+            self.u2Hist.append(self.u2)
     
     #Simulate loop
     #Uses standard gillespie algorithm and chooses event until fixated or out of time
     def Simulate(self):
         self.ResetSim()
-        while self.curTime < self.timeLimit:
-            if self.populationHistory == 1:
+        if self.populationHistory >= 1: #Record First Frame
                 self.RecordFrame()
+                
+        while self.curTime < self.timeLimit:
             if self.preSim:
                 self.preSim(self)
             timestep = self.GetTimeStep() #How much time until the next event?
@@ -169,6 +192,8 @@ class Gillespie:
                 return
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
+            if self.populationHistory >= 1:
+                self.RecordFrame()
 #END CLASS DEFINTION
 
 #Helper functions

@@ -39,7 +39,10 @@ def multiple_pulse(sim):
     global curTime        
     param=sim.pulseParam        
     #set up the r1 pulse function        
+    #print("R1 Amp: {0}".format(param.Get_r1_amp()))
+    #print("R2 Amp: {0}".format(param.Get_r2_amp()))
     sim.r1=TwoSpecies.PulseWave(sim.curTime, param.Get_r1_amp(), param.freq_r1, offset=param.r1_offset, width_frac = param.r1_width ) + param.init_r1
     #set up the r2 pulse function
-    sim.r2=TwoSpecies.PulseWave(sim.curTime, param.Get_r2_amp(), param.freq_r2, offset=param.r2_offset, width_frac = param.r2_width ) + param.init_r2
-    print("r1 is:{0}, r2 is:{1}".format(sim.r1,sim.r2))   
+    sim.r2=TwoSpecies.PulseWave(sim.curTime, -param.Get_r2_amp(), param.freq_r2, offset=param.r2_offset, width_frac = param.r2_width ) + param.init_r2
+    #print("r1 is:{0}, r2 is:{1}".format(sim.r1,sim.r2))  
+    #print("ANGLE IS {0}".format(param.angle))

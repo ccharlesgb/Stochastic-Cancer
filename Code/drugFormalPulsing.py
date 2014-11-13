@@ -43,11 +43,11 @@ frequency = 1.0
 #set up multiple pulse parameters
 myPulse= multipulse.Multipulse()
 
-myPulse.drug_strength = 0.6
+myPulse.drug_strength = 2.0
 myPulse.angle = 0.0
 
 myPulse.init_r1 = math.pow( ( mut2 / (1.0+mut2) ), 0.5) * myPulse.drug_strength/5.0 + r1_origin
-myPulse.init_r2 = math.pow( (1.0/(1.0+mut2) ) ,0.5)* myPulse.drug_strength/2.0 + r2_origin        
+myPulse.init_r2 = math.pow( (1.0/(1.0+mut2) ) ,0.5)* myPulse.drug_strength/5.0 + r2_origin        
         
 #define r1 pulse paramters
 myPulse.freq_r1 = frequency
@@ -65,7 +65,7 @@ mySim.pulseParam=myPulse
 mySim.preSim=multipulse.multiple_pulse
 
 #define simulation parameters
-dataPointCount = 20
+dataPointCount = 5
 simsPerDataPoint = 1000
 
 
