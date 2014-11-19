@@ -15,7 +15,7 @@ class Multipulse:
         self.drug_strength = 0.0
         self.angle = 0.0
         self.init_r1 = 0.0
-        self.init_r2 = 0.0        
+        self.init_r2 = 0.0
         
         #define r1 pulse paramters
         self.freq_r1 = 0.0
@@ -36,8 +36,8 @@ class Multipulse:
    
    
 def multiple_pulse(sim):
-    global curTime        
-    param=sim.pulseParam        
+    global curTime
+    param=sim.pulseParam
     #set up the r1 pulse function        
     #print("R1 Amp: {0}".format(param.Get_r1_amp()))
     #print("R2 Amp: {0}".format(param.Get_r2_amp()))

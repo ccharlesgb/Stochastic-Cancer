@@ -10,7 +10,6 @@ import SimTools
 import time
 import math
 import numpy
-import multiple_pulse
 import multipulse
 
 

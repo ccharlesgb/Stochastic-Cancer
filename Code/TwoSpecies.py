@@ -43,13 +43,10 @@ class Gillespie:
         self.jHist = []
         self.minusjHist = []
 
-        
-    
     #Helper function to renormalize fitness of current cell population
     def AvgFitness(self):
         return (self.r1*self.j + self.r0*(self.N-self.j))
     
-        
     #Reaction probability for j -> j+1
     def GetTJplus(self):
         top = (self.N-self.j)*( (self.j * self.r1) + self.u1 * self.r0 * (self.N - self.j))
@@ -59,8 +56,7 @@ class Gillespie:
     def GetTJminus(self):
         top = self.j * (self.N - self.j) * self.r0 * (1.0 - self.u1)
         return top / (self.AvgFitness()*self.N)
-
-
+        
     #Exponential parameter for frequency of events
     def GetLambda(self):
         self.lambd = self.GetTJplus() + self.GetTJminus()    
@@ -89,7 +85,6 @@ class Gillespie:
             self.j -= 1
             return
         
-    
     #Returns true if we are at the absorbing state of j == N
     def Fixated(self):
         if self.j>=self.N:
@@ -98,8 +93,7 @@ class Gillespie:
     
     def RecordFrame(self):
         self.tHist.append(self.curTime)
-        self.n0Hist.append(self.N-self.j)
-        self.n1Hist.append(self.j)
+        self.jHist.append(self.j)
 
     #Simulate loop
     #Uses standard gillespie algorithm and chooses event until fixated or out of time
