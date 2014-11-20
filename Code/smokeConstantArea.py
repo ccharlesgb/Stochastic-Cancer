@@ -8,7 +8,7 @@ import math
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 
-mySim.in0 = 100
+mySim.in0 = 10
 mySim.timeLimit = 10000.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
@@ -34,7 +34,6 @@ def increaseMutation(sim):
     global dataPointCount
     global smokeTime
   
-    
     if sim.curTime < smokeTime: #Still smoking
         sim.u1 = smoke_u1
         sim.u2 = smoke_u2
@@ -46,7 +45,7 @@ mySim.preSim = increaseMutation #IMPORTANT assign the callback (called in the cl
     
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 10000
+simsPerDataPoint = 5000
 dataPointCount = 5
 
 fixError = []
@@ -115,7 +114,7 @@ plt.plot(dataST, dataMU, 'o-')
 plt.ylabel("Mutation Amount")
 plt.xlabel("Smoke Time")
 
-#Create graph of data
+#Create graph of data+
 plt.subplot(2,1,2)
 plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError, label = "Smoking")
 plt.xlabel("Smoke Time: ")
