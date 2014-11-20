@@ -14,7 +14,7 @@ import numpy as np
 import copy
 
 #Initialize the Gillespie simulator with 10 cells
-N=100
+N=10
 mySim = TwoSpecies.Gillespie(N)
 mySim.timeLimit = 3000
 dataPointCount = 50

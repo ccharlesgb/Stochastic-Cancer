@@ -18,11 +18,11 @@ import multipulse
 mySim = SimTools.Gillespie(10)
 
 mySim.in0 = 10
-mySim.timeLimit = 2000.0
+mySim.timeLimit = 4000.0
 mySim.u1 = 0.1
 mySim.u2 = 0.1
 mySim.r1 = 1.1
-mySim.r2 = 1.2
+mySim.r2 = 1.3
 mySim.populationHistory = 0
 
 mySim.in0 = 10
@@ -36,13 +36,13 @@ r2_origin=(1.0-mySim.u2)*r1_origin
 mut2= math.pow((1.0-mySim.u2),2) #define a term that appears alot in finding the initial r1 and r2
 
 #define frequency for both waves
-frequency = 10.0
+frequency = 0.01
 
 
 #set up multiple pulse parameters
 myPulse= multipulse.Multipulse()
 
-myPulse.drug_strength = 2.0
+myPulse.drug_strength = 0.6
 myPulse.angle = 0.0
 
 myPulse.init_r1 = -math.pow( ( mut2 / (1.0+mut2) ), 0.5) * myPulse.drug_strength/5.0 + r1_origin
@@ -50,12 +50,12 @@ myPulse.init_r2 = math.pow( (1.0/(1.0+mut2) ) ,0.5)* myPulse.drug_strength/5.0 +
         
 #define r1 pulse paramters
 myPulse.freq_r1 = frequency
-myPulse.r1_width = 1.0
+myPulse.r1_width = 0.5
 myPulse.r1_offset = 0.0
         
 #define r2 pulse parameters       
 myPulse.freq_r2 = frequency
-myPulse.r2_width = 1.0
+myPulse.r2_width = 0.5
 myPulse.r2_offset = 0.0
 
 
@@ -64,7 +64,7 @@ mySim.pulseParam=myPulse
 mySim.preSim=multipulse.multiple_pulse
 
 #define simulation parameters
-dataPointCount = 30
+dataPointCount = 15
 simsPerDataPoint = 2000
 
 
@@ -110,7 +110,7 @@ dirac_angle.append(angle_of_closest_approach)
 plt.plot(dirac_angle,dirac_time)
 plt.show
 
-'''
+
 
 r1=numpy.linspace(0.5,1.5,num=60)
 r2=[]
@@ -119,22 +119,58 @@ for i in range(0,len(r1)):
 #r1_origin=1.1
 #r2_origin=(1.0-mySim.u2)*r1_origin
 
+'''
 normalr1 = [myPulse.init_r1,r1_origin ]
 normalr2 = [myPulse.init_r2, r2_origin]
 
 plt.plot(r1, r2)
-plt.xlabel("r1")
-plt.ylabel("r2")
 plt.plot(normalr1,normalr2, marker = 'o')
 plt.show()
 
+
+
+mySim.angle=math.pi/3
+
+max_freq=0.5
+min_freq=0.001
+DPC = 30
+SPD = 5000
+
+mySim.pulseParam=myPulse
+
+mySim.preSim=multipulse.multiple_pulse
+fixTime=[]
+frequency=[]
+errorbars=[]
+for curPoint in range(0,DPC):
+    #allocate to presim so that the pulse is varied
+        
+    frequency.append((curPoint )/(DPC-1.0)*(max_freq - min_freq) + min_freq)
+    #mySim.preSim=multiple_pulse.multiple_pulse (mySim,freq, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=1.0, r2_width=1.0)
+    myPulse.freq_r1 = frequency[curPoint]
+    myPulse.freq_r2 = frequency[curPoint]  
+    #print("For angle{0} r1 amp {1} r2 amp {2}".format(angle,myPulse.Get_r1_amp(), myPulse.Get_r2_amp()))
+    
+    fixTime_term=0.0    
+    print("Current Data Point = {0}/{1} ({2}%)".format(curPoint, DPC, 100.0 *(curPoint )/(DPC-1.0)))
+    for i in range(0,SPD):
+        mySim.Simulate()
+        if mySim.Fixated():
+            fixTime_term += mySim.curTime
+        else:
+            fixTime_term += mySim.timeLimit
+            print("WARNING! - system did not fixate")
+    average_fix=fixTime_term/SPD
+    fixTime.append(average_fix)
+    errorbars.append(average_fix/(math.pow(SPD,0.5)))
+
+
+plt.errorbar(frequency,fixTime,errorbars)
+plt.xlabel("Frequency")
+plt.ylabel("Fixation Time")
+plt.title("Freq. of pulse of r1 and r2 vs Fix. Time")
+
 '''
-
-
-
-
-
-
 
 
 

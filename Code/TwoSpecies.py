@@ -11,9 +11,16 @@ class Gillespie:
         
         #initialise population history
         self.populationHistory = 0      
-        self.tHist = []
-        self.jHist = []
-        self.minusjHist = []
+        if self.populationHistory >= 1:
+            self.tHist = []
+            self.n0Hist = []
+            self.n1Hist = []
+
+        if self.populationHistory >= 2:
+            self.r1Hist = []
+            self.r2Hist = []
+            self.u1Hist = []
+            self.u2Hist = []
         
         #The fitness
         self.r0 = 1.0
