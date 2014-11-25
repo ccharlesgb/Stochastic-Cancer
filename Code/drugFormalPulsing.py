@@ -11,6 +11,7 @@ import time
 import math
 import numpy
 import multipulse
+import copy
 
 
 
@@ -72,35 +73,52 @@ simsPerDataPoint = 2000
 angle_of_closest_approach=math.atan(1-mySim.u2) 
 angle_of_closest_approach*=180/math.pi
 
-#do the simulation
-fixTime=[]
-angleRange=numpy.linspace(0,math.pi/2.0, num=dataPointCount)
-for angle in angleRange:
-    #allocate to presim so that the pulse is varied
-    
-    #mySim.preSim=multiple_pulse.multiple_pulse (mySim,freq, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=1.0, r2_width=1.0)
-    myPulse.angle = angle    
-    #print("For angle{0} r1 amp {1} r2 amp {2}".format(angle,myPulse.Get_r1_amp(), myPulse.Get_r2_amp()))
-    
-    fixTime_term=0.0    
-    print("Current Data Point = {0}/{1} ({2}%)".format(angle*180/math.pi, 90, 100.0 * float(2.0*angle)/math.pi))
-    for i in range(0,simsPerDataPoint):
-        mySim.Simulate()
-        if mySim.Fixated():
-            fixTime_term += mySim.curTime
-        else:
-            fixTime_term += mySim.timeLimit
-            print("WARNING! - system did not fixate")
-    average_fix=fixTime_term/simsPerDataPoint
-    fixTime.append(average_fix)
 
+
+freqcount= 5
+min_freq = 0.05
+max_freq = 0.5
+
+#do the simulation
+
+totalfixtime=[]
+angleRange=numpy.linspace(0,math.pi/2.0, num=dataPointCount)
+frequency=[]
+for j in range(0,freqcount):    
+    frequency.append((max_freq-min_freq)*(j/(freqcount-1.0)) + min_freq)
+    myPulse.freq_r1 = frequency[j]
+    myPulse.freq_r2 = frequency[j]
+    fixTime=[]    
+    for angle in angleRange:
+        #allocate to presim so that the pulse is varied
+        
+        #mySim.preSim=multiple_pulse.multiple_pulse (mySim,freq, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=1.0, r2_width=1.0)
+        myPulse.angle = angle    
+        #print("For angle{0} r1 amp {1} r2 amp {2}".format(angle,myPulse.Get_r1_amp(), myPulse.Get_r2_amp()))
+        
+        fixTime_term=0.0    
+        print("Current Data Point = {0}/{1} ({2}%)".format(angle*180/math.pi, 90, 100.0 * float(2.0*angle)/math.pi))
+        for i in range(0,simsPerDataPoint):
+            mySim.Simulate()
+            if mySim.Fixated():
+                fixTime_term += mySim.curTime
+            else:
+                fixTime_term += mySim.timeLimit
+                print("WARNING! - system did not fixate")
+        average_fix=fixTime_term/simsPerDataPoint
+        fixTime.append(average_fix)
+    totalfixtime.append([])
+    totalfixtime[j] = copy.copy(fixTime)
 
 
 angleRange*=180/math.pi #express agnles in degrees
-plt.plot(angleRange,fixTime)
-plt.xlabel("Angle")
-plt.ylabel("Fixation Time")
+for j in range(0,freqcount):
+    plt.plot(angleRange,totalfixtime[j], label = frequency[j])
+    plt.xlabel("Angle")
+    plt.ylabel("Fixation Time")
 
+plt.legend(loc=4)
+    
 dirac_angle=[]
 lower, upper = plt.ylim()
 dirac_time=[lower,upper]
@@ -119,14 +137,14 @@ for i in range(0,len(r1)):
 #r1_origin=1.1
 #r2_origin=(1.0-mySim.u2)*r1_origin
 
-'''
+
 normalr1 = [myPulse.init_r1,r1_origin ]
 normalr2 = [myPulse.init_r2, r2_origin]
 
 plt.plot(r1, r2)
-plt.plot(normalr1,normalr2, marker = 'o')
+plt.plot(normalr1,normalr2)
 plt.show()
-
+'''
 
 
 mySim.angle=math.pi/3
@@ -164,17 +182,47 @@ for curPoint in range(0,DPC):
     fixTime.append(average_fix)
     errorbars.append(average_fix/(math.pow(SPD,0.5)))
 
+fixTime_off=[]
+frequency_off=[]
+errorbars_off=[]
+myPulse.r1_offset = 0.5
+myPulse.r2_offset = 0.5
 
-plt.errorbar(frequency,fixTime,errorbars)
+for curPoint in range(0,DPC):
+    #allocate to presim so that the pulse is varied
+        
+    frequency_off.append((curPoint)/(DPC-1.0)*(max_freq - min_freq) + min_freq)
+    #mySim.preSim=multiple_pulse.multiple_pulse (mySim,freq, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=1.0, r2_width=1.0)
+    myPulse.freq_r1 = frequency_off[curPoint]
+    myPulse.freq_r2 = frequency_off[curPoint]  
+    #print("For angle{0} r1 amp {1} r2 amp {2}".format(angle,myPulse.Get_r1_amp(), myPulse.Get_r2_amp()))
+    
+    fixTime_term=0.0    
+    print("Current Data Point = {0}/{1} ({2}%)".format(curPoint, DPC, 100.0 *(curPoint )/(DPC-1.0)))
+    for i in range(0,SPD):
+        mySim.Simulate()
+        if mySim.Fixated():
+            fixTime_term += mySim.curTime
+        else:
+            fixTime_term += mySim.timeLimit
+            print("WARNING! - system did not fixate")
+    average_fix=fixTime_term/SPD
+    fixTime_off.append(average_fix)
+    errorbars_off.append(average_fix/(math.pow(SPD,0.5)))
+
+
+
+plt.errorbar(frequency,fixTime,errorbars, label = "Initially On")
+plt.errorbar(frequency_off,fixTime_off,errorbars_off, label = "Initially Off")
 plt.xlabel("Frequency")
 plt.ylabel("Fixation Time")
+plt.legend()
 plt.title("Freq. of pulse of r1 and r2 vs Fix. Time")
 
+
+
+
 '''
-
-
-
-
 
 
 
