@@ -9,6 +9,8 @@ import TwoSpecies
 import math
 import anfixtime
 
+import FixationTimeOnePulse2
+
 import matplotlib.pyplot as plt
 
 mySim = TwoSpecies.Gillespie(10)
@@ -27,7 +29,7 @@ dataFix = []
 
 dataTheory = []
 
-mySim.r0 = 1.0
+mySim.r0 = 1.5
 mySim.r1 = 1.0
 
 for i in range(0,dataPointCount):
@@ -46,14 +48,12 @@ for i in range(0,dataPointCount):
     
     theory = anfixtime.GetFixTimeJ(mySim, mySim.ij) 
     dataTheory.append(theory)
-    '''
-    rho = 1.0 - (mySim.r0 * (1.0 - mySim.u1) / (mySim.r1 + mySim.r0 * mySim.u1))
-    rho = rho / (1.0 - math.pow(mySim.r0 * (1.0 - mySim.u1) / (mySim.r1 + mySim.r0 * mySim.u1), mySim.N))
-    Rate = mySim.N * mySim.u1 * rho
-    theory = mySim.N / Rate
-    dataTheory.append(theory)
-    '''
-
+    
+    sumwk = 0.0
+    for k in range(1, mySim.N + 1):
+        sumwk += FixationTimeOnePulse2.Getwk(mySim, k)
+    
+    #dataTheory.append(sumwk)
 
 plt.plot(dataX,dataFix, '^')
 plt.plot(dataX,dataTheory)

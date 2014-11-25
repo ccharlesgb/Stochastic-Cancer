@@ -69,6 +69,10 @@ def Rho(r1,r2, N):
     rho = rho / (1.0 - math.pow(r1/r2, N))
     return rho
     
+def GetFixTimeJ2(sim,j):
+    a = 0
+    
+    
 def GetFixTimeJ(sim,j):
     sumf=0.0 #initialise sum over the upper limit of the the product of gamma j 
     #First Term
@@ -80,20 +84,10 @@ def GetFixTimeJ(sim,j):
             prod*=GetGammaj(sim) #multiply by gamma j
             
         sumf+=prod        #multiply the product to each term in the sum
-    
-    rho = Rho(sim.r0 * (1.0 - sim.u1), (sim.r1 + sim.r0 * sim.u1), sim.N)
-    #print("RHO IS {0}".format(rho))
-    #rho = Rho((sim.r1 + sim.r0 * sim.u1) ,sim.r0 * (1.0 - sim.u1), sim.N)
-    #rho = (1.0 - () / )
-    #rho = rho / (1.0 - math.pow(sim.r0 * (1.0 - sim.u1) / (sim.r1 + sim.r0 * sim.u1), sim.N))
 
     Rate = sim.u1 * sim.N
     
-    #print("FixTime1 {0}".format(GetFixTime1(sim)))
-    #part1=-fixTime1*sumf #multiply by the fixation time of j=1 to get the first term
     part1=1.0/(Rate) * sumf
-    #part1=-GetFixTime1(sim)*sumf #multiply by the fixation time of j=1 to get the first term
-    #-GetFixTime1(sim)*sumf
     
     #second term
     

@@ -57,12 +57,12 @@ class Gillespie:
     #Reaction probability for j -> j+1
     def GetTJplus(self):
         top = (self.N-self.j)*( (self.j * self.r1) + self.u1 * self.r0 * (self.N - self.j))
-        return top / (self.AvgFitness()*self.N)
+        return top / (self.AvgFitness())
     
     #probability for j -> j-1
     def GetTJminus(self):
         top = self.j * (self.N - self.j) * self.r0 * (1.0 - self.u1)
-        return top / (self.AvgFitness()*self.N)
+        return top / (self.AvgFitness())
         
     #Exponential parameter for frequency of events
     def GetLambda(self):
@@ -134,13 +134,3 @@ def PulseWave(time, amp, frequency, width_frac=0.5, offset=0):
         return amp
     else:
         return 0
-
-'''
-#Pulse wave function
-def PulseWave(time, amp, width, period):
-    x,y = divmod(time, float(period))
-    if (y < width):
-        return amp
-    else:
-        return 0.0
-'''
