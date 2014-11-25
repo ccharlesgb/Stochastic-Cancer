@@ -8,6 +8,7 @@ import math
 import TwoSpecies
 import SimTools
 import matplotlib.pyplot as plt
+import multipulse
 '''
 mySim = SimTools.Gillespie(100)
 mySim.r0 = 1.0
@@ -48,66 +49,83 @@ def multiple_pulse(sim, freq, drug_strength,angle, init_r1, init_r2, r1_offset=0
     
     if ret !=None: #optional parameter to allow east plotting of the pulse function
         return (TwoSpecies.PulseWave(sim.curTime, r1_pulseOn - r1_pulseOff, frequency, offset=r1_offset, width_frac=r1_width) + r1_pulseOff , TwoSpecies.PulseWave(sim.curTime, r2_pulseOn - r2_pulseOff, frequency, offset=r2_offset, width_frac=r2_width) + r2_pulseOff)
-'''
-    if plot != None:
-       curTime = range(0,int(sim.timeLimit))
-       r1_pulse=[]
-       r2_pulse=[]
-       total_pulse=[]
-       for j in curTime:
-           curPoint=j
-           sim.curTime=curTime[j]
-           r1_pulse_term , r2_pulse_term = multiple_pulse(sim, drug_strength, angle, init_r1, init_r2, r1_offset=r1_offset, r2_offset=r2_offset, r1_width=r1_width , r2_width=r2_width, ret=1)
-           r1_pulse.append(r1_pulse_term)
-           r2_pulse.append(r2_pulse_term)
-           total_pulse.append(math.pow((math.pow(r1_pulse_term,2)+math.pow(r2_pulse_term,2)),0.5))
-       plt.subplot(3, 1, 1)
-       plt.plot(curTime,r1_pulse)
-       plt.xlabel("Time")
-       plt.ylabel("r1")
-       plt.title
-       plt.subplot(3, 1, 2)
-       plt.plot(curTime,r2_pulse)
-       plt.xlabel("Time")
-       plt.ylabel("r2")
-       plt.subplot(3, 1, 3)
-       plt.plot(curTime,total_pulse)
-       plt.xlabel("Time")
-       plt.ylabel("Total")
-       plt.title(plot)
-       plt.show()
-       
-       
-#mySim.preSim=multiple_pulse #assign the multiple pulse function to the simulation
-'''
 
-def plot_multi_pulse(sim, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=0.5, r2_width=0.5, Title=None):
-    curTime = range(0,40)
-    r1_pulse=[]
-    r2_pulse=[]
-    total_pulse=[]    
-    
-    for j in curTime:
-       curPoint=j
-       sim.curTime=curTime[j]
-       r1_pulse_term , r2_pulse_term = multiple_pulse(sim, drug_strength, angle, init_r1, init_r2, r1_offset=r1_offset, r2_offset=r2_offset, r1_width=r1_width, r2_width=r2_width, ret=1)
-       r1_pulse.append(r1_pulse_term)
-       r2_pulse.append(r2_pulse_term)
-       total_pulse.append(math.pow((math.pow(r1_pulse_term,2)+math.pow(r2_pulse_term,2)),0.5))
-       
-    plt.subplot(3, 1, 1)
-    plt.plot(curTime,r1_pulse)
-    plt.xlabel("Time")
-    plt.ylabel("r1")
-    plt.title
-    plt.subplot(3, 1, 2)
-    plt.plot(curTime,r2_pulse)
-    plt.xlabel("Time")
-    plt.ylabel("r2")
-    
-    plt.subplot(3, 1, 3)
-    plt.plot(curTime,total_pulse)
-    plt.xlabel("Time")
-    plt.ylabel("Total")
-    plt.show()
-    plt.title(Title)
+
+mySim = SimTools.Gillespie(10)
+
+mySim.in0 = 10
+mySim.timeLimit = 4000.0
+mySim.u1 = 0.1
+mySim.u2 = 0.1
+mySim.r1 = 1.1
+mySim.r2 = 1.3
+mySim.populationHistory = 0
+
+mySim.in0 = 10
+mySim.in1 = 0
+mySim.in2 = 0
+
+#pick initial r1, to find the starting point in r1/r2 space
+r1_origin=1.25
+r2_origin=(1.0-mySim.u2)*r1_origin
+mut2= math.pow((1.0-mySim.u2),2) #define a term that appears alot in finding the initial r1 and r2
+
+#define frequency for both waves
+frequency = 0.05
+
+#set up multiple pulse parameters
+myPulse= multipulse.Multipulse()
+
+myPulse.drug_strength = 0.6
+myPulse.angle = math.pi/2.0
+
+myPulse.init_r1 = -math.pow( ( mut2 / (1.0+mut2) ), 0.5) * myPulse.drug_strength/5.0 + r1_origin
+myPulse.init_r2 = math.pow( (1.0/(1.0+mut2) ) ,0.5)* myPulse.drug_strength/5.0 + r2_origin        
+        
+#define r1 pulse paramters
+myPulse.freq_r1 = frequency
+myPulse.r1_width = 0.1
+myPulse.r1_offset = 0.0
+        
+#define r2 pulse parameters       
+myPulse.freq_r2 = frequency
+myPulse.r2_width = 0.1
+myPulse.r2_offset = 0.0
+
+
+mySim.pulseParam=myPulse
+
+mySim.preSim=multipulse.multiple_pulse
+
+
+xmax = 400
+r1_values=[]
+r2_values=[]
+curTime = range(0,int(xmax))  
+for j in curTime:
+    curPoint=j
+    mySim.curTime=curTime[j]
+    r1_values.append(mySim.r1)
+    r2_values.append(mySim.r1)
+
+
+
+
+   
+plt.subplot(2, 1, 1)
+plt.plot(curTime,r1_values)
+plt.xlabel("Time")
+plt.ylabel("r1")
+
+plt.subplot(2, 1, 2)
+plt.plot(curTime,r2_values)
+plt.xlabel("Time")
+plt.ylabel("r2")
+
+'''
+plt.subplot(3, 1, 3)
+plt.plot(curTime,total_pulse)
+plt.xlabel("Time")
+plt.ylabel("Total")
+plt.show()
+'''
