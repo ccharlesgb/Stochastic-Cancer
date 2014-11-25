@@ -6,11 +6,13 @@ import TwoSpecies
 import time
 import math
 
+import MatTools
+
 #Initialize the Gillespie simulator with 10 cells
 mySim = TwoSpecies.Gillespie(10)
 
 mySim.ij = 0
-mySim.N = 100
+mySim.N = 10
 mySim.timeLimit = 10000.0
 mySim.r0 = 1.0
 mySim.r1 = 1.0
@@ -42,7 +44,7 @@ mySim.preSim = increaseMutation #IMPORTANT assign the callback (called in the cl
     
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 5
+simsPerDataPoint = 1
 dataPointCount = 5
 
 fixError = []
@@ -102,15 +104,19 @@ for i in range(0, len(dataPointsX)):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
 plt.figure()
-#plt.subplot(2,1,1)
+plt.subplot(2,1,1)
 
 plt.plot(dataST, dataMU, 'o-')
 plt.ylabel("u1 / u2")
 plt.xlabel("t_mut")
 
+MatTools.SaveXYData("MutIncrease_Params", dataST, dataMU, xLabel = "SmokeTime", yLabel = "u1 & u2", sim = mySim)
+
 #Create graph of data+
-#plt.subplot(2, 1, 2)
-#plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError)
-#plt.xlabel("t_mut")
-#plt.ylabel("Type-1 Fixation Time")
-#plt.show()
+plt.subplot(2, 1, 2)
+plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError)
+plt.xlabel("t_mut")
+plt.ylabel("Type-1 Fixation Time")
+plt.show()
+
+MatTools.SaveXYData("MutIncrease_FixTimes", dataPointsX, dataPointsY, xLabel = "SmokeTime", yLabel = "Fixation Time", sim = mySim)
