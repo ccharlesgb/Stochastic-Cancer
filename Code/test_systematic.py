@@ -17,7 +17,7 @@ import MatTools
 #initialise simulation
 
 #general simulation parameters
-mySim = SimTools.Gillespie(2)
+mySim = SimTools.Gillespie(10)
 
 mySim.in0 = 10
 mySim.timeLimit = 20000.0
@@ -26,6 +26,8 @@ mySim.u2 = 0.1
 mySim.r0 = 1.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
+
+mySim.ResetSim()
 
 numer = systematic_transitions.systematic(mySim)
 #numer.tmax = 4000.0
@@ -63,14 +65,15 @@ fixTime_num = []
 r1=[]
 for curPoint in range(0,DPC):
     r1.append((curPoint/(DPC - 1.0))*(max_r1 - min_r1) + min_r1 )
-    mySim.r2 = r1[curPoint]
-    #result = 0.0
-    result = numer.Get_fix_time(mySim)
+
+    mySim.r1 = r1[curPoint]
+    mySim.ResetSim()    
+    result = numer.Get_fix_time()
     fixTime_num.append(result)
 
 
-#MatTools.SaveXYData("Cnumerical_fixation_time_varying_r1_02_to_30", r1, fixTime_num, xLabel = "r1", yLabel = "Fixation Time", sim = mySim)
-#MatTools.SaveXYData("Csimulation_fixation_time_varying_r1_02_30", r1, fixTime_num, xLabel = "r1", yLabel = "Fixation Time", sim = mySim)
+#MatTools.SaveXYData("Jnumerical_fixation_time_varying_r1_02_to_30", r1, fixTime_num, xLabel = "r1", yLabel = "Fixation Time", sim = mySim)
+#MatTools.SaveXYData("Jsimulation_fixation_time_varying_r1_02_30", r1, fixTime_num, yError = errors ,xLabel = "r1", yLabel = "Fixation Time", sim = mySim)
 
 plt.errorbar(r1,fixTime_sim,errors, label = "Simulation")
 plt.plot(r1,fixTime_num,label = "Numerical", marker = "o")

@@ -191,7 +191,7 @@ class Gillespie:
                 self.preSim(self)
                 
             timestep = self.GetTimeStep() #How much time until the next event?
-            self.ChooseEvent() #Chose what kind of event and update cell counts
+            self.ChooseEvent() #Choose what kind of event and update cell counts
             
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
