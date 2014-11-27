@@ -36,7 +36,7 @@ class systematic:
         self.w[0][self.N] = 1.0
         
         curT = 0.0
-        deltaT = 0.1
+        deltaT = 0.25
         reachedMax = 0
         while curT < self.tmax: #loop to save time if the system has converged
             if reachedMax == 1:
@@ -56,7 +56,7 @@ class systematic:
             curT += deltaT
            
             w_dot_term=self.w_dots[0][0]
-            #print(self.w)
+            print(w_dot_term)
             self.w_dots_cached.append(w_dot_term)
             if (abs(self.w[0][0] - 1.0) < self.threshold) and reachedMax == 0:
                 reachedMax = 1
