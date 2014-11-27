@@ -73,10 +73,13 @@ def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
     SaveDict(file_name, data)
 
 #Save XY Data from many sims
-def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", sim = 0, otherDict = 0):
+def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [] sim = 0, otherDict = 0):
     data = dict()
     data[xLabel] = xData
     data[yLabel] = yData
+    
+    if len(yerror) > 0:
+        data[yLabel + "_ERR"] = yerror
         
     if sim != 0:
         data["sim_r0"] = sim.r0
