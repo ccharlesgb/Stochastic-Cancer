@@ -15,7 +15,7 @@ def SaveDict(file_name, data):
         os.makedirs(direct)    
     
     file_name = direct + "/" + file_name    
-    
+    '''
     root = Tkinter.Tk()
     root.withdraw()
     root.focus_force()
@@ -23,7 +23,7 @@ def SaveDict(file_name, data):
     #tkFileDialog.Directory(master=direct)
     file_path = tkFileDialog.asksaveasfilename()  
     print("FILE PATH IS {0}".format(file_path))
-    
+    '''
     io.savemat(file_path, data)
 
 def ExportFigure(file_name, fig_handle):
