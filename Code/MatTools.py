@@ -78,8 +78,8 @@ def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [],
     data[xLabel] = xData
     data[yLabel] = yData
     
-    if len(yerror) > 0:
-        data[yLabel + "_ERR"] = yerror
+    if len(yError) > 0:
+        data[yLabel + "_ERR"] = yError
         
     if sim != 0:
         data["sim_r0"] = sim.r0
