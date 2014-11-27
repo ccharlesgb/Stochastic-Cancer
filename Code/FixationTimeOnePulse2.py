@@ -7,7 +7,6 @@ import time
 import math
 
 #THEORY
-
 def Getwk(sim, k):
     #First Term
     prod1 = 1.0

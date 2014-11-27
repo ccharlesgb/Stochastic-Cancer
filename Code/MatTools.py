@@ -69,7 +69,6 @@ def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
         data[xLabel] = sim.tHist
         data[yLabel + "_j"] = sim.jHist
         
-    
     SaveDict(file_name, data)
 
 #Save XY Data from many sims
