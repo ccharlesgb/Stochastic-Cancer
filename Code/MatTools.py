@@ -6,7 +6,6 @@ import os
 import time
 import matplotlib.pyplot as plt
 import SimTools
-import Tkinter, tkFileDialog
 
 def SaveDict(file_name, data):
     date = time.strftime("%d-%m")
@@ -16,15 +15,7 @@ def SaveDict(file_name, data):
     
     file_name = direct + "/" + file_name    
     
-    root = Tkinter.Tk()
-    root.withdraw()
-    root.focus_force()
-    
-    #tkFileDialog.Directory(master=direct)
-    file_path = tkFileDialog.asksaveasfilename()  
-    print("FILE PATH IS {0}".format(file_path))
-    
-    io.savemat(file_path, data)
+    io.savemat(file_name, data)
 
 def ExportFigure(file_name, fig_handle):
     plt.figure(fig_handle[0])
@@ -57,7 +48,7 @@ def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
     data["sim_r1"] = sim.r1
     data["sim_u1"] = sim.u1
     data["sim_N"] = sim.N
-    if sim != 0  and isinstance(sim, SimTools.Gillespie):
+    if sim is SimTools.Gillespie:
         data["sim_u2"] = sim.u2
         data["sim_r2"] = sim.r2
         
@@ -65,7 +56,7 @@ def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
         data[yLabel + "_n0"] = sim.n0Hist
         data[yLabel + "_n1"] = sim.n1Hist
         data[yLabel + "_n2"] = sim.n2Hist
-    elif sim != 0:
+    else:
         data[xLabel] = sim.tHist
         data[yLabel + "_j"] = sim.jHist
         
@@ -83,7 +74,7 @@ def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", sim = 0, oth
         data["sim_r1"] = sim.r1
         data["sim_u1"] = sim.u1
         data["sim_N"] = sim.N
-        if isinstance(sim, SimTools.Gillespie):
+        if sim is SimTools.Gillespie:
             data["sim_u2"] = sim.u2
             data["sim_r2"] = sim.r2   
     
@@ -103,7 +94,7 @@ def SaveHistogramData(file_name, values, xLabel = "x", yLabel = "Counts", sim = 
         data["sim_r1"] = sim.r1
         data["sim_u1"] = sim.u1
         data["sim_N"] = sim.N
-        if isinstance(sim, SimTools.Gillespie):
+        if sim is SimTools.Gillespie:
             data["sim_u2"] = sim.u2
             data["sim_r2"] = sim.r2  
     

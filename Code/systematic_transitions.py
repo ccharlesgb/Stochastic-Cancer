@@ -75,19 +75,6 @@ class systematic:
         self.cumulative()
         print("Integrating...")
         result, error = integrate.quad(lambda t: self.Get_w_dot_00(t)*t, 0, self.tmax)
-        
-        deltaT = 0.1
-        curT = 0.0
-
-        res = 0.0
-        
-        while(curT < self.tmax):
-            change = self.Get_w_dot_00(curT) * curT * deltaT
-            res += change
-            curT += deltaT
-            
-        print("RESULT: {0} OR {1}".format(result, res))
-        
         return result
 
     def Get_w_dot_00(self,t):
