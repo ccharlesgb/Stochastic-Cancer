@@ -9,51 +9,57 @@ import scipy.integrate as integrate
 import math
 
 class systematic:
-    def __init__(self, sim):
-        self.reset(sim)
-    
-    def reset(self,sim): #function to reset system parameters after a run
-         self.r0 = sim.r0
-         self.r1 = sim.r1
-         self.r2 = sim.r2
-         self.u1 = sim.u1
-         self.u2 = sim.u2
+    def __init__(self, sim):      
+        self.sim=sim
+        self.reset()
+        
+    def reset(self): #function to reset system parameters after a run
+         '''         
+         self.r0 = self.sim.r0
+         self.r1 = self.sim.r1
+         self.r2 = self.sim.r2
+         self.u1 = self.sim.u1
+         self.u2 = self.sim.u2
          
-         self.N = sim.in0
+         self.N = self.sim.in0
+                 
          self.i = 0
          self.j = 0
-         self.w = np.zeros((self.N +1, self.N + 1 ))
-         self.w_dots= np.zeros((self.N +1, self.N + 1 ))
-         self.w_dots_cached=[]
+         '''
          
-         self.tmax = sim.timeLimit
+         self.w = np.zeros((self.sim.N +1, self.sim.N + 1 ))
+         self.w_dots = np.zeros((self.sim.N +1, self.sim.N + 1 ))
+         self.w_dots_cached = []
+         
+         self.tmax = self.sim.timeLimit
          self.threshold = 1e-6
-    
+         self.curT = 0.0
     
     
     def cumulative(self): #function to 
-       
-        self.w[0][self.N] = 1.0
+        self.w[0][self.sim.N] = 1.0
         
-        curT = 0.0
+        #curT = 0.0
         deltaT = 0.1
         reachedMax = 0
-        while curT < self.tmax: #loop to save time if the system has converged
+        while self.curT < self.tmax: #loop to save time if the system has converged
+            if self.sim.preSim != 0:
+                self.sim.preSim(self)
             if reachedMax == 1:
-              for i in range(0,self.N+1):
-                 for j in range(0,self.N+1):
+              for i in range(0,self.sim.N+1):
+                 for j in range(0,self.sim.N+1):
                      self.w[i][j] = 1.0
                      self.w_dots[i][j] = 0.0
               self.w_dots_cached.append(0.0)
-              curT += deltaT
+              self.curT += deltaT
               continue
             
             
             self.Update_W_dot()
-            for i in range(0,self.N+1):
-               for j in range(0,self.N+1):
+            for i in range(0,self.sim.N+1):
+               for j in range(0,self.sim.N+1):
                    self.w[i][j] = self.w[i][j] + deltaT * self.w_dots[i][j]
-            curT += deltaT
+            self.curT += deltaT
            
             w_dot_term=self.w_dots[0][0]
             #print(self.w)
@@ -63,8 +69,8 @@ class systematic:
                 print("System has converged!")
                                 
 
-    def Get_fix_time(self,sim):
-        self.reset(sim) 
+    def Get_fix_time(self):
+        self.reset() 
         print("Cumulative running..")
         self.cumulative()
         print("Integrating...")
@@ -86,6 +92,7 @@ class systematic:
         val = left_val + (right_val - left_val) * frac
         return val
         
+        '''
     def getB(self):
         fitness = self.r0*(self.N-self.i-self.j) + self.r1*self.i +self.r2*self.j
         #print("i {0} {1} {2}".format(self.N-self.i-self.j, self.i, self.j))
@@ -123,25 +130,27 @@ class systematic:
         births = self.j*self.r2 + self.i*self.r1*self.u2
         death = self.i*self.getB()
         return births*death
-        
+        '''
     def Update_W_dot(self):
-        for i in range(0,self.N+1):
-            self.i=i
-            for j in range(0,self.N+1):
-                self.j=j                
-                if i+j>self.N:
+        for i in range(0,self.sim.N+1):
+            #self.i=i
+            for j in range(0,self.sim.N+1):
+                #self.j=j                
+                if i+j>self.sim.N:
                     continue
+                self.sim.n0 = self.sim.N - i - j
+                self.sim.n1 = i
+                self.sim.n2 = j
                 
-                self.w_dots[i][j] = self.Get_i_plus_j_stay()  * (self.Get_w_ij(i+1, j) - self.Get_w_ij(i,j) )
-                self.w_dots[i][j]+= self.Get_i_minus_j_stay() * (self.Get_w_ij(i-1, j) - self.Get_w_ij(i,j) )
-                self.w_dots[i][j]+= self.Get_i_stay_j_plus()  * (self.Get_w_ij(i  ,j+1) - self.Get_w_ij(i,j) )
-                self.w_dots[i][j]+= self.Get_i_stay_j_minus() * (self.Get_w_ij(i  ,j-1) - self.Get_w_ij(i,j) )
-                self.w_dots[i][j]+= self.Get_i_plus_j_minus() * (self.Get_w_ij(i+1,j-1) - self.Get_w_ij(i,j) )
-                self.w_dots[i][j]+= self.Get_i_minus_j_plus() * (self.Get_w_ij(i-1,j+1) - self.Get_w_ij(i,j) )
-        
+                self.w_dots[i][j] = self.sim.GetT01()  * (self.Get_w_ij(i+1, j) - self.Get_w_ij(i,j) )
+                self.w_dots[i][j]+= self.sim.GetT10() * (self.Get_w_ij(i-1, j) - self.Get_w_ij(i,j) )
+                self.w_dots[i][j]+= self.sim.GetT02()  * (self.Get_w_ij(i  ,j+1) - self.Get_w_ij(i,j) )
+                self.w_dots[i][j]+= self.sim.GetT20() * (self.Get_w_ij(i  ,j-1) - self.Get_w_ij(i,j) )
+                self.w_dots[i][j]+= self.sim.GetT21() * (self.Get_w_ij(i+1,j-1) - self.Get_w_ij(i,j) )
+                self.w_dots[i][j]+= self.sim.GetT12() * (self.Get_w_ij(i-1,j+1) - self.Get_w_ij(i,j) )
         
     def Get_w_ij(self,i,j):
-        if i+j > self.N:
+        if i+j > self.sim.N:
             return 0.0
         if i < 0:
             return 0.0
@@ -149,27 +158,3 @@ class systematic:
             return 0.0
         element = self.w[i][j]
         return element
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
