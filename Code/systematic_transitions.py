@@ -12,7 +12,7 @@ class systematic:
     def __init__(self, sim):
         self.reset(sim)
     
-    def reset(self,sim):
+    def reset(self,sim): #function to reset system parameters after a run
          self.r0 = sim.r0
          self.r1 = sim.r1
          self.r2 = sim.r2
@@ -31,15 +31,9 @@ class systematic:
     
     
     
-    def cumulative(self):
-        #self.Q0_vals = []
-        #reachedMax = 0 #If a q0 = 1.0 it will remain 1.0
-        
-        #Initialise W with Initial conditions
-        #self.w = np.zeros((self.N +1, self.N + 1 ))
+    def cumulative(self): #function to 
+       
         self.w[0][self.N] = 1.0
-        
-        #self.w_dots = np.zeros((self.N + 1, self.N + 1))
         
         curT = 0.0
         deltaT = 0.1
@@ -75,19 +69,6 @@ class systematic:
         self.cumulative()
         print("Integrating...")
         result, error = integrate.quad(lambda t: self.Get_w_dot_00(t)*t, 0, self.tmax)
-        
-        deltaT = 0.1
-        curT = 0.0
-
-        res = 0.0
-        
-        while(curT < self.tmax):
-            change = self.Get_w_dot_00(curT) * curT * deltaT
-            res += change
-            curT += deltaT
-            
-        print("RESULT: {0} OR {1}".format(result, res))
-        
         return result
 
     def Get_w_dot_00(self,t):
@@ -119,7 +100,7 @@ class systematic:
         return births*death
         
     def Get_i_minus_j_stay(self):
-        births = self.r0*(1.0-self.u1)
+        births = self.r0*(1.0-self.u1)*(self.N-self.i-self.j)
         death = self.i*self.getB()
         return births*death
         
