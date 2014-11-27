@@ -24,7 +24,7 @@ def SaveDict(file_name, data):
     file_path = tkFileDialog.asksaveasfilename()  
     print("FILE PATH IS {0}".format(file_path))
     '''
-    io.savemat(file_path, data)
+    io.savemat(file_name, data)
 
 def ExportFigure(file_name, fig_handle):
     plt.figure(fig_handle[0])
