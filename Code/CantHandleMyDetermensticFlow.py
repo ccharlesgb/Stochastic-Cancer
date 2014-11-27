@@ -33,6 +33,14 @@ def GetX1Dot(sim):
     
     return dot / GetAvgFit(sim)
     
+def GetX1Dot2(sim):
+    dot = xi[0] * (sim.u1 * sim.r0 * xi[0] + (1.0 - sim.u2) * sim.r1 * xi[1])
+    dot += xi[2] * (sim.u1 * sim.r0 * xi[0] + (1.0 - sim.u2) * sim.r1 * xi[1])
+    dot -= xi[1] * ((1.0 - sim.u1) * sim.r0 * xi[0])
+    dot -= xi[1] * (sim.u2 * sim.r1 * xi[1] + sim.r2 * xi[2])
+    
+    return dot / GetAvgFit(sim)
+    
 def GetX2Dot(sim):
     dot = sim.u2*sim.r1*xi[1] + (sim.r2 - GetAvgFit(sim))*xi[2]
     
@@ -96,12 +104,12 @@ def Integrate(tHist, x0Hist, x1Hist, x2Hist, sim):
         
         #Get rate equations
         x0dot = GetX0Dot(sim)
-        x1dot = GetX1Dot(sim)
+        x1dot = GetX1Dot2(sim)
         x2dot = GetX2Dot(sim)
         
         #Euler forward them
         newx0  = xi[0] + x0dot * deltaT
-        newx1  = xi[1]+ x1dot * deltaT
+        newx1  = xi[1] + x1dot * deltaT
         newx2  = xi[2] + x2dot * deltaT
     
         xi[0] = newx0

@@ -44,8 +44,8 @@ mySim.preSim = increaseMutation #IMPORTANT assign the callback (called in the cl
     
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 1
-dataPointCount = 5
+simsPerDataPoint = 100000
+dataPointCount = 10
 
 fixError = []
 

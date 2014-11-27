@@ -43,18 +43,23 @@ def ExportFigure(file_name, fig_handle):
 #Quickly save population histories
 def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
     data = dict()
-    data[xLabel] = sim.tHist
-    data[yLabel + "_n0"] = sim.n0Hist
-    data[yLabel + "_n1"] = sim.n1Hist
-    data[yLabel + "_n2"] = sim.n2Hist
-    
-    SaveDict(file_name, data)
 
-#Same but for two species
-def SaveRunHistory2(file_name, sim, xLabel = "Time", yLabel = "Population"):
-    data = dict()
-    data[xLabel] = sim.tHist
-    data[yLabel + "_n1"] = sim.jHist
+    data["sim_r0"] = sim.r0
+    data["sim_r1"] = sim.r1
+    data["sim_u1"] = sim.u1
+    data["sim_N"] = sim.N
+    if sim is SimTools.Gillespie:
+        data["sim_u2"] = sim.u2
+        data["sim_r2"] = sim.r2
+        
+        data[xLabel] = sim.tHist
+        data[yLabel + "_n0"] = sim.n0Hist
+        data[yLabel + "_n1"] = sim.n1Hist
+        data[yLabel + "_n2"] = sim.n2Hist
+    else:
+        data[xLabel] = sim.tHist
+        data[yLabel + "_j"] = sim.jHist
+        
     
     SaveDict(file_name, data)
 
@@ -64,13 +69,14 @@ def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", sim = 0, oth
     data[xLabel] = xData
     data[yLabel] = yData
         
-    if sim != 0 and sim is SimTools.Gillespie:
+    if sim != 0:
         data["sim_r0"] = sim.r0
-        data["sim_r2"] = sim.r2   
         data["sim_r1"] = sim.r1
         data["sim_u1"] = sim.u1
-        data["sim_u2"] = sim.u2
         data["sim_N"] = sim.N
+        if sim is SimTools.Gillespie:
+            data["sim_u2"] = sim.u2
+            data["sim_r2"] = sim.r2   
     
     if otherDict != 0:
         for key, value in otherDict.iteritems():
@@ -85,11 +91,12 @@ def SaveHistogramData(file_name, values, xLabel = "x", yLabel = "Counts", sim = 
         
     if sim != 0:
         data["sim_r0"] = sim.r0
-        data["sim_r2"] = sim.r2   
         data["sim_r1"] = sim.r1
         data["sim_u1"] = sim.u1
-        data["sim_u2"] = sim.u2
         data["sim_N"] = sim.N
+        if sim is SimTools.Gillespie:
+            data["sim_u2"] = sim.u2
+            data["sim_r2"] = sim.r2  
     
     for key, value in otherDict.iteritems():
         data["_" + key] = value      
