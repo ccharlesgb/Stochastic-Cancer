@@ -20,7 +20,7 @@ import MatTools
 mySim = SimTools.Gillespie(10)
 
 mySim.in0 = 10
-mySim.timeLimit = 20000.0
+mySim.timeLimit = 10000.0
 mySim.u1 = 0.1
 mySim.u2 = 0.1
 mySim.r0 = 1.0
@@ -47,7 +47,7 @@ mySim.ResetSim()
 
 for curPoint in range(0,DPC): #simulate some shit
     r1.append((curPoint/(DPC - 1.0))*(max_r1 - min_r1) + min_r1 )
-    mySim.r2 = r1[curPoint]    
+    mySim.r1 = r1[curPoint]    
     print("Data Point {0}/{1} - {2}%".format(curPoint + 1, DPC, 100*(curPoint + 1)/DPC))    
     fixTimeTerm = 0.0
     for i in range(0,SPD):

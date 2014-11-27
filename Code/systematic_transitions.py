@@ -12,65 +12,55 @@ class systematic:
     def __init__(self, sim):      
         self.sim=sim
         self.reset()
+        self.threshold = 1e-6
+        self.deltaT = 0.17         
         
     def reset(self): #function to reset system parameters after a run
-         '''         
-         self.r0 = self.sim.r0
-         self.r1 = self.sim.r1
-         self.r2 = self.sim.r2
-         self.u1 = self.sim.u1
-         self.u2 = self.sim.u2
-         
-         self.N = self.sim.in0
-                 
-         self.i = 0
-         self.j = 0
-         '''
-         
          self.w = np.zeros((self.sim.N +1, self.sim.N + 1 ))
          self.w_dots = np.zeros((self.sim.N +1, self.sim.N + 1 ))
          self.w_dots_cached = []
          
-         self.tmax = self.sim.timeLimit
-         self.threshold = 1e-6
          self.curT = 0.0
-    
+         self.tmax = self.sim.timeLimit
+         self.tConverge = self.tmax
     
     def cumulative(self): #function to 
         self.w[0][self.sim.N] = 1.0
-        
-        #curT = 0.0
-        deltaT = 0.1
+
         reachedMax = 0
         while self.curT < self.tmax: #loop to save time if the system has converged
             if self.sim.preSim != 0:
                 self.sim.preSim(self)
+            
             if reachedMax == 1:
               for i in range(0,self.sim.N+1):
                  for j in range(0,self.sim.N+1):
                      self.w[i][j] = 1.0
                      self.w_dots[i][j] = 0.0
               self.w_dots_cached.append(0.0)
-              self.curT += deltaT
+              self.curT += self.deltaT
               continue
-            
             
             self.Update_W_dot()
             for i in range(0,self.sim.N+1):
                for j in range(0,self.sim.N+1):
-                   self.w[i][j] = self.w[i][j] + deltaT * self.w_dots[i][j]
-            self.curT += deltaT
+                   self.w[i][j] = self.w[i][j] + self.deltaT * self.w_dots[i][j]
            
             w_dot_term=self.w_dots[0][0]
-            print(w_dot_term)
+            #print(w_dot_term)
             self.w_dots_cached.append(w_dot_term)
+            
+            self.curT += self.deltaT            
+            
             if (abs(self.w[0][0] - 1.0) < self.threshold) and reachedMax == 0:
                 reachedMax = 1
                 print("System has converged!")
+                self.tConverge = self.curT
+                break
                                 
 
     def Get_fix_time(self):
-        self.reset() 
+        self.reset()
         print("Cumulative running..")
         self.cumulative()
         print("Integrating...")
@@ -78,7 +68,9 @@ class systematic:
         return result
 
     def Get_w_dot_00(self,t):
-        index = (t / self.tmax) * (len(self.w_dots_cached) - 1.0)
+        if (t > self.tConverge):
+            return 0.0
+        index = (t / self.tConverge) * (len(self.w_dots_cached) - 1.0)
         #print("INDEX {0}".format(index))
         
         left_dex = int(math.floor(index))
