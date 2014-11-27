@@ -30,7 +30,7 @@ numer = systematic_transitions.systematic(mySim)
 #numer.tmax = 4000.0
 
 DPC = 10
-SPD = 1000
+SPD = 100
 
 fixTime_sim = []
 
