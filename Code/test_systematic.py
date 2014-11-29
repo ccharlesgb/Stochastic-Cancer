@@ -32,8 +32,8 @@ mySim.ResetSim()
 numer = systematic_transitions.systematic(mySim)
 #numer.tmax = 4000.0
 
-DPC = 15
-SPD = 100
+DPC = 5
+SPD = 2500
 
 fixTime_sim = []
 
@@ -47,7 +47,7 @@ mySim.ResetSim()
 
 for curPoint in range(0,DPC): #simulate some shit
     r1.append((curPoint/(DPC - 1.0))*(max_r1 - min_r1) + min_r1 )
-    mySim.r1 = r1[curPoint]    
+    mySim.r2 = r1[curPoint]    
     print("Data Point {0}/{1} - {2}%".format(curPoint + 1, DPC, 100*(curPoint + 1)/DPC))    
     fixTimeTerm = 0.0
     for i in range(0,SPD):
@@ -66,7 +66,7 @@ r1=[]
 for curPoint in range(0,DPC):
     r1.append((curPoint/(DPC - 1.0))*(max_r1 - min_r1) + min_r1 )
 
-    mySim.r1 = r1[curPoint]
+    mySim.r2 = r1[curPoint]
     mySim.ResetSim()    
     result = numer.Get_fix_time()
     fixTime_num.append(result)

@@ -9,7 +9,7 @@ import scipy.integrate as integrate
 import math
 
 class systematic:
-    def __init__(self, sim):      
+    def __init__(self, sim):
         self.sim=sim
         self.reset()
         self.threshold = 1e-6
@@ -23,6 +23,8 @@ class systematic:
          self.curT = 0.0
          self.tmax = self.sim.timeLimit
          self.tConverge = self.tmax
+         
+         self.integral = 0.0
     
     def cumulative(self): #function to 
         self.w[0][self.sim.N] = 1.0
@@ -50,12 +52,15 @@ class systematic:
             #print(w_dot_term)
             self.w_dots_cached.append(w_dot_term)
             
-            self.curT += self.deltaT            
+            self.integral += w_dot_term * self.curT * self.deltaT           
+            
+            self.curT += self.deltaT
             
             if (abs(self.w[0][0] - 1.0) < self.threshold) and reachedMax == 0:
                 reachedMax = 1
-                print("System has converged!")
+                print("System has converged!") 
                 self.tConverge = self.curT
+                #self.integral += (self.tmax - self.curT) * 
                 break
                                 
 
@@ -63,9 +68,7 @@ class systematic:
         self.reset()
         print("Cumulative running..")
         self.cumulative()
-        print("Integrating...")
-        result, error = integrate.quad(lambda t: self.Get_w_dot_00(t)*t, 0, self.tmax)
-        return result
+        return self.integral
 
     def Get_w_dot_00(self,t):
         if (t > self.tConverge):
