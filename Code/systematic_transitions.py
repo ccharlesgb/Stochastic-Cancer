@@ -16,6 +16,7 @@ class systematic:
         self.deltaT = 0.17         
         
     def reset(self): #function to reset system parameters after a run
+<<<<<<< Updated upstream
          self.w = np.zeros((self.sim.N +1, self.sim.N + 1 ))
          self.w_dots = np.zeros((self.sim.N +1, self.sim.N + 1 ))
          self.w_dots_cached = []
@@ -29,24 +30,64 @@ class systematic:
     def cumulative(self): #function to 
         self.w[0][self.sim.N] = 1.0
 
+=======
+         '''         
+         self.r0 = self.sim.r0
+         self.r1 = self.sim.r1
+         self.r2 = self.sim.r2
+         self.u1 = self.sim.u1
+         self.u2 = self.sim.u2
+         
+         self.N = self.sim.in0
+                 
+         self.i = 0
+         self.j = 0
+         '''
+         
+         self.w = np.zeros((self.sim.in0 +1, self.sim.in0 + 1 ))
+         self.w_dots = np.zeros((self.sim.in0 +1, self.sim.in0 + 1 ))
+         self.w_dots_cached = []
+         
+         self.tmax = self.sim.timeLimit
+         self.threshold = 1e-6
+         self.sim.curTime = 0.0
+    
+    
+    def cumulative(self): #function to 
+        self.w[0][self.sim.in0] = 1.0
+        
+        #curT = 0.0
+        deltaT = 0.1
+>>>>>>> Stashed changes
         reachedMax = 0
-        while self.curT < self.tmax: #loop to save time if the system has converged
+        while self.sim.curTime < self.tmax: #loop to save time if the system has converged
             if self.sim.preSim != 0:
                 self.sim.preSim(self)
             
             if reachedMax == 1:
-              for i in range(0,self.sim.N+1):
-                 for j in range(0,self.sim.N+1):
+              for i in range(0,self.sim.in0+1):
+                 for j in range(0,self.sim.in0+1):
                      self.w[i][j] = 1.0
                      self.w_dots[i][j] = 0.0
               self.w_dots_cached.append(0.0)
+<<<<<<< Updated upstream
               self.curT += self.deltaT
+=======
+              self.sim.curTime += deltaT
+>>>>>>> Stashed changes
               continue
             
             self.Update_W_dot()
+<<<<<<< Updated upstream
             for i in range(0,self.sim.N+1):
                for j in range(0,self.sim.N+1):
                    self.w[i][j] = self.w[i][j] + self.deltaT * self.w_dots[i][j]
+=======
+            for i in range(0,self.sim.in0+1):
+               for j in range(0,self.sim.in0+1):
+                   self.w[i][j] = self.w[i][j] + deltaT * self.w_dots[i][j]
+            self.sim.curTime += deltaT
+>>>>>>> Stashed changes
            
             w_dot_term=self.w_dots[0][0]
             #print(w_dot_term)
@@ -127,15 +168,15 @@ class systematic:
         return births*death
         '''
     def Update_W_dot(self):
-        for i in range(0,self.sim.N+1):
+        for i in range(0,self.sim.in0+1):
             #self.i=i
-            for j in range(0,self.sim.N+1):
+            for j in range(0,self.sim.in0+1):
                 #self.j=j                
-                if i+j>self.sim.N:
+                if i+j>self.sim.in0:
                     continue
-                self.sim.n0 = self.sim.N - i - j
-                self.sim.n1 = i
-                self.sim.n2 = j
+                self.sim.in00 = self.sim.in0 - i - j
+                self.sim.in01 = i
+                self.sim.in02 = j
                 
                 self.w_dots[i][j] = self.sim.GetT01()  * (self.Get_w_ij(i+1, j) - self.Get_w_ij(i,j) )
                 self.w_dots[i][j]+= self.sim.GetT10() * (self.Get_w_ij(i-1, j) - self.Get_w_ij(i,j) )
@@ -145,7 +186,7 @@ class systematic:
                 self.w_dots[i][j]+= self.sim.GetT12() * (self.Get_w_ij(i-1,j+1) - self.Get_w_ij(i,j) )
         
     def Get_w_ij(self,i,j):
-        if i+j > self.sim.N:
+        if i+j > self.sim.in0:
             return 0.0
         if i < 0:
             return 0.0

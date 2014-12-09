@@ -44,3 +44,15 @@ def multiple_pulse(sim):
     #set up the r2 pulse function
     sim.r2=-TwoSpecies.PulseWave(sim.curTime, param.Get_r2_amp(), param.freq_r2, offset=param.r2_offset, width_frac = param.r2_width ) + param.init_r2
    
+   
+#new function for the numerical metho - does the same as above, but assigns the pulse to the numerical class
+def multiple_pulse_num(numer):
+    global curTime
+    
+    param=numer.sim.pulseParam
+    #set up the r1 pulse function        
+
+    numer.sim.r1=TwoSpecies.PulseWave(numer.sim.curTime, param.Get_r1_amp(), param.freq_r1, offset=param.r1_offset, width_frac = param.r1_width ) + param.init_r1
+    #set up the r2 pulse function
+    numer.sim.r2=-TwoSpecies.PulseWave(numer.sim.curTime, param.Get_r2_amp(), param.freq_r2, offset=param.r2_offset, width_frac = param.r2_width ) + param.init_r2
+   

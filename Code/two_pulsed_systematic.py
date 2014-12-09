@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Nov 11 13:26:36 2014
+Created on Mon Dec  1 20:48:10 2014
 
 @author: Jonny
 """
-
 import matplotlib.pyplot as plt
 import SimTools
 import time
@@ -13,6 +12,7 @@ import numpy
 import multipulse
 import copy
 import TwoSpecies
+import systematic_transitions
 
 
 
@@ -63,7 +63,9 @@ myPulse.r2_offset = 0.0
 
 mySim.pulseParam=myPulse
 
-mySim.preSim=multipulse.multiple_pulse
+numer = systematic_transitions.systematic(mySim)
+
+mySim.preSim=multipulse.multiple_pulse_num
 
 #define simulation parameters
 dataPointCount = 15
@@ -85,38 +87,22 @@ max_freq = 0.5
 totalfixtime=[]
 angleRange=numpy.linspace(0,math.pi/2.0, num=dataPointCount)
 frequency=[]
-for j in range(0,freqcount):    
-    frequency.append((max_freq-min_freq)*(j/(freqcount-1.0)) + min_freq)
-    myPulse.freq_r1 = frequency[j]
-    myPulse.freq_r2 = frequency[j]
-    fixTime=[]    
-    for angle in angleRange:
-        #allocate to presim so that the pulse is varied
-        
-        #mySim.preSim=multiple_pulse.multiple_pulse (mySim,freq, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=1.0, r2_width=1.0)
-        myPulse.angle = angle    
-        #print("For angle{0} r1 amp {1} r2 amp {2}".format(angle,myPulse.Get_r1_amp(), myPulse.Get_r2_amp()))
-        
-        fixTime_term=0.0    
-        print("Current Data Point = {0}/{1} ({2}%)".format(angle*180/math.pi, 90, 100.0 * float(2.0*angle)/math.pi))
-        for i in range(0,simsPerDataPoint):
-            mySim.Simulate()
-            if mySim.Fixated():
-                fixTime_term += mySim.curTime
-            else:
-                fixTime_term += mySim.timeLimit
-                print("WARNING! - system did not fixate")
-        average_fix=fixTime_term/simsPerDataPoint
-        fixTime.append(average_fix)
-    totalfixtime.append([])
-    totalfixtime[j] = copy.copy(fixTime)
+
+for angle in angleRange:
+    #allocate to presim so that the pulse is varied
+    
+    #mySim.preSim=multiple_pulse.multiple_pulse (mySim,freq, drug_strength, angle, init_r1, init_r2, r1_offset=0.0, r2_offset=0.0, r1_width=1.0, r2_width=1.0)
+    myPulse.angle = angle    
+    #print("For angle{0} r1 amp {1} r2 amp {2}".format(angle,myPulse.Get_r1_amp(), myPulse.Get_r2_amp()))
+    result = numer.Get_fix_time()
+    totalfixtime.append(result)
 
 
 angleRange*=180/math.pi #express agnles in degrees
-for j in range(0,freqcount):
-    plt.plot(angleRange,totalfixtime[j], label = frequency[j])
-    plt.xlabel("Angle")
-    plt.ylabel("Fixation Time")
+
+plt.plot(angleRange,totalfixtime)
+plt.xlabel("Angle")
+plt.ylabel("Fixation Time")
 
 plt.legend(loc=4)
     
