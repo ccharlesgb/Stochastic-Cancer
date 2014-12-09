@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Nov 25 16:10:45 2014
-
 @author: Jonny
 """
 
@@ -32,13 +31,13 @@ mySim.ResetSim()
 numer = systematic_transitions.systematic(mySim)
 #numer.tmax = 4000.0
 
-DPC = 8
-SPD = 1
+DPC = 5
+SPD = 100
 
 fixTime_sim = []
 
-min_r1 = 0.2
-max_r1 = 2.5
+min_r1 = 0.5
+max_r1 = 3.0
 r1 = []
 errors = []
 
@@ -47,7 +46,7 @@ mySim.ResetSim()
 
 for curPoint in range(0,DPC): #simulate some shit
     r1.append((curPoint/(DPC - 1.0))*(max_r1 - min_r1) + min_r1 )
-    mySim.r1 = r1[curPoint]
+    mySim.r2 = r1[curPoint]    
     print("Data Point {0}/{1} - {2}%".format(curPoint + 1, DPC, 100*(curPoint + 1)/DPC))    
     fixTimeTerm = 0.0
     for i in range(0,SPD):
@@ -62,46 +61,22 @@ for curPoint in range(0,DPC): #simulate some shit
 
 fixTime_num = []
  
-stepsToCon = [] 
- 
 r1=[]
 for curPoint in range(0,DPC):
     r1.append((curPoint/(DPC - 1.0))*(max_r1 - min_r1) + min_r1 )
 
-    mySim.r1 = r1[curPoint]
+    mySim.r2 = r1[curPoint]
     mySim.ResetSim()    
     result = numer.Get_fix_time()
     fixTime_num.append(result)
-    
-    stepsToCon.append(numer.stepsToConverge)
-    
-    
 
 
 #MatTools.SaveXYData("Jnumerical_fixation_time_varying_r1_02_to_30", r1, fixTime_num, xLabel = "r1", yLabel = "Fixation Time", sim = mySim)
 #MatTools.SaveXYData("Jsimulation_fixation_time_varying_r1_02_30", r1, fixTime_num, yError = errors ,xLabel = "r1", yLabel = "Fixation Time", sim = mySim)
 
-#plt.errorbar(r1,fixTime_sim,errors, label = "Simulation")
-#plt.plot(r1,fixTime_num,label = "Numerical", marker = "o")
-
-plt.plot(fixTime_num, stepsToCon)
-
+plt.errorbar(r1,fixTime_sim,errors, label = "Simulation")
+plt.plot(r1,fixTime_num,label = "Numerical", marker = "o")
 plt.xlabel("r1")
 plt.ylabel("Fixation Time")
 plt.legend()
 plt.show()
-    
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-    
