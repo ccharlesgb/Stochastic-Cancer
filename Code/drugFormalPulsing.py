@@ -66,8 +66,8 @@ mySim.pulseParam=myPulse
 mySim.preSim=multipulse.multiple_pulse
 
 #define simulation parameters
-dataPointCount = 15
-simsPerDataPoint = 2000
+dataPointCount = 5
+simsPerDataPoint = 500
 
 
 #find the angle that gives the closest way to get to 
@@ -76,7 +76,7 @@ angle_of_closest_approach*=180/math.pi
 
 
 
-freqcount= 5
+freqcount= 1
 min_freq = 0.05
 max_freq = 0.5
 
@@ -85,8 +85,9 @@ max_freq = 0.5
 totalfixtime=[]
 angleRange=numpy.linspace(0,math.pi/2.0, num=dataPointCount)
 frequency=[]
-for j in range(0,freqcount):    
-    frequency.append((max_freq-min_freq)*(j/(freqcount-1.0)) + min_freq)
+for j in range(0,freqcount): 
+    frequency.append(0.01)
+    #frequency.append((max_freq-min_freq)*(j/(freqcount-1.0)) + min_freq)
     myPulse.freq_r1 = frequency[j]
     myPulse.freq_r2 = frequency[j]
     fixTime=[]    

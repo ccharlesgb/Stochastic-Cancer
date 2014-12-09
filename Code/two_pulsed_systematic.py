@@ -60,7 +60,6 @@ myPulse.freq_r2 = frequency
 myPulse.r2_width = 0.5
 myPulse.r2_offset = 0.0
 
-
 mySim.pulseParam=myPulse
 
 mySim.ResetSim()
