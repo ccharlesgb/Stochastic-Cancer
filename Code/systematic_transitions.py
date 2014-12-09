@@ -15,6 +15,7 @@ class systematic:
         self.threshold = 1e-6
         self.deltaT = 0.17         
         
+        
     def reset(self): #function to reset system parameters after a run
 <<<<<<< Updated upstream
          self.w = np.zeros((self.sim.N +1, self.sim.N + 1 ))
@@ -26,6 +27,8 @@ class systematic:
          self.tConverge = self.tmax
          
          self.integral = 0.0
+         
+         self.stepsToConverge = 0
     
     def cumulative(self): #function to 
         self.w[0][self.sim.N] = 1.0
@@ -101,6 +104,8 @@ class systematic:
                 reachedMax = 1
                 print("System has converged!") 
                 self.tConverge = self.curT
+                
+                self.stepsToConverge = int(self.curT / self.deltaT)
                 #self.integral += (self.tmax - self.curT) * 
                 break
                                 

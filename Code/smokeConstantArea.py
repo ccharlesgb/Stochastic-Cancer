@@ -4,29 +4,24 @@ import matplotlib.pyplot as plt
 import SimTools
 import time
 import math
+import MatTools
 
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 
 mySim.in0 = 10
-mySim.timeLimit = 10000.0
+mySim.timeLimit = 20000.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
 
-minSmokeTime = 0.0
-maxSmokeTime = 250
+smokeArea_u = 1.5
 
-smokeArea_u2 = 2.0
-smokeArea_u1 = 2.0
+quit_u = 0.001
 
-quit_u1 = 0.002
-quit_u2 = 0.002
-
-smoke_u1 = quit_u1 * 10.0
-smoke_u2 = quit_u2 * 10.0
+smoke_u = quit_u * 10.0
 
 min_mut_factor = 2.0
-max_mut_factor = 20.0
+max_mut_factor = 100.0
 
 #Pre Simulate callback (called every frame before a timestep)
 def increaseMutation(sim):
@@ -35,19 +30,18 @@ def increaseMutation(sim):
     global smokeTime
   
     if sim.curTime < smokeTime: #Still smoking
-        sim.u1 = smoke_u1
-        sim.u2 = smoke_u2
+        sim.u1 = smoke_u
+        sim.u2 = smoke_u
     else:
-        sim.u1 = quit_u1
-        sim.u2 = quit_u2
+        sim.u1 = quit_u
+        sim.u2 = quit_u
 
 mySim.preSim = increaseMutation #IMPORTANT assign the callback (called in the class sim loop)
     
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 5000
+simsPerDataPoint = 3000
 dataPointCount = 5
-
 fixError = []
 
 #Initialize the array with default values
@@ -70,15 +64,13 @@ for curPoint in range(0, dataPointCount):
     
     #mut_factor = (max_mut_factor - min_mut_factor) * ((dataPointCount) / float(curPoint + 1.0)) + min_mut_factor
     mut_factor = (max_mut_factor - min_mut_factor) * ((1.0) / float(curPoint + 1.0)) + min_mut_factor
-    smoke_u1 = quit_u1 * mut_factor
-    smokeTime = smokeArea_u1 / (smoke_u1 - quit_u1)
-
-    smoke_u2 = smoke_u1
+    smoke_u = quit_u * mut_factor
+    smokeTime = smokeArea_u / (smoke_u - quit_u)
     
     dataST.append(smokeTime)
-    dataMU.append(smoke_u1)
+    dataMU.append(smoke_u)
     
-    print("MUT FACTOR: {0}".format(smoke_u1))
+    print("MUT FACTOR: {0}".format(smoke_u))
     print("T SMOKE: {0}".format(smokeTime))
     
     #Perform many simulations to get an accurate probability of the fixation probability
@@ -111,15 +103,19 @@ plt.figure()
 plt.subplot(2,1,1)
 
 plt.plot(dataST, dataMU, 'o-')
-plt.ylabel("Mutation Amount")
-plt.xlabel("Smoke Time")
+plt.ylabel("u1 = u2 = u")
+plt.xlabel("Pulse Time")
 
 #Create graph of data+
 plt.subplot(2,1,2)
 plot_pulsed = plt.errorbar(dataPointsX, dataPointsY, yerr = fixError, label = "Smoking")
-plt.xlabel("Smoke Time: ")
+plt.xlabel("Pulse Time")
 plt.ylabel("Type 2 Fixation Time")
 plt.show()
+
+file_name = "TESTPulseConstantArea_r1_{0}_r2_{1}_uquit_{2}_N_{3}_Dose_{4}".format(mySim.r1, mySim.r2, quit_u, mySim.N, smokeArea_u)
+MatTools.SaveXYData("PARAM_" + file_name, dataST, dataMU, xLabel = "PulseTime", yLabel = "u_pulse")
+MatTools.SaveXYData("DAT_" + file_name, dataPointsX, dataPointsY, xLabel = "PulseTime", yLabel = "FixTime")
 
 
 

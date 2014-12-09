@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import SimTools
-
+import MatTools
 
 def FixedPointExists(r1, r2, u2):
     condition = r2 / (1.0 - u2)
@@ -24,7 +24,8 @@ maxr2 = 1.5
 
 mapSize = 60
 
-mySim = SimTools.Gillespie(100)
+mySim = SimTools.Gillespie(10)
+mySim.in0 = 100
 mySim.r0 = 1.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
@@ -32,7 +33,7 @@ mySim.u1 = 0.1
 mySim.u2 = 0.1
 mySim.timeLimit = 100.0
 
-simsPerDataPoint = 75
+simsPerDataPoint = 80
 
 avgFixTime = np.zeros((mapSize, mapSize))
 
@@ -51,13 +52,22 @@ for ir1 in range(0, mapSize):
         
         mySim.r1 = r1
         mySim.r2 = r2
+    
+            
         
         totalFixTime = 0.0
-        for sim in range(0,simsPerDataPoint):
-            mySim.Simulate()
-            totalFixTime += mySim.curTime
         
-        avgFixTime[ir2, ir1] = totalFixTime / float(simsPerDataPoint)
+        timeOut = (mySim.r2 < 0.7) or (mySim.r2 < (mySim.r1 * (1.0-mySim.u2) - 0.4))
+        
+        if timeOut:
+            totalFixTime = mySim.timeLimit * simsPerDataPoint  
+            print(totalFixTime)
+        else:
+            for sim in range(0,simsPerDataPoint):
+                mySim.Simulate()
+                totalFixTime += mySim.curTime
+        
+        avgFixTime[ir2, ir1] = float(totalFixTime) / float(simsPerDataPoint)
 
 dy = (maxr2 - minr2) / mapSize
 dx = (maxr1 - minr1) / mapSize
@@ -73,6 +83,9 @@ plt.colorbar()
 
 plt.xlabel("r1")
 plt.ylabel("r2")
+
+file_name = "FPA_HEATMAP_SDP_{0}_SIZE_{1}_N_{2}_OPTO".format(simsPerDataPoint, mapSize, mySim.N)
+MatTools.ColourMap(file_name, x,y,avgFixTime, xLabel = "r1", yLabel = "r2", zLabel = "fixtime", sim = mySim)
 
 theoryX = []
 theoryDiag = []

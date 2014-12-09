@@ -7,18 +7,19 @@ Created on Sat Nov 22 15:03:45 2014
 
 import SimTools
 import matplotlib.pyplot as plt
+import MatTools
 
 sim = SimTools.Gillespie(100)
 sim.r0 = 1.0
-sim.r1 = 0.9
-sim.r2 = 1.1
+sim.r1 = 1.1
+sim.r2 = 0.9
 
 sim.in0 = 100
 
-sim.u1 = 0.01
-sim.u2 = 0.01
+sim.u1 = 0.1
+sim.u2 = 0.1
 
-sim.timeLimit = 100.0
+sim.timeLimit = 400.0
 
 def GetAvgFit(sim):
     return xi[0] * sim.r0 + xi[1] * sim.r1 + xi[2] * sim.r2
@@ -95,12 +96,12 @@ def Integrate(tHist, x0Hist, x1Hist, x2Hist, sim):
     
     for it in range(0, steps):
     
-        if curT < smokeTime:
+        '''if curT < smokeTime:
             sim.u1 = smoke_u1
             sim.u2 = smoke_u1
         else:
             sim.u1 = quit_u1
-            sim.u2 = quit_u1
+            sim.u2 = quit_u1'''
         
         #Get rate equations
         x0dot = GetX0Dot(sim)
@@ -177,3 +178,12 @@ plt.xlabel("time t")
 plt.ylabel("Concentrations")
 
 plt.legend()
+
+data = dict()
+data["Deter_t"] = tHist
+data["Deter_x0"] = x0Hist
+data["Deter_x1"] = x1Hist
+data["Deter_x2"] = x2Hist
+
+file_name = "FP_Oscillations_determ_N={0}_r1_{1}_r2_{2}".format(sim.N, sim.r1, sim.r2)
+MatTools.SaveDict(file_name, data)

@@ -5,6 +5,7 @@ import SimTools
 import time
 import math
 import numpy
+import MatTools
 
 def FixedPointExists(r1, r2, u2):
     condition = r2 / (1.0 - u2)
@@ -50,16 +51,16 @@ def FixedPointSaddle(r0,r1, u1, u2):
 
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(100)
-mySim.timeLimit = 500.0
-mySim.u1 = 0.01
-mySim.u2 = 0.01
-mySim.r1 = 1.0
-mySim.r2 = 1.0
+mySim.timeLimit = 300.0
+mySim.u1 = 0.1
+mySim.u2 = 0.1
+mySim.r1 = 1.1
+mySim.r2 = 0.9
 mySim.populationHistory = 1
 
-mySim.in0 = 25
-mySim.in1 = 25
-mySim.in2 = 50
+mySim.in0 = 100
+mySim.in1 = 0
+mySim.in2 = 0
 
 dataPointCount = 10
 
@@ -101,22 +102,22 @@ def pulse_r2(sim):
     
     RecordFP(sim)
 
-mySim.preSim = pulse_r2 #IMPORTANT assign the callback (called in the class sim loop)
+#mySim.preSim = pulse_r2 #IMPORTANT assign the callback (called in the class sim loop)
 
 lastFPData = 0.0
 
 def raise_r1(sim):
-    global BoundaryPos
-    r_grad = 0.002
-    sim.r1 = r_grad * sim.curTime
+    #global BoundaryPos
+    #r_grad = 0.002
+    #sim.r1 = r_grad * sim.curTime
     
-    dataPulseTime.append(sim.curTime)
-    dataPulsePulse.append(sim.r1)
+    #dataPulseTime.append(sim.curTime)
+    #dataPulsePulse.append(sim.r1)
     
     RecordFP(sim)
     
 
-#mySim.preSim = raise_r1
+mySim.preSim = raise_r1
 
 def RecordFP(sim):
     global lastFPData
@@ -147,17 +148,27 @@ plot_pulsed = plt.plot(mySim.tHist, mySim.n0Hist, label = "n0", linewidth = 0.5)
 plot_pulsed = plt.plot(mySim.tHist, mySim.n1Hist, label = "n1", linewidth = 0.5)
 plot_pulsed = plt.plot(mySim.tHist, mySim.n2Hist, label = "n2", linewidth = 0.5)
 
-#plot_pulsed = plt.plot(FPTHist, BoundaryPos0, label = "Boundary0", marker = 'o', linestyle = '')
-#plot_pulsed = plt.plot(FPTHist, BoundaryPos1, label = "Boundary1", marker = '^', linestyle = '')
-#plot_pulsed = plt.plot(FPTHist, BoundaryPos2, label = "Boundary2", marker = 's', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, BoundaryPos0, label = "Boundary0", marker = 'o', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, BoundaryPos1, label = "Boundary1", marker = '^', linestyle = '')
+plot_pulsed = plt.plot(FPTHist, BoundaryPos2, label = "Boundary2", marker = 's', linestyle = '')
 
 #plot_pulsed = plt.plot(FPTHist, ReactivePos0, label = "Reactive1", marker = 'o', linestyle = '')
 #plot_pulsed = plt.plot(FPTHist, ReactivePos1, label = "Reactive2", marker = '^', linestyle = '')
 #plot_pulsed = plt.plot(FPTHist, ReactivePos2, label = "Reactive3", marker = 's', linestyle = '')
+
 plt.xlabel("t")
 plt.ylabel("n_i")
-plt.legend()
+#plt.legend()
 plt.show()
+
+fpDat = dict()
+fpDat["fp_t"] = FPTHist
+fpDat["fp_bound0"] = BoundaryPos0
+fpDat["fp_bound1"] = BoundaryPos1
+fpDat["fp_bound2"] = BoundaryPos2
+
+file_name = "FP_Oscillations_N={0}_r1_{1}_r2_{2}".format(mySim.N, mySim.r1, mySim.r2, otherDict = fpDat)
+MatTools.SaveRunHistory(file_name, mySim, xLabel = "t", yLabel = "Pop")
 
 #Do the filename with all the parameters of the simulation   
 filename = "PULSER1_HIST_sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)

@@ -14,13 +14,13 @@ mySim = SimTools.Gillespie(10)
 mySim.in0 = 100
 
 mySim.r0 = 1.0
-mySim.r1 = 1.0
-mySim.r2 = 1.1
+mySim.r1 = 1.1
+mySim.r2 = 0.9
 
-mySim.u1 = 0.001
-mySim.u2 = 0.01
+mySim.u1 = 0.1
+mySim.u2 = 0.1
 
-mySim.timeLimit = 200
+mySim.timeLimit = 1000
 
 mySim.populationHistory = 1
 

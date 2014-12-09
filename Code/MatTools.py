@@ -71,6 +71,27 @@ def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
         
     SaveDict(file_name, data)
 
+def ColourMap(file_name, xCoords, yCoords, zData, xLabel = "x", yLabel = "y", zLabel = 'z', sim = 0):
+    data = dict()
+    data[xLabel] = xCoords
+    data[yLabel] = yCoords
+
+    data[zLabel] = zData    
+    
+    if sim != 0:
+        data["sim_r0"] = sim.r0
+        data["sim_r1"] = sim.r1
+        data["sim_u1"] = sim.u1
+        data["sim_N"] = sim.N
+        if isinstance(sim, SimTools.Gillespie):
+            data["sim_u2"] = sim.u2
+            data["sim_r2"] = sim.r2   
+        
+    SaveDict(file_name, data)
+    
+
+
+
 #Save XY Data from many sims
 def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [], sim = 0, otherDict = 0):
     data = dict()
