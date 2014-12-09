@@ -47,7 +47,6 @@ class systematic:
                    self.w[i][j] = self.w[i][j] + self.deltaT * self.w_dots[i][j]
            
             w_dot_term=self.w_dots[0][0]
-            print(w_dot_term)
             self.w_dots_cached.append(w_dot_term)
             
             self.integral += w_dot_term * self.curT * self.deltaT           
