@@ -63,13 +63,15 @@ myPulse.r2_offset = 0.0
 
 mySim.pulseParam=myPulse
 
+mySim.ResetSim()
+
 numer = systematic_transitions.systematic(mySim)
 
 mySim.preSim=multipulse.multiple_pulse_num
 
 #define simulation parameters
-dataPointCount = 15
-simsPerDataPoint = 2000
+dataPointCount = 4
+simsPerDataPoint = 100
 
 
 #find the angle that gives the closest way to get to 
@@ -131,9 +133,8 @@ normalr2 = [myPulse.init_r2, r2_origin]
 plt.plot(r1, r2)
 plt.plot(normalr1,normalr2)
 plt.show()
+
 '''
-
-
 mySim.angle=math.pi/3
 
 max_freq=0.5
@@ -205,10 +206,6 @@ plt.xlabel("Frequency")
 plt.ylabel("Fixation Time")
 plt.legend()
 plt.title("Freq. of pulse of r1 and r2 vs Fix. Time")
-
-
-
-
 '''
 
 
