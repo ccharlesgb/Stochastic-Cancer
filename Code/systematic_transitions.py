@@ -3,6 +3,7 @@
 Created on Mon Nov 24 22:14:28 2014
 @author: Jonny
 """
+
 import numpy as np
 import math
 
@@ -11,7 +12,9 @@ class systematic:
         self.sim=sim
         self.reset()
         self.threshold = 1e-6
-        self.deltaT = 0.1        
+        self.deltaT = 0.01 
+        self.lastProg = 0.0
+        self.progDelay = 5.0
         
     def reset(self): #function to reset system parameters after a run
          self.w = np.zeros((self.sim.N +1, self.sim.N + 1 ))
@@ -23,6 +26,9 @@ class systematic:
          self.tConverge = self.tmax
          
          self.integral = 0.0
+         
+         self.lastProg = 0.0
+         self.progDelay = 5.0
     
     def cumulative(self): #function to 
         self.w[0][self.sim.N] = 1.0
@@ -53,6 +59,10 @@ class systematic:
             
             self.curT += self.deltaT
             
+            if self.lastProg + self.progDelay < self.curT:
+                self.lastProg = self.curT
+                print("At: {0}".format(self.w[0][0]))
+
             if (abs(self.w[0][0] - 1.0) < self.threshold) and reachedMax == 0:
                 reachedMax = 1
                 print("System has converged!") 

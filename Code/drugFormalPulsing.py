@@ -14,8 +14,6 @@ import multipulse
 import copy
 import TwoSpecies
 
-
-
 #set up simulation parameters
 mySim = SimTools.Gillespie(10)
 
@@ -130,8 +128,6 @@ dirac_angle.append(angle_of_closest_approach)
 plt.plot(dirac_angle,dirac_time)
 plt.show
 
-
-
 r1=numpy.linspace(0.5,1.5,num=60)
 r2=[]
 for i in range(0,len(r1)):
@@ -146,9 +142,10 @@ normalr2 = [myPulse.init_r2, r2_origin]
 plt.plot(r1, r2)
 plt.plot(normalr1,normalr2)
 plt.show()
+
+
+
 '''
-
-
 mySim.angle=math.pi/3
 
 max_freq=0.5

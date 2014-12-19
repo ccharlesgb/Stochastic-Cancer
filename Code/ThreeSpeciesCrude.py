@@ -8,6 +8,7 @@ Created on Thu Nov 06 13:48:28 2014
 import TwoSpecies
 import math
 import anfixtime
+import MatTools
 
 import SimTools
 
@@ -16,12 +17,12 @@ import matplotlib.pyplot as plt
 sim3 = SimTools.Gillespie(10)
 sim3.timeLimit = 10000
 sim3.u1 = 0.1
-sim3.u2 = 0.2
+sim3.u2 = 0.01
 sim3.in0 = 10
 
 sim3.r0 = 1.0
 sim3.r1 = 1.0
-sim3.r2 = 1.0
+sim3.r2 = 1.5
 
 sim3.n1DidFix = 0
 sim3.n1FixTime = 0.0
@@ -33,12 +34,18 @@ def RecordFix1(sim):
 
 sim3.preSim = RecordFix1
 
-dataPointCount = 30
+dataPointCount = 2
 
 minu1 = 0.01
-maxu1 = 0.2
+maxu1 = 0.02
 
-sdp = 1000 #simsperdatapoint
+minr1 = 0.5
+maxr1 = 1.5
+
+minN = 10
+maxN = 100
+
+sdp = 10000 #simsperdatapoint
 
 dataX = []
 dataFix = []
@@ -71,8 +78,10 @@ dataTheory12 = []
 for i in range(0,dataPointCount):
     fixTime = 0.0
     fixTime1 = 0.0
-    sim3.u1 = float(maxu1 - minu1) * float(i) / (dataPointCount - 1.0) + minu1
-    print(sim3.u1)
+    sim3.u2 = float(maxu1 - minu1) * float(i) / (dataPointCount - 1.0) + minu1
+    #sim3.r1 = float(maxr1 - minr1) * float(i) / (dataPointCount - 1.0) + minr1
+    #sim3.in0 = int(float(maxN - minN) * float(i) / (dataPointCount - 1.0) + minN)
+    print(sim3.u2)
     
     for sim in range(0, sdp):
         sim3.n1DidFix = 0
@@ -87,18 +96,29 @@ for i in range(0,dataPointCount):
         else:
             print("WARNING n1 DIDNT FIX")'''
     
-    dataX.append(sim3.u1)
+    dataX.append(sim3.u2)
     dataFix.append(fixTime / sdp)
     
     dataFix1.append(fixTime1 / sdp)
     
+    #Update first numerical sim params
+    sim01.N = sim3.N
     sim01.u1 = sim3.u1
+
+    sim01.r0 = sim3.r0
+    sim01.r1 = sim3.r1
+    #Update second numerical sim params
+    sim12.N = sim3.N
+    sim12.u1 = sim3.u2
+    
+    sim12.r0 = sim3.r1
+    sim12.r1 = sim3.r2
     
     theory01 = anfixtime.GetFixTimeJ(sim01, sim01.ij)
     theory12 = anfixtime.GetFixTimeJ(sim12, sim12.ij)
 
-    print("FIX 0->1 = {0}".format(theory01))
-    print("FIX 1->2 = {0}".format(theory12))
+    #print("FIX 0->1 = {0}".format(theory01))
+    #print("FIX 1->2 = {0}".format(theory12))
     
     dataTheory.append(theory01 + theory12)
     dataTheory01.append(theory01)
@@ -110,3 +130,10 @@ plt.plot(dataX,dataFix, '^')
 plt.plot(dataX,dataTheory)
 #plt.plot(dataX,dataTheory01, '--')
 #plt.plot(dataX,dataTheory12, ':')
+
+file_name = "ThreeSpeciesFix_Anal_sweepN_N_{0}_SDP_{1}".format(sim3.N, sdp)
+
+data2 = dict()
+data2["num_fixtime"] = dataTheory
+
+MatTools.SaveXYData(file_name, dataX, dataFix, xLabel = "N", yLabel = "fixtime", sim = sim3, otherDict = data2)

@@ -8,6 +8,8 @@ import SimTools
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+import MatTools
     
 minr2 = 0.5
 maxr2 = 1.5
@@ -15,7 +17,7 @@ maxr2 = 1.5
 minu2 = 0.01
 maxu2 = 0.2
 
-mapSize = 10
+mapSize = 20
 
 sim3 = SimTools.Gillespie(10)
 sim3.timeLimit = 100000
@@ -23,7 +25,7 @@ sim3.u1 = 0.1
 sim3.u2 = 0.01
 sim3.in0 = 10
 
-sim3.r0 = 1.5
+sim3.r0 = 1.0
 sim3.r1 = 1.0
 sim3.r2 = 1.0
 
@@ -45,8 +47,7 @@ sim12.r1 = sim3.r2
 
 sim01.ij = 0
 
-simsPerDataPoint = 200
-
+simsPerDataPoint = 1
 fixTimeError = np.zeros((mapSize, mapSize))
 
 xticks = np.arange(0, mapSize, 5.0/(mapSize-1.0))
@@ -103,6 +104,8 @@ plt.colorbar()
 plt.xlabel("u2")
 plt.ylabel("r2")
 
-
 plt.xlim(minu2,maxu2)
 plt.ylim(minr2,maxr2)
+
+file_name = "three_species_error_Size_{0}_SDP_{1}".format(mapSize, simsPerDataPoint)
+MatTools.ColourMap(file_name, x, y, fixTimeError, xLabel = "r1", yLabel = "r2", zLabel = "frac_error")

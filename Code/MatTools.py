@@ -90,8 +90,6 @@ def ColourMap(file_name, xCoords, yCoords, zData, xLabel = "x", yLabel = "y", zL
     SaveDict(file_name, data)
     
 
-
-
 #Save XY Data from many sims
 def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [], sim = 0, otherDict = 0):
     data = dict()
@@ -111,8 +109,10 @@ def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [],
             data["sim_r2"] = sim.r2   
     
     if otherDict != 0:
+        print("Adding other dict")
         for key, value in otherDict.iteritems():
-            data["_" + key] = value    
+            print(key)
+            data[key] = value    
         
     SaveDict(file_name, data)
     

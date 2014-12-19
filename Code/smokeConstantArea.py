@@ -9,19 +9,19 @@ import MatTools
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 
-mySim.in0 = 10
-mySim.timeLimit = 20000.0
+mySim.in0 = 100
+mySim.timeLimit = 200000.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
 
-smokeArea_u = 1.5
+smokeArea_u = 5.0
 
 quit_u = 0.001
 
 smoke_u = quit_u * 10.0
 
-min_mut_factor = 2.0
-max_mut_factor = 100.0
+min_mut_factor = 5.0
+max_mut_factor = 500.0
 
 #Pre Simulate callback (called every frame before a timestep)
 def increaseMutation(sim):
@@ -40,8 +40,8 @@ mySim.preSim = increaseMutation #IMPORTANT assign the callback (called in the cl
     
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 3000
-dataPointCount = 5
+simsPerDataPoint = int(1e3)
+dataPointCount = 6
 fixError = []
 
 #Initialize the array with default values
@@ -55,6 +55,9 @@ MUS = []
 for i in range(0, dataPointCount):
     val = (float(i) / (dataPointCount - 1))
 
+minSmokeT = 10
+maxSmokeT = 80
+
 for curPoint in range(0, dataPointCount):
     startTime = time.clock() #Algorithm benchmarking
     
@@ -62,11 +65,15 @@ for curPoint in range(0, dataPointCount):
     totFixTime = 0.0
     print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
     
+    smokeTime = (maxSmokeT - minSmokeT) * (curPoint / (dataPointCount - 1.0)) + minSmokeT
+    smoke_u = smokeArea_u / smokeTime + quit_u
+    
+    '''
     #mut_factor = (max_mut_factor - min_mut_factor) * ((dataPointCount) / float(curPoint + 1.0)) + min_mut_factor
     mut_factor = (max_mut_factor - min_mut_factor) * ((1.0) / float(curPoint + 1.0)) + min_mut_factor
     smoke_u = quit_u * mut_factor
-    smokeTime = smokeArea_u / (smoke_u - quit_u)
-    
+    smokeTime = smokeArea_u / (quit_u * (mut_factor - 1.0))
+    '''
     dataST.append(smokeTime)
     dataMU.append(smoke_u)
     
@@ -89,6 +96,9 @@ for curPoint in range(0, dataPointCount):
     
     fixError.append(fixTimeAvg/math.sqrt(float(simsPerDataPoint)))    
     
+    if fixTimeAvg < smokeTime:
+        print("WARNING FIX TIME < SMOKE TIME")
+    
     dataPointsY.append(fixTimeAvg)
     dataPointsX.append(smokeTime)
     #maxSmokeTime = dataPointsY[0]
@@ -99,12 +109,35 @@ for curPoint in range(0, dataPointCount):
 for i in range(0, len(dataPointsX)):
     print("radTime: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
 
+
+def PlotPulse(area, mut_factor, offset):
+    dataX = []
+    dataY = []
+    
+    mutTime = area / (offset * (mut_factor - 1.0))
+    dataX.append(0.0)
+    dataX.append(mutTime)
+    dataX.append(mutTime)
+    dataX.append(100.0)
+    dataY.append(offset * mut_factor)
+    dataY.append(offset * mut_factor)
+    dataY.append(offset)
+    dataY.append(offset)
+    
+    plt.plot(dataX, dataY)
+    
+
 plt.figure()
 plt.subplot(2,1,1)
 
-plt.plot(dataST, dataMU, 'o-')
-plt.ylabel("u1 = u2 = u")
-plt.xlabel("Pulse Time")
+for i in range(len(dataST)):
+    PlotPulse(smokeArea_u, dataMU[i] / quit_u, quit_u)
+
+#plt.plot(dataST, dataMU, 'o-')
+#plt.ylabel("u1 = u2 = u")
+#plt.xlabel("Pulse Time")
+
+#plt.plot()
 
 #Create graph of data+
 plt.subplot(2,1,2)
@@ -113,7 +146,7 @@ plt.xlabel("Pulse Time")
 plt.ylabel("Type 2 Fixation Time")
 plt.show()
 
-file_name = "TESTPulseConstantArea_r1_{0}_r2_{1}_uquit_{2}_N_{3}_Dose_{4}".format(mySim.r1, mySim.r2, quit_u, mySim.N, smokeArea_u)
+file_name = "PulseConstantArea_r1_{0}_r2_{1}_uquit_{2}_N_{3}_Dose_{4}".format(mySim.r1, mySim.r2, quit_u, mySim.N, smokeArea_u)
 MatTools.SaveXYData("PARAM_" + file_name, dataST, dataMU, xLabel = "PulseTime", yLabel = "u_pulse")
 MatTools.SaveXYData("DAT_" + file_name, dataPointsX, dataPointsY, xLabel = "PulseTime", yLabel = "FixTime")
 

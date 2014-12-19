@@ -15,13 +15,13 @@ function [] = dofig(name)
     
     
     %set (gcf, 'LineWidth', linewidthnumber);
-    set(custom_legen_handle_name,'FontSize',legendfontsize);
-    set(custom_x_label_name, 'FontSize', labelfontsize);
-    set(custom_y_label_name, 'FontSize', labelfontsize);
+    %set(custom_legen_handle_name,'FontSize',legendfontsize);
+    %set(custom_x_label_name, 'FontSize', labelfontsize);
+    %set(custom_y_label_name, 'FontSize', labelfontsize);
     
-    set(custom_title, 'FontSize', labelfontsize);
+    %set(custom_title, 'FontSize', labelfontsize);
     
-    set(gca, 'FontSize', axisfontsize);
+    %set(gca, 'FontSize', axisfontsize);
     set(gcf, 'Color', 'none');
     
     pause(0.1)
