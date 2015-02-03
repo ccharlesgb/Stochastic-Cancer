@@ -1,64 +1,85 @@
-import matplotlib.pyplot as plt
-import SimTools
-import time
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb 03 12:48:47 2015
 
-#Initialize the Gillespie simulator with 10 cells
-mySim = SimTools.Gillespie(100)
-mySim.in0 = 10
-mySim.timeLimit = 100
-mySim.u1 = 0.1
-mySim.u2 = 0.01
+@author: Connor
+"""
 
-mySim.r0 = 1.0
-mySim.r1 = 1.0
-mySim.r2 = 1.0
+import math
+import random
 
-dataPointCount = 15
-
-#Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
-#Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = 500
-
-#Initialize the array with default values
-dataPointsX = []
-dataPointsY = []
-for i in range(0, dataPointCount):
-    dataPointsX.insert(i,0.0)
-    dataPointsY.insert(i,0.0)
-
-for curPoint in range(0, dataPointCount):
-    startTime = time.clock() #Algorithm benchmarking
-    
-    fixationCounts = 0
-    mySim.r1 = 0.2 + (3.0-0.2) * float(curPoint)/float(dataPointCount) #sweep type-1 fitness from 0.2 to 3.0
-    
-    print("Current Data Point = {0}/{1} ({2}%)".format(curPoint + 1, dataPointCount, 100.0 * float(curPoint+1.0)/dataPointCount))
-    #Perform many simulations to get an accurate probability of the fixation probability
-    for sim in range(0, simsPerDataPoint):
-        mySim.Simulate()
-            
-        if mySim.n2 == mySim.N: #The simulation ended with fixation
-            fixationCounts += 1
-    #Once the loop is done get the fraction of fixations for this r1
-    dataPointsX[curPoint] = mySim.r1
-    dataPointsY[curPoint] = float(fixationCounts) / float(simsPerDataPoint)
-
-    print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=2))
-
-#Dump data to console
-for i in range(0, dataPointCount):
-    print("r1: {0} Fixation: {1}".format(dataPointsX[i],dataPointsY[i]))
-
-#Create graph of data
-plt.plot(dataPointsX, dataPointsY, linestyle = '', marker = 'o')
-plt.xlabel("Type 1 Fitness r1")
-plt.ylabel("Type 2 Fixation %")
-plt.show()
-
-#Do the filename with all the parameters of the simulation   
-filename = "GILL_sim_N={0}_r0={1}_r1={2}_r2={3}_u1={4}_u2={5}_SPDP={6}".format(mySim.N, mySim.r0, mySim.r1, mySim.r2, mySim.u1, mySim.u2, simsPerDataPoint)
-
-#Save the data to a file
-SimTools.SaveXYToFile(filename, dataPointsX, dataPointsY)
-
+class Gillespie:
+    def __init__(self):
+        self.rateCallbacks = [] #Array of callbacks for all our rates
+        self.eventCallbacks = []
+        self.rateCallbackCount = 0
+        self.rateCache = []
         
+        self.params = 0
+        self.lambd = 0.0
+        self.simSteps = 0
+        self.curTime = 0.0
+        self.timeLimit = 100.0
+        
+    def AddCallback(self, rateFunc, eventFunc):
+        self.rateCallbacks.append(rateFunc)
+        self.eventCallbacks.append(eventFunc)
+        self.rateCallbackCount += 1
+        self.rateCache.append(0.0)
+        
+    def Hook(self, param):
+        print(param)
+        self.params = param
+        param.Hook(self)
+        
+    def UnHook(self):
+        self.rateCallbackCount = 0
+        self.rateCallbacks = []
+        self.eventCallbacks = []
+        self.rateCache = []
+        
+    #Exponential parameter for frequency of events
+    def GetLambda(self):
+        return self.lambd
+
+    #Returns an exponentially distributed number based on the lambda parameter
+    def GetTimeStep(self):
+        return 1.0/self.GetLambda() * math.log(1.0/random.random())
+        
+    #Chose and execute which event to carry out. Updates population counts
+    #Uses weighted random number between 0 and 1
+    def ChooseEvent(self):
+        rand = random.random() * self.lambd
+        
+        threshold = 0.0
+        for i in range(0,self.rateCallbackCount):
+            threshold += self.rateCache[i]
+            if (rand < threshold):
+                self.eventCallbacks[i]()
+                return
+            
+    def UpdateRates(self):
+        self.lambd = 0.0
+        for i in range(0,self.rateCallbackCount):
+            self.rateCache[i] = self.rateCallbacks[i]()
+            self.lambd += self.rateCache[i]
+        #print("SELF.LAMBDA = ", self.lambd)
+            
+    def Reset(self):
+        self.simSteps = 0
+        self.curTime = 0.0       
+    
+    def Simulate(self):
+        self.params.Reset()
+        self.Reset()
+        while self.curTime < self.timeLimit:   
+            self.UpdateRates()
+            if self.lambd == 0: #We have fixated at an absorbing state
+                return
+                
+            timestep = self.GetTimeStep() #How much time until the next event?
+            self.ChooseEvent() #Choose what kind of event and update cell counts
+            
+            self.curTime += timestep #Increment time
+            self.simSteps+= 1 #Increase event count
+                

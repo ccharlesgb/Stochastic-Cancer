@@ -10,7 +10,7 @@ import Tkinter, tkFileDialog
 
 def SaveDict(file_name, data):
     date = time.strftime("%d-%m")
-    direct = "MATLAB/Data/S2/" + date
+    direct = "MATLAB/Data/" + date
     if not os.path.exists(direct):
         os.makedirs(direct)    
     
