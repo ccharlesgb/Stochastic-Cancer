@@ -21,6 +21,8 @@ class Gillespie:
         self.curTime = 0.0
         self.timeLimit = 100.0
         
+        self.history = 0
+        
     def AddCallback(self, rateFunc, eventFunc):
         self.rateCallbacks.append(rateFunc)
         self.eventCallbacks.append(eventFunc)
@@ -69,12 +71,20 @@ class Gillespie:
         self.simSteps = 0
         self.curTime = 0.0       
     
+    def SetHistory(self, hist):
+        self.history = hist
+    
     def Simulate(self):
         self.params.Reset()
         self.Reset()
+        
+        if self.history != 0:
+            self.history.RecordFrame(self.curTime, self.params)
+        
         while self.curTime < self.timeLimit:   
             self.UpdateRates()
             if self.lambd == 0: #We have fixated at an absorbing state
+                print("END")
                 return
                 
             timestep = self.GetTimeStep() #How much time until the next event?
@@ -82,4 +92,7 @@ class Gillespie:
             
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
+            
+            if self.history != 0:
+                self.history.RecordFrame(self.curTime, self.params)
                 

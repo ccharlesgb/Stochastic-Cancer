@@ -5,6 +5,25 @@ Created on Tue Feb 03 12:01:50 2015
 @author: Connor
 """
 
+class StemCellHist:
+    def __init__(self):
+       self.ClearFrames()
+        
+    def ClearFrames(self):
+        self.tHist = []
+        self.n0Hist = []
+        self.n1Hist = []
+        self.m0Hist = []
+        self.m1Hist = []
+        
+    def RecordFrame(self, time, param):
+        print("Record", param.n0, param.n1)
+        self.tHist.append(time)
+        self.n0Hist.append(param.n0)
+        self.n1Hist.append(param.n1)
+        self.m0Hist.append(param.m0)
+        self.m1Hist.append(param.m1)
+
 #Define all the parameters for our stem cell model
 class StemCellParam:
     def __init__(self):
@@ -14,21 +33,21 @@ class StemCellParam:
         self.m0 = 0 #Number of CANCER stem cells
         self.m1 = 0 #Number of CANCER normal cells
         #Define initial conditons
-        self.in0 = 0
-        self.in1 = 0
-        self.im0 = 0
+        self.in0 = 200
+        self.in1 = 200
+        self.im0 = 1
         self.im1 = 0
         #Define stem cell reproduction rates
-        self.rn = 1.0 #Normal stem cell reproduction
+        self.rn = 10.0 #Normal stem cell reproduction
         self.rm = 1.0 #Cancer stem cell reproduction
-        self.d0 = 1.0 #Stem cell death rate (Cancer and Healthy)
+        self.d0 = 0.002 #Stem cell death rate (Cancer and Healthy)
         #Define normal cell reproduction rates
-        self.an = 0.5 #Differentiation for healthy cells Stem -> Normal
-        self.am = 0.5 #Differentiation for cancer cells Stem -> Normal
-        self.d1 = 1.0 #Death of normal cells (Cancer and healthy)
+        self.an = 1.065e1 #Differentiation for healthy cells Stem -> Normal
+        self.am = 1.065e1 #Differentiation for cancer cells Stem -> Normal
+        self.d1 = 1 #Death of normal cells (Cancer and healthy)
         #Define Homeostasis Paramaters
-        self.cn = 1.0
-        self.cm = 1.0
+        self.cn = 0.75e-3
+        self.cm = 0.38e-3
         
     def Reset(self):
         self.n0 = self.in0
@@ -72,7 +91,7 @@ class StemCellParam:
     def Eventn0(self):
         self.n0 += 1
     def Eventn0_(self):
-        self.m0 =- 1
+        self.n0 -= 1
     def Eventn0n1(self):
         self.n0 -= 1
         self.n1 += 1
@@ -83,7 +102,7 @@ class StemCellParam:
     def Eventm0(self):
         self.m0 += 1
     def Eventm0_(self):
-        self.m0 =- 1
+        self.m0 -= 1
     def Eventm0m1(self):
         self.m0 -= 1
         self.m1 += 1
