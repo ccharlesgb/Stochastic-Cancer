@@ -12,9 +12,9 @@ class systematic:
         self.sim=sim
         self.reset()
         self.threshold = 1e-6
-        self.deltaT = 0.01 
+        self.deltaT = 0.1 
         self.lastProg = 0.0
-        self.progDelay = 5.0
+        self.progDelay = 30.0
         
     def reset(self): #function to reset system parameters after a run
          self.w = np.zeros((self.sim.N +1, self.sim.N + 1 ))
@@ -28,7 +28,6 @@ class systematic:
          self.integral = 0.0
          
          self.lastProg = 0.0
-         self.progDelay = 5.0
     
     def cumulative(self): #function to 
         self.w[0][self.sim.N] = 1.0
@@ -36,7 +35,9 @@ class systematic:
         reachedMax = 0
         while self.curT < self.tmax: #loop to save time if the system has converged
             if self.sim.preSim != 0:
-                self.sim.preSim(self)
+                #self.sim.curTime = self.avgfixtime - self.curT
+                self.sim.curTime = self.curT + (self.wl * 0.5)
+                self.sim.preSim(self.sim)
             
             if reachedMax == 1:
               for i in range(0,self.sim.N+1):

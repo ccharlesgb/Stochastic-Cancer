@@ -51,13 +51,28 @@ mySim.ResetSim()
 
 numer.threshold = 1e-4
 
+minWl = 0.01
+maxWl = 2
+
+#Pre Simulate callback (called every frame before a timestep)
+def pulse_r1(sim):
+    pulseAmp = 2.0
+    pulseOff = 0.1
+    pulseWavelength = pulseWl
+    pulseWidth = pulseWavelength / 2.0
+    sim.r1 = SimTools.PulseWave(sim.curTime, pulseAmp, pulseWidth, pulseWavelength) + pulseOff
+
+mySim.preSim = pulse_r1
 
 for curPoint in range(0,dataPointCount): #simulate some shit
     #mySim.r1 = float(max_r1 - min_r1) * float(curPoint) / (dataPointCount - 1.0) + min_r1
     #mySim.u1 = float(max_u1 - min_u1) * float(curPoint) / (dataPointCount - 1.0) + min_u1
-    mySim.in0 = int(max_N - float(max_N - min_N) * float(curPoint) / (dataPointCount - 1.0))
-    dataX.append(mySim.in0)  
-    print(mySim.in0)
+    #mySim.in0 = int(max_N - float(max_N - min_N) * float(curPoint) / (dataPointCount - 1.0))
+
+    pulseWl = float(maxWl - minWl) * float(curPoint) / (dataPointCount - 1.0) + minWl
+    
+    dataX.append(pulseWl)  
+    print(pulseWl)
     print("Data Point {0}/{1} - {2}%".format(curPoint + 1, dataPointCount, 100*(curPoint + 1)/dataPointCount))    
     
     fixTimeTerm = 0.0
@@ -68,10 +83,13 @@ for curPoint in range(0,dataPointCount): #simulate some shit
         else:
             fixTimeTerm += mySim.timeLimit
             print("DID NOT FIXATE")
+    #fixTimeTerm = 0.0
     dataFix.append(fixTimeTerm/spd)
     
     #Do theory
     mySim.ResetSim()    
+    numer.avgfixtime = fixTimeTerm/spd
+    numer.wl = pulseWl
     result = numer.Get_fix_time()
     dataTheory.append(result)
 
@@ -83,13 +101,13 @@ for curPoint in range(0,dataPointCount): #simulate some shit
 
 plt.plot(dataX,dataFix, '^')
 plt.plot(dataX,dataTheory)
-plt.xlabel("N")
+plt.xlabel("r1")
 plt.ylabel("Fixation Time")
 plt.show()
 
-file_name = "ThreeSpeciesSystematic_sweepu1_N_{0}_SDP_{1}".format(mySim.N, spd)
+file_name = "ThreeSpeciesSystematic_sweepWavelength_N_{0}_SDP_{1}".format(mySim.N, spd)
 
 data2 = dict()
 data2["num_fixtime"] = dataTheory
 
-MatTools.SaveXYData(file_name, dataX, dataFix, xLabel = "N", yLabel = "fixtime", sim = mySim, otherDict = data2)
+MatTools.SaveXYData(file_name, dataX, dataFix, xLabel = "r1", yLabel = "fixtime", sim = mySim, otherDict = data2)

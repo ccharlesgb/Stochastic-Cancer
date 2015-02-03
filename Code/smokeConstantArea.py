@@ -9,7 +9,7 @@ import MatTools
 #Initialize the Gillespie simulator with 10 cells
 mySim = SimTools.Gillespie(10)
 
-mySim.in0 = 100
+mySim.in0 = 10
 mySim.timeLimit = 200000.0
 mySim.r1 = 1.0
 mySim.r2 = 1.0
@@ -40,7 +40,7 @@ mySim.preSim = increaseMutation #IMPORTANT assign the callback (called in the cl
     
 #Sweep the parameter r1 from 0.2 to 3.0 and run many simulations per data point
 #Gets an idea on how likely cancer fixation is to occur for this parameter
-simsPerDataPoint = int(1e3)
+simsPerDataPoint = int(2e6)
 dataPointCount = 6
 fixError = []
 
@@ -146,7 +146,7 @@ plt.xlabel("Pulse Time")
 plt.ylabel("Type 2 Fixation Time")
 plt.show()
 
-file_name = "PulseConstantArea_r1_{0}_r2_{1}_uquit_{2}_N_{3}_Dose_{4}".format(mySim.r1, mySim.r2, quit_u, mySim.N, smokeArea_u)
+file_name = "PulseConstantArea_r1_{0}_r2_{1}_uquit_{2}_N_{3}_Dose_{4}_SDP_{5}".format(mySim.r1, mySim.r2, quit_u, mySim.N, smokeArea_u, simsPerDataPoint)
 MatTools.SaveXYData("PARAM_" + file_name, dataST, dataMU, xLabel = "PulseTime", yLabel = "u_pulse")
 MatTools.SaveXYData("DAT_" + file_name, dataPointsX, dataPointsY, xLabel = "PulseTime", yLabel = "FixTime")
 

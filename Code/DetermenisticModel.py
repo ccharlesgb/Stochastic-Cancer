@@ -25,7 +25,7 @@ class Determenistic:
         return exists_bound or exists_react
             
     def GetAvgFit(self,sim):
-        return self.xi[0] * sim.r0 + self.xi[1] * sim.r1 + self.xi[2] * sim.r2
+        return (self.xi[0] * sim.r0 + self.xi[1] * sim.r1 + self.xi[2] * sim.r2) / sim.N
         
     def GetX0Dot(self,sim):
         dot = self.xi[0] * ((1.0 - sim.u1) * sim.r0 - self.GetAvgFit(sim))

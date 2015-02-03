@@ -31,8 +31,8 @@ mySim.ResetSim()
 
 deterSim = DetermenisticModel.Determenistic()
 
-dataPointCount = 10
-spd = 5000
+dataPointCount = 5
+spd = 100
 
 min_r1 = 0.5
 max_r1 = 1.5
@@ -41,7 +41,7 @@ min_u1 = 0.01
 max_u1 = 0.1
 
 min_N = 10
-max_N = 100
+max_N = 50
 
 dataX = []
 dataFix = []
