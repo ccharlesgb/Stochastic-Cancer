@@ -72,20 +72,22 @@ class Gillespie:
             
     def Reset(self):
         self.simSteps = 0
-        self.curTime = 0.0       
+        self.curTime = 0.0      
+        self.timeStep = 0.0
     
     def SetHistory(self, hist):
         self.history = hist
     
     def Simulate(self):
+        print("GET READY")
         self.params.Reset()
         self.Reset()
         
         if self.history != 0:
             self.history.RecordFrame(self.curTime, self.params)
-        
+      
         while self.curTime < self.timeLimit:   
-            self.params.PreSim(self)
+            #self.params.PreSim(self)
             if self.preSim != 0:
                 self.preSim(self.curTime, self.params)
                 

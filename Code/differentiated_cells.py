@@ -20,7 +20,7 @@ myGill.Hook(myParam) #Hook into sim parameters
 myGill.SetHistory(myHist)
 
 DPC = 1
-
+print("GET READY BEFORE")
 myGill.Simulate()
 
 plt.subplot(2, 1, 1)

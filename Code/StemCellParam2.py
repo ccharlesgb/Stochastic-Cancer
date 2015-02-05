@@ -114,12 +114,13 @@ class StemCellParam:
         gillespie.AddCallback(self.GetTm0_, self.Eventm0_)
         
     def PreSim(self, gillespie):
-        return
+        a = 0
         
     def PostSim(self, gillespie):
-        self.n1 += gillespie.timeStep*self.n1_derivative()
-        self.m1 += gillespie.timeStep*self.m1_derivative()       
         return
+        #print(gillespie.curTime)
+        #self.n1 += gillespie.timeStep * self.n1_derivative()
+        #self.m1 += gillespie.timeStep * self.m1_derivative()       
 
     def n1_derivative(self):
         result = self.an*self.n0 - self.dn1*self.n1
