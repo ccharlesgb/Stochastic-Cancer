@@ -84,6 +84,7 @@ class Gillespie:
             self.history.RecordFrame(self.curTime, self.params)
         
         while self.curTime < self.timeLimit:   
+            self.params.PreSim(self)
             if self.preSim != 0:
                 self.preSim(self.curTime, self.params)
                 
@@ -98,6 +99,7 @@ class Gillespie:
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
             
+            self.params.PostSim(self)
             if self.postSim != 0:
                 self.postSim(self.curTime, self.params)
             

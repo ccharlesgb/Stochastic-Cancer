@@ -96,5 +96,11 @@ class StemCellParam:
         gillespie.AddCallback(self.GetTn0_, self.Eventn0_)
         gillespie.AddCallback(self.GetTm0, self.Eventm0)
         gillespie.AddCallback(self.GetTm0_, self.Eventm0_)
+        
+    def PreSim(self, gillespie):
+        return
+        
+    def PostSim(self, gillepie):
+        return
     
         
