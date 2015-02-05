@@ -14,13 +14,34 @@ myGill = Gillespie.Gillespie()
 
 myParam = StemCellParam2.StemCellParam()
 
+
 myHist = StemCellParam2.StemCellHist()
 
 myGill.Hook(myParam) #Hook into sim parameters
 myGill.SetHistory(myHist)
+#set some paramters
+myParam.in0 = 2e3
+myParam.im0 = 1
 
+myParam.rn = 0.005
+myParam.rm = 0.0115
+
+myParam.cn = 0.75e-3
+#myParam.cm = 0.38e-3
+myParam.cn = 0.75e-3
+
+myParam.dn0 = 0.002
+myParam.dm0 = 0.002
+
+myParam.dm0_ON = 0.002
+myParam.dm0_ON = 0.002
+
+<<<<<<< Updated upstream
 DPC = 1
 print("GET READY BEFORE")
+=======
+
+>>>>>>> Stashed changes
 myGill.Simulate()
 
 plt.subplot(2, 1, 1)
