@@ -61,6 +61,7 @@ maxMult = 1.5
 dataX = []
 dataY = []
 
+
 simCount = 10
 
 for sim in range(0, simCount):
@@ -75,3 +76,4 @@ for sim in range(0, simCount):
 
     plt.plot(myHist.tHist, myHist.n0Hist)
     plt.plot(myHist.tHist, myHist.m0Hist, '--')
+
