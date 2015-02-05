@@ -29,8 +29,8 @@ def EnableTreatment(time, params):
     treatStart = 2000.0
     treatDur = 2000
     if time > treatStart and time < treatStart + treatDur:
-        params.dm0 = 0.0125
-        params.dn0 = 0.003
+        params.dm0 = params.dm0_ON
+        params.dn0 = params.dm0_ON
     else:
         params.dm0 = 0.002
         params.dn0 = 0.002
@@ -52,16 +52,37 @@ myParam.cn = 0.75e-3
 myParam.dn0 = 0.002
 myParam.dm0 = 0.002
 
-simCount = 5
-for i in range(0, simCount):
-    myHist.ClearFrames()
-    myGill.Simulate()
-    
-    print ("DONE")
-    
-    if myParam.m0 == 0:    
-    
-    plt.title("Stem Cells")
-    plt.plot(myHist.tHist, myHist.n0Hist)
-    plt.plot(myHist.tHist, myHist.m0Hist, '--')
+myParam.dm0_ON = 0.002
+myParam.dm0_ON = 0.002
+
+minMult = 1.1
+maxMult = 2.0
+
+dataX = []
+dataY = []
+
+pointCount = 10
+simCount = 20
+
+for i in range(0, pointCount):
+    cureCount = 0
+    print("Data Point: ", i)
+    for sim in range(0, simCount):
+        mult = float(i)/(simCount-1) * maxMult + minMult
+        myParam.dm0_ON = mult * 0.01    
+        
+        myHist.ClearFrames()
+        myGill.Simulate()
+        
+        if myParam.m0 == 0:
+            cureCount += 1
+            print("CURED")
+            
+    dataX.append(myParam.dm0_ON)
+    dataY.append(cureCount / simCount)
+
+plt.plot(dataX, dataY)
+plt.xlabel("Treatment death rate")
+plt.ylabel("Cure Probability")
+
 #plt.yscale("log")

@@ -24,6 +24,7 @@ class Gillespie:
         self.history = 0
         
         self.preSim = 0
+        self.postSim = 0
         
     def AddCallback(self, rateFunc, eventFunc):
         self.rateCallbacks.append(rateFunc)
@@ -96,6 +97,9 @@ class Gillespie:
             
             self.curTime += timestep #Increment time
             self.simSteps+= 1 #Increase event count
+            
+            if self.postSim != 0:
+                self.postSim(self.curTime, self.params)
             
             if self.history != 0:
                 self.history.RecordFrame(self.curTime, self.params)
