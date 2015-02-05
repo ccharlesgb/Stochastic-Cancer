@@ -5,8 +5,6 @@ import scipy.io as io
 import os
 import time
 import matplotlib.pyplot as plt
-import SimTools
-import Tkinter, tkFileDialog
 
 def SaveDict(file_name, data):
     date = time.strftime("%d-%m")
@@ -49,43 +47,12 @@ def ExportFigure(file_name, fig_handle):
         
     SaveDict(file_name, data)
 
-#Quickly save population histories
-def SaveRunHistory(file_name, sim, xLabel = "Time", yLabel = "Population"):
-    data = dict()
-
-    data["sim_r0"] = sim.r0
-    data["sim_r1"] = sim.r1
-    data["sim_u1"] = sim.u1
-    data["sim_N"] = sim.N
-    if sim != 0  and isinstance(sim, SimTools.Gillespie):
-        data["sim_u2"] = sim.u2
-        data["sim_r2"] = sim.r2
-        
-        data[xLabel] = sim.tHist
-        data[yLabel + "_n0"] = sim.n0Hist
-        data[yLabel + "_n1"] = sim.n1Hist
-        data[yLabel + "_n2"] = sim.n2Hist
-    elif sim != 0:
-        data[xLabel] = sim.tHist
-        data[yLabel + "_j"] = sim.jHist
-        
-    SaveDict(file_name, data)
-
 def ColourMap(file_name, xCoords, yCoords, zData, xLabel = "x", yLabel = "y", zLabel = 'z', sim = 0):
     data = dict()
     data[xLabel] = xCoords
     data[yLabel] = yCoords
 
-    data[zLabel] = zData    
-    
-    if sim != 0:
-        data["sim_r0"] = sim.r0
-        data["sim_r1"] = sim.r1
-        data["sim_u1"] = sim.u1
-        data["sim_N"] = sim.N
-        if isinstance(sim, SimTools.Gillespie):
-            data["sim_u2"] = sim.u2
-            data["sim_r2"] = sim.r2   
+    data[zLabel] = zData
         
     SaveDict(file_name, data)
     
@@ -98,15 +65,6 @@ def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [],
     
     if len(yError) > 0:
         data[yLabel + "_ERR"] = yError
-        
-    if sim != 0:
-        data["sim_r0"] = sim.r0
-        data["sim_r1"] = sim.r1
-        data["sim_u1"] = sim.u1
-        data["sim_N"] = sim.N
-        if isinstance(sim, SimTools.Gillespie):
-            data["sim_u2"] = sim.u2
-            data["sim_r2"] = sim.r2   
     
     if otherDict != 0:
         print("Adding other dict")
@@ -120,15 +78,6 @@ def SaveXYData(file_name, xData, yData, xLabel = "x", yLabel = "y", yError = [],
 def SaveHistogramData(file_name, values, xLabel = "x", yLabel = "Counts", sim = 0, otherDict = 0):
     data = dict()
     data[xLabel] = values
-        
-    if sim != 0:
-        data["sim_r0"] = sim.r0
-        data["sim_r1"] = sim.r1
-        data["sim_u1"] = sim.u1
-        data["sim_N"] = sim.N
-        if isinstance(sim, SimTools.Gillespie):
-            data["sim_u2"] = sim.u2
-            data["sim_r2"] = sim.r2  
     
     for key, value in otherDict.iteritems():
         data["_" + key] = value      

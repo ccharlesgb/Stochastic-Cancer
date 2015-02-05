@@ -23,6 +23,8 @@ class Gillespie:
         
         self.history = 0
         
+        self.preSim = 0
+        
     def AddCallback(self, rateFunc, eventFunc):
         self.rateCallbacks.append(rateFunc)
         self.eventCallbacks.append(eventFunc)
@@ -30,7 +32,6 @@ class Gillespie:
         self.rateCache.append(0.0)
         
     def Hook(self, param):
-        print(param)
         self.params = param
         param.Hook(self)
         
@@ -82,6 +83,9 @@ class Gillespie:
             self.history.RecordFrame(self.curTime, self.params)
         
         while self.curTime < self.timeLimit:   
+            if self.preSim != 0:
+                self.preSim(self.curTime, self.params)
+                
             self.UpdateRates()
             if self.lambd == 0: #We have fixated at an absorbing state
                 print("END")
