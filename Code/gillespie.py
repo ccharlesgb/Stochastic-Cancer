@@ -19,6 +19,7 @@ class Gillespie:
         self.lambd = 0.0
         self.simSteps = 0
         self.curTime = 0.0
+        self.timeStep = 0.0
         self.timeLimit = 100.0
         
         self.history = 0
@@ -92,10 +93,10 @@ class Gillespie:
             if self.lambd == 0: #We have fixated at an absorbing state
                 return
                 
-            timestep = self.GetTimeStep() #How much time until the next event?
+            self.timeStep = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Choose what kind of event and update cell counts
             
-            self.curTime += timestep #Increment time
+            self.curTime += self.timeStep #Increment time
             self.simSteps+= 1 #Increase event count
             
             self.params.PostSim(self)

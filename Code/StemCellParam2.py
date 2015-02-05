@@ -22,18 +22,24 @@ class StemCellHist:
         self.tHist = []
         self.n0Hist = []
         self.m0Hist = []
+        self.n1Hist = []
+        self.m1Hist = []
         
     def RecordFrame(self, time, param):
         if random.random() < 1.1:
             self.tHist.append(time)
             self.n0Hist.append(param.n0)
             self.m0Hist.append(param.m0)
+            self.n1Hist.append(param.n1)
+            self.m1Hist.append(param.m1)
         
     def GetDictionary(self):
         runDict = dict()
         runDict["time"] = self.tHist
         runDict["n0"] = self.n0Hist
         runDict["m0"] = self.m0Hist
+        runDict["n1"] = self.n1Hist
+        runDict["m1"] = self.m1Hist
         
         return runDict
 
@@ -43,14 +49,22 @@ class StemCellParam:
         #Define Population Counts
         self.n0 = 0 #Number of HEALTHY stem cells
         self.m0 = 0 #Number of CANCER stem cells
+        self.n1 = 0
+        self.m1 = 0        
         #Define initial conditons
         self.in0 = 200
-        self.im0 = 1
+        self.im0 = 10
+        self.in1 = 0
+        self.im1 = 0
         #Define stem cell reproduction rates
         self.rn = 10.0 #Normal stem cell reproduction
         self.rm = 1.0 #Cancer stem cell reproduction
+        self.an = 100.0 #Differentiated normal cell birth rate
+        self.am = 100.0 #Differentiated cacner cell death rate
         self.dn0 = 0.002 #Stem cell death rate healthy
         self.dm0 = 0.002 #Stem cell death rate cancer
+        self.dn1 = 0.002 #Differentiated cell death rate healthy
+        self.dm1 = 0.002 #Differentiated cell death rate cancerous        
         #Define Homeostasis Paramaters
         self.cn = 0.75e-3
         self.cm = 0.38e-3
@@ -58,7 +72,9 @@ class StemCellParam:
     def Reset(self):
         self.n0 = self.in0
         self.m0 = self.im0
-
+        self.n1 = self.in1
+        self.m1 = self.im1
+        
     def GetPhiNormal(self):
         return 1.0 / (1.0 + self.cn*(self.n0 + self.m0))
     
@@ -100,7 +116,16 @@ class StemCellParam:
     def PreSim(self, gillespie):
         return
         
-    def PostSim(self, gillepie):
+    def PostSim(self, gillespie):
+        self.n1 += gillespie.timeStep*self.n1_derivative()
+        self.m1 += gillespie.timeStep*self.m1_derivative()       
         return
+
+    def n1_derivative(self):
+        result = self.an*self.n0 - self.dn1*self.n1
+        return result
     
+    def m1_derivative(self):
+        result = self.an*self.m0 - self.dm1*self.m0
+        return result
         
