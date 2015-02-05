@@ -90,7 +90,6 @@ class Gillespie:
                 
             self.UpdateRates()
             if self.lambd == 0: #We have fixated at an absorbing state
-                print("END")
                 return
                 
             timestep = self.GetTimeStep() #How much time until the next event?

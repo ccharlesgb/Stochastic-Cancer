@@ -40,7 +40,7 @@ myGill.preSim = EnableTreatment
 myGill.timeLimit = 5000
 
 myParam.in0 = 2e3
-myParam.im0 = 1
+myParam.im0 = 5
 
 myParam.rn = 0.005
 myParam.rm = 0.0115
@@ -52,26 +52,35 @@ myParam.cn = 0.75e-3
 myParam.dn0 = 0.002
 myParam.dm0 = 0.002
 
-myParam.dm0_ON = 0.002
+myParam.dn0_ON = 0.002
 myParam.dm0_ON = 0.002
 
-minMult = 1.1
-maxMult = 1.5
+minMult = 5
+maxMult = 10
 
 dataX = []
 dataY = []
 
+pointCount = 30
 simCount = 10
 
-for sim in range(0, simCount):
-    mult = 7
-    print("DONE")
-    myParam.dm0_ON = mult * 0.002   
-    
-    myHist.ClearFrames()
-    myGill.Simulate()
-    
-    print(myParam.m0)
+for i in range(0, pointCount):
+    cureCount = 0
+    print("Data Point: ", i)
+    mult = float(maxMult - minMult) * float(i) / (pointCount - 1.0) + minMult
+    print(mult)
+    for sim in range(0, simCount):
+        myParam.dm0_ON = mult * 0.002   
+        
+        myHist.ClearFrames()
+        myGill.Simulate()
+        
+        if myParam.m0 == 0:
+            cureCount += 1
+            
+    dataX.append(myParam.dm0_ON)
+    dataY.append(float(cureCount) / simCount)
 
-    plt.plot(myHist.tHist, myHist.n0Hist)
-    plt.plot(myHist.tHist, myHist.m0Hist, '--')
+plt.plot(dataX, dataY, marker = 'o')
+plt.xlabel("Treatment death rate")
+plt.ylabel("Cure Probability")
