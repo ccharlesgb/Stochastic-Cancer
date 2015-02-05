@@ -36,12 +36,6 @@ myParam.dm0 = 0.002
 myParam.dm0_ON = 0.002
 myParam.dm0_ON = 0.002
 
-<<<<<<< Updated upstream
-DPC = 1
-print("GET READY BEFORE")
-=======
-
->>>>>>> Stashed changes
 myGill.Simulate()
 
 plt.subplot(2, 1, 1)
