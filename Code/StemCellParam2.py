@@ -53,18 +53,18 @@ class StemCellParam:
         self.m1 = 0        
         #Define initial conditons
         self.in0 = 200
-        self.im0 = 10
-        self.in1 = 0
+        self.im0 = 0
+        self.in1 = 1e5
         self.im1 = 0
         #Define stem cell reproduction rates
         self.rn = 10.0 #Normal stem cell reproduction
         self.rm = 1.0 #Cancer stem cell reproduction
-        self.an = 100.0 #Differentiated normal cell birth rate
-        self.am = 100.0 #Differentiated cacner cell death rate
+        self.an = 1.065e7 #Differentiated normal cell birth rate
+        self.am = 1.065e7 #Differentiated cacner cell death rate
         self.dn0 = 0.002 #Stem cell death rate healthy
         self.dm0 = 0.002 #Stem cell death rate cancer
-        self.dn1 = 0.002 #Differentiated cell death rate healthy
-        self.dm1 = 0.002 #Differentiated cell death rate cancerous        
+        self.dn1 = 0.213 #Differentiated cell death rate healthy
+        self.dm1 = 0.213 #Differentiated cell death rate cancerous        
         #Define Homeostasis Paramaters
         self.cn = 0.75e-3
         self.cm = 0.38e-3
@@ -117,16 +117,14 @@ class StemCellParam:
         a = 0
         
     def PostSim(self, gillespie):
-        return
-        #print(gillespie.curTime)
-        #self.n1 += gillespie.timeStep * self.n1_derivative()
-        #self.m1 += gillespie.timeStep * self.m1_derivative()       
+        self.n1 += gillespie.timeStep * self.n1_derivative()
+        self.m1 += gillespie.timeStep * self.m1_derivative()       
 
     def n1_derivative(self):
         result = self.an*self.n0 - self.dn1*self.n1
         return result
     
     def m1_derivative(self):
-        result = self.an*self.m0 - self.dm1*self.m0
+        result = self.am*self.m0 - self.dm1*self.m1
         return result
         

@@ -13,7 +13,7 @@ myParam = StemCellParam.StemCellParam()
 
 myParam.in0 = 2e2
 myParam.in1 = 1e10
-myParam.im0 = 0
+myParam.im0 = 1
 myParam.im1 = 0
 
 myParam.rn = 0.005

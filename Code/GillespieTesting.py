@@ -6,14 +6,18 @@ Created on Tue Feb 03 13:13:05 2015
 """
 
 import matplotlib.pyplot as plt
-import Gillespie
+import GillespieTauLeap
 import CarcinogenParam
 
 myParam = CarcinogenParam.CarcinogenParam()
-myGillespie = Gillespie.Gillespie()
+myGillespie = GillespieTauLeap.Gillespie()
 
 myGillespie.params = myParam
 myParam.Hook(myGillespie)
+
+myHist = CarcinogenParam.CarcinogenHist()
+
+myGillespie.history = myHist
 
 minr1 = 0.3
 maxr1 = 3.0
@@ -24,6 +28,22 @@ SDP = 500
 dataX = []
 dataY = []
 
+myGillespie.timeLimit = 50
+
+myParam.addRate = 0.05
+
+myParam.in0 = 100
+
+myParam.c0 = 0.003
+myParam.c1 = 0.002
+myParam.c2 = 0.001
+
+myParam.u1 = 0.01
+myParam.u2 = 0.01
+
+myGillespie.Simulate()
+
+'''
 for i in range(0, DPC):
     myParam.r1 = ((float(i) / (DPC - 1)) * (maxr1 - minr1)) + minr1
     dataX.append(myParam.r1)
@@ -40,6 +60,8 @@ for i in range(0, DPC):
     dataY.append(fixProb)
 
 plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
+'''
 
-
-
+plt.plot(myHist.tHist, myHist.n0Hist)
+plt.plot(myHist.tHist, myHist.n1Hist)
+plt.plot(myHist.tHist, myHist.n2Hist)

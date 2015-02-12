@@ -19,18 +19,21 @@ myGill.Hook(myParam) #Hook into sim parameters
 myGill.SetHistory(myHist)
 
 def EnableTreatment(time, params):
-    treatStart = 2000.0
-    treatDur = 2000
-    if time > treatStart and time < treatStart + treatDur:
+    if time > myParam.treatStart and time < myParam.treatStart + myParam.treatDur:
         params.dm0 = params.dm0_ON
         params.dn0 = params.dn0_ON
     else:
         params.dm0 = 0.002
         params.dn0 = 0.002
+        
+    if params.m0 == 0:
+        params.cureTime = time
+        params.m0 = 0
+        params.n0 = 0
 
 myGill.preSim = EnableTreatment
 
-myGill.timeLimit = 5000
+myGill.timeLimit = 1e10
 
 myParam.in0 = 2e3
 myParam.im0 = 5
@@ -45,35 +48,42 @@ myParam.cm = 0.38e-3
 myParam.dn0 = 0.002
 myParam.dm0 = 0.002
 
-myParam.dn0_ON = 0.002
-myParam.dm0_ON = 0.002
+myParam.treatStart = 2000
+myParam.treatDur = 1e10
 
-minMult = 5
-maxMult = 10
+myParam.dn0_ON = 0.002 * 7.5
+myParam.dm0_ON = 0.002 * 7.5
+
+myParam.cureTime = myGill.timeLimit
+
+minTime = 1000
+maxTime = 3000
 
 dataX = []
 dataY = []
 
-pointCount = 30
-simCount = 10
+pointCount = 10
+simCount = 100
 
 for i in range(0, pointCount):
-    cureCount = 0
+    cureTimeTot = 0.0
     print("Data Point: ", i)
-    mult = float(maxMult - minMult) * float(i) / (pointCount - 1.0) + minMult
-    print(mult)
+    startTime = float(maxTime - minTime) * float(i) / (pointCount - 1.0) + minTime
+    print(startTime)
+
+    myParam.cureTime = myGill.timeLimit    
+    
     for sim in range(0, simCount):
-        myParam.dm0_ON = mult * 0.002   
+        myParam.treatStart = startTime 
         
         myHist.ClearFrames()
         myGill.Simulate()
         
-        if myParam.m0 == 0:
-            cureCount += 1
+        cureTimeTot += (myParam.cureTime - myParam.treatStart)
             
-    dataX.append(myParam.dm0_ON)
-    dataY.append(float(cureCount) / simCount)
+    dataX.append(myParam.treatStart)
+    dataY.append(float(cureTimeTot) / simCount)
 
 plt.plot(dataX, dataY, marker = 'o')
-plt.xlabel("Treatment death rate")
-plt.ylabel("Cure Probability")
+plt.xlabel("Treatment Start Time")
+plt.ylabel("Cure Time")

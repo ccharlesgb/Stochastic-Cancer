@@ -7,6 +7,7 @@ Created on Tue Feb 03 12:48:47 2015
 
 import math
 import random
+import numpy
 
 class Gillespie:
     def __init__(self):
@@ -14,6 +15,8 @@ class Gillespie:
         self.eventCallbacks = []
         self.rateCallbackCount = 0
         self.rateCache = []
+        
+        self.eventCount = []
         
         self.params = 0
         self.lambd = 0.0
@@ -27,11 +30,14 @@ class Gillespie:
         self.preSim = 0
         self.postSim = 0
         
+        self.tau = 0.1
+        
     def AddCallback(self, rateFunc, eventFunc):
         self.rateCallbacks.append(rateFunc)
         self.eventCallbacks.append(eventFunc)
         self.rateCallbackCount += 1
         self.rateCache.append(0.0)
+        self.eventCount.append(0)
         
     def Hook(self, param):
         self.params = param
@@ -42,6 +48,9 @@ class Gillespie:
         self.rateCallbacks = []
         self.eventCallbacks = []
         self.rateCache = []
+            
+    def Poission(self, mean):
+        return numpy.random.poisson(mean)
         
     #Exponential parameter for frequency of events
     def GetLambda(self):
@@ -49,19 +58,15 @@ class Gillespie:
 
     #Returns an exponentially distributed number based on the lambda parameter
     def GetTimeStep(self):
-        return 1.0/self.GetLambda() * math.log(1.0/random.random())
+        return self.tau
         
     #Chose and execute which event to carry out. Updates population counts
     #Uses weighted random number between 0 and 1
     def ChooseEvent(self):
-        rand = random.random() * self.lambd
-        
-        threshold = 0.0
         for i in range(0,self.rateCallbackCount):
-            threshold += self.rateCache[i]
-            if (rand < threshold):
+            self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
+            for i2 in range(0, self.eventCount[i]):
                 self.eventCallbacks[i]()
-                return
             
     def UpdateRates(self):
         self.lambd = 0.0

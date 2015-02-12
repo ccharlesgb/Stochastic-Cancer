@@ -27,21 +27,8 @@ class Gillespie:
         self.preSim = 0
         self.postSim = 0
         
-    def AddCallback(self, rateFunc, eventFunc):
-        self.rateCallbacks.append(rateFunc)
-        self.eventCallbacks.append(eventFunc)
-        self.rateCallbackCount += 1
-        self.rateCache.append(0.0)
-        
-    def Hook(self, param):
-        self.params = param
-        param.Hook(self)
-        
-    def UnHook(self):
-        self.rateCallbackCount = 0
-        self.rateCallbacks = []
-        self.eventCallbacks = []
-        self.rateCache = []
+        self.changeEventsTot = 0.0
+        self.mutEventsTot = 0.0
         
     #Exponential parameter for frequency of events
     def GetLambda(self):
@@ -57,19 +44,49 @@ class Gillespie:
         rand = random.random() * self.lambd
         
         threshold = 0.0
-        for i in range(0,self.rateCallbackCount):
-            threshold += self.rateCache[i]
+        cacheDex = 0
+        for init in range(0, self.params.typeCount):
+            for final in range(0, self.params.typeCount):
+                if init == final:
+                    continue
+                #print("INIT", init, "FINAL", final, "RATE", self.rateCache[cacheDex])
+                threshold += self.rateCache[cacheDex]
+                cacheDex += 1
+                if (rand < threshold):
+                    self.params.ni[init] -= 1
+                    self.params.ni[final] += 1
+                    return
+        for i in range(0,self.params.typeCount - 1):
+            #print("MUT RATE", i, self.rateCache[cacheDex])
+            threshold += self.rateCache[cacheDex]
+            cacheDex += 1
             if (rand < threshold):
-                self.eventCallbacks[i]()
+                self.params.ni[i] -= 1
+                self.params.ni[i+1] += 1
                 return
             
     def UpdateRates(self):
         self.lambd = 0.0
-        for i in range(0,self.rateCallbackCount):
-            self.rateCache[i] = self.rateCallbacks[i]()
-            self.lambd += self.rateCache[i]
-        #print("SELF.LAMBDA = ", self.lambd)
+        cacheDex = 0
+        self.rateCache = []
+        self.changeEventsTot = 0.0
+        for init in range(0, self.params.typeCount):
+            for final in range(0,self.params.typeCount):
+                if init == final:
+                    continue
+                self.rateCache.append(self.GetRate(init, final))
+                self.lambd += self.rateCache[cacheDex]
+                self.changeEventsTot += self.rateCache[cacheDex]
+                cacheDex += 1
+                
+        self.mutEventsTot = 0.0
+        for mut in range(0, self.params.typeCount-1):
+            self.rateCache.append(self.params.ui[mut]*self.params.ni[mut])
+            self.mutEventsTot += self.rateCache[cacheDex]
+            self.lambd += self.rateCache[cacheDex]
+            cacheDex += 1
             
+        
     def Reset(self):
         self.simSteps = 0
         self.curTime = 0.0      
@@ -77,6 +94,16 @@ class Gillespie:
     
     def SetHistory(self, hist):
         self.history = hist
+    
+    def GetRate(self, init, final):
+        averageFit = 0.0
+        
+        for i in range(0, self.params.typeCount):
+            averageFit += (1.0 + self.params.ri[i]) * self.params.ni[i]
+    
+        rate = self.params.ni[init] * (1.0 + self.params.ri[final])*self.params.ni[final]
+        rate = float(rate) / float(averageFit)
+        return rate
     
     def Simulate(self):
         self.params.Reset()
