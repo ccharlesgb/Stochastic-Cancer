@@ -32,12 +32,14 @@ class Gillespie:
         
         self.tau = 0.1
         
-    def AddCallback(self, rateFunc, eventFunc):
+    def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
-        self.eventCallbacks.append(eventFunc)
+        self.eventCallbacks.append(stateChange)
         self.rateCallbackCount += 1
         self.rateCache.append(0.0)
         self.eventCount.append(0)
+        
+        print(self.eventCallbacks[0])
         
     def Hook(self, param):
         self.params = param
@@ -65,8 +67,9 @@ class Gillespie:
     def ChooseEvent(self):
         for i in range(0,self.rateCallbackCount):
             self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
-            for i2 in range(0, self.eventCount[i]):
-                self.eventCallbacks[i]()
+            for pop in range(0, len(self.params.n)):
+                self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
+                #print(self.eventCallbacks[i][pop])
             
     def UpdateRates(self):
         self.lambd = 0.0

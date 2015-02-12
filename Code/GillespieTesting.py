@@ -28,11 +28,13 @@ SDP = 500
 dataX = []
 dataY = []
 
-myGillespie.timeLimit = 50
+myGillespie.timeLimit = 1000
 
-myParam.addRate = 0.05
+myParam.addRate = 0.0
 
-myParam.in0 = 100
+myParam.n0[0] = 100000
+
+myGillespie.tau = 1.0
 
 myParam.c0 = 0.003
 myParam.c1 = 0.002
