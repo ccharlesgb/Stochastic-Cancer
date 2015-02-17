@@ -19,12 +19,10 @@ myGill.Hook(myParam) #Hook into sim parameters
 myGill.SetHistory(myHist)
 
 def EnableTreatment(time, params):
-    if time > myParam.treatStart and time < myParam.treatStart + myParam.treatDur:
-        params.dm0 = params.dm0_ON
-        #params.dn0 = params.dn0_ON
+    if time > params.treatStart and time < params.treatStart + params.treatDur:
+        params.rm = params.rm_ON
     else:
-        params.dm0 = 0.002
-        #params.dn0 = 0.002
+        params.rm = 0.0115
         
     if params.n[1] == 0:
         params.cureTime = time
@@ -32,8 +30,6 @@ def EnableTreatment(time, params):
         params.n[1] = 0
 
 myGill.preSim = EnableTreatment
-
-myGill.timeLimit = 1e10
 
 myParam.n0[0] = 2e3
 myParam.n0[1] = 5
@@ -48,42 +44,42 @@ myParam.cm = 0.38e-3
 myParam.dn0 = 0.002
 myParam.dm0 = 0.002
 
-myParam.treatStart = 2000
-myParam.treatDur = 1e10
+myParam.rn_ON = 0.002
+myParam.rm_ON = 0.002
 
-myParam.dn0_ON = 0.002 * 7.5
-myParam.dm0_ON = 0.002 * 7.5
+myParam.treatStart = 2000
+myParam.treatDur = 1e100
 
 myParam.cureTime = myGill.timeLimit
 
-minTime = 1000
-maxTime = 4000
+minMult = 0.01
+maxMult = 0.3
 
 dataX = []
 dataY = []
 
 pointCount = 8
-simCount = 200
+simCount = 20
 
-myGill.timeLimit = 1e5
-myGill.tau = 3.0
+myGill.timeLimit = 1e10
+myGill.tau = 2.0
 
 for i in range(0, pointCount):
     cureTimeTot = 0.0
     print("Data Point: ", i)
-    startTime = float(maxTime - minTime) * float(i) / (pointCount - 1.0) + minTime
-    print(startTime)  
-    
+    mult = float(maxMult - minMult) * float(i) / (pointCount - 1.0) + minMult
+    print(mult)
+    myParam.rm_ON = 0.0115 * mult
     for sim in range(0, simCount):
-        myParam.treatStart = startTime 
         myParam.cureTime = myGill.timeLimit  
         myHist.ClearFrames()
         myGill.Simulate()
         cureTimeTot += (myParam.cureTime - myParam.treatStart)
             
-    dataX.append(myParam.treatStart)
+    dataX.append(mult)
     dataY.append(float(cureTimeTot) / simCount)
 
 plt.plot(dataX, dataY, marker = 'o')
-plt.xlabel("Treatment Start Time")
+plt.yscale("log")
+plt.xlabel("Reproductive multiplier")
 plt.ylabel("Cure Time")

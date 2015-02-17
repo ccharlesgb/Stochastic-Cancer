@@ -39,8 +39,6 @@ class Gillespie:
         self.rateCache.append(0.0)
         self.eventCount.append(0)
         
-        print(self.eventCallbacks[0])
-        
     def Hook(self, param):
         self.params = param
         param.Hook(self)
@@ -65,17 +63,29 @@ class Gillespie:
     #Chose and execute which event to carry out. Updates population counts
     #Uses weighted random number between 0 and 1
     def ChooseEvent(self):
-        for i in range(0,self.rateCallbackCount):
-            self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
-            for pop in range(0, len(self.params.n)):
-                self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
-                #print(self.eventCallbacks[i][pop])
+        goodFrame = 0
+        while goodFrame == 0:
+            goodFrame = 1 #Assume the frame was good
+            for i in range(0,self.rateCallbackCount):
+                self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
+                for pop in range(0, len(self.params.n)):
+                    self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
+                    if self.params.n[pop] < 0:
+                        goodFrame = 0
+                        print("WARNING BAD FRAME: RESAMPLING")
+            if goodFrame == 0: #We went negative
+                for i in range(0,self.rateCallbackCount): #Revert changes
+                    for pop in range(0, len(self.params.n)):
+                        self.params.n[pop] -= self.eventCallbacks[i][pop] * self.eventCount[i]
+                        print(pop, self.params.n[pop])
+                    
             
     def UpdateRates(self):
         self.lambd = 0.0
         for i in range(0,self.rateCallbackCount):
             self.rateCache[i] = self.rateCallbacks[i]()
             self.lambd += self.rateCache[i]
+                
         #print("SELF.LAMBDA = ", self.lambd)
             
     def Reset(self):

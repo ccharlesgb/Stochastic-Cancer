@@ -12,11 +12,11 @@ Created on Tue Feb 03 14:15:29 2015
 @author: Connor
 """
 
-import Gillespie
+import GillespieTauLeap
 import StemCellParam2
 import matplotlib.pyplot as plt
 
-myGill = Gillespie.Gillespie()
+myGill = GillespieTauLeap.Gillespie()
 
 myParam = StemCellParam2.StemCellParam()
 
@@ -39,8 +39,8 @@ myGill.preSim = EnableTreatment
 
 myGill.timeLimit = 5000
 
-myParam.in0 = 2e3
-myParam.im0 = 1
+myParam.n0[0] = 2e3
+myParam.n0[1] = 2
 
 myParam.rn = 0.005
 myParam.rm = 0.0115
@@ -72,7 +72,7 @@ for sim in range(0, simCount):
     myHist.ClearFrames()
     myGill.Simulate()
     
-    print(myParam.m0)
+    print(myParam.n[1])
 
     plt.plot(myHist.tHist, myHist.n0Hist)
     plt.plot(myHist.tHist, myHist.m0Hist, '--')

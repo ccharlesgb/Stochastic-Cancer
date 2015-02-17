@@ -5,11 +5,11 @@ Created on Thu Feb 05 13:58:42 2015
 @author: Connor
 """
 
-import Gillespie
+import GillespieTauLeap
 import StemCellParam2
 import matplotlib.pyplot as plt
 
-myGill = Gillespie.Gillespie()
+myGill = GillespieTauLeap.Gillespie()
 
 myParam = StemCellParam2.StemCellParam()
 
@@ -27,13 +27,18 @@ def EnableTreatment(time, params):
     else:
         params.dm0 = 0.002
         params.dn0 = 0.002
+        
+    if params.n[1] == 0:
+        params.cureTime = time
+        params.n[0] = 0
+        params.n[1] = 0
 
 myGill.preSim = EnableTreatment
 
-myGill.timeLimit = 5000
+myGill.timeLimit = 1e10
 
-myParam.in0 = 2e3
-myParam.im0 = 5
+myParam.n0[0] = 2e3
+myParam.n0[1] = 5
 
 myParam.rn = 0.005
 myParam.rm = 0.0115
@@ -48,32 +53,38 @@ myParam.dm0 = 0.002
 myParam.dn0_ON = 0.002
 myParam.dm0_ON = 0.002
 
+myParam.treatStart = 2000
+myParam.treatDur = 1e10
+
+myParam.cureTime = myGill.timeLimit
+
 minMult = 5
 maxMult = 10
 
 dataX = []
 dataY = []
 
-pointCount = 30
+pointCount = 10
 simCount = 10
 
+myGill.timeLimit = 1e5
+myGill.tau = 2.0
+
 for i in range(0, pointCount):
-    cureCount = 0
+    cureTimeTot = 0.0
     print("Data Point: ", i)
     mult = float(maxMult - minMult) * float(i) / (pointCount - 1.0) + minMult
     print(mult)
+    myParam.dm0_ON = 0.002 * mult
     for sim in range(0, simCount):
-        myParam.dm0_ON = mult * 0.002   
-        
+        myParam.cureTime = myGill.timeLimit  
         myHist.ClearFrames()
         myGill.Simulate()
-        
-        if myParam.m0 == 0:
-            cureCount += 1
+        cureTimeTot += (myParam.cureTime - myParam.treatStart)
             
-    dataX.append(myParam.dm0_ON)
-    dataY.append(float(cureCount) / simCount)
+    dataX.append(mult)
+    dataY.append(float(cureTimeTot) / simCount)
 
 plt.plot(dataX, dataY, marker = 'o')
-plt.xlabel("Treatment death rate")
-plt.ylabel("Cure Probability")
+plt.xlabel("Death multiplier")
+plt.ylabel("Cure Time")

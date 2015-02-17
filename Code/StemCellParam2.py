@@ -28,10 +28,10 @@ class StemCellHist:
     def RecordFrame(self, time, param):
         if random.random() < 1.1:
             self.tHist.append(time)
-            self.n0Hist.append(param.n0)
-            self.m0Hist.append(param.m0)
-            self.n1Hist.append(param.n1)
-            self.m1Hist.append(param.m1)
+            self.n0Hist.append(param.n[0])
+            self.m0Hist.append(param.n[1])
+            self.n1Hist.append(param.n[2])
+            self.m1Hist.append(param.n[3])
         
     def GetDictionary(self):
         runDict = dict()
@@ -47,15 +47,10 @@ class StemCellHist:
 class StemCellParam:
     def __init__(self):
         #Define Population Counts
-        self.n0 = 0 #Number of HEALTHY stem cells
-        self.m0 = 0 #Number of CANCER stem cells
-        self.n1 = 0
-        self.m1 = 0        
-        #Define initial conditons
-        self.in0 = 200
-        self.im0 = 0
-        self.in1 = 1e5
-        self.im1 = 0
+
+        self.n = [0,0,0,0]
+        self.n0 = [200,0,1e5,0]
+
         #Define stem cell reproduction rates
         self.rn = 10.0 #Normal stem cell reproduction
         self.rm = 1.0 #Cancer stem cell reproduction
@@ -69,43 +64,35 @@ class StemCellParam:
         self.cn = 0.75e-3
         self.cm = 0.38e-3
         
+        self.Eventn0 = [1,0,0,0]
+        self.Eventn0_ = [-1,0,0,0]
+        self.Eventm0 = [0,1,0,0]
+        self.Eventm0_ = [0,-1,0,0]
+        
     def Reset(self):
-        self.n0 = self.in0
-        self.m0 = self.im0
-        self.n1 = self.in1
-        self.m1 = self.im1
+        #DO IT LIKE THIS
+        for i in range(0,len(self.n)):
+            self.n[i] = self.n0[i]
         
     def GetPhiNormal(self):
-        return 1.0 / (1.0 + self.cn*(self.n0 + self.m0))
+        return 1.0 / (1.0 + self.cn*(self.n[0] + self.n[1]))
     
     def GetPhiCancer(self):
-        return 1.0 / (1.0 + self.cm*(self.n0 + self.m0))
+        return 1.0 / (1.0 + self.cm*(self.n[0] + self.n[1]))
             
     #Rate at which normal stem cells reproduce
     def GetTn0(self):
-        return self.n0 * self.rn * self.GetPhiNormal()
+        return self.n[0] * self.rn * self.GetPhiNormal()
     #Rate at which normal stem cells die
     def GetTn0_(self):
-        return self.n0 * self.dn0
+        return self.n[0] * self.dn0
         
     #Rate at which cancer stem cells reproduce
     def GetTm0(self):
-        return self.m0 * self.rm * self.GetPhiCancer()
+        return self.n[1] * self.rm * self.GetPhiCancer()
     #Rate at which cancer stem cells die
     def GetTm0_(self):
-        return self.m0 * self.dm0
-        
-    #Health Cell Events
-    def Eventn0(self):
-        self.n0 += 1
-    def Eventn0_(self):
-        self.n0 = self.n0 -1
-    
-    #Cancer Cell Events
-    def Eventm0(self):
-        self.m0 += 1
-    def Eventm0_(self):
-        self.m0 = self.m0 - 1
+        return self.n[1] * self.dm0
         
     def Hook(self, gillespie):
         gillespie.AddCallback(self.GetTn0, self.Eventn0)
@@ -117,14 +104,14 @@ class StemCellParam:
         a = 0
         
     def PostSim(self, gillespie):
-        self.n1 += gillespie.timeStep * self.n1_derivative()
-        self.m1 += gillespie.timeStep * self.m1_derivative()       
+        self.n[2] += gillespie.timeStep * self.n2_derivative()
+        self.n[3] += gillespie.timeStep * self.n3_derivative()       
 
-    def n1_derivative(self):
-        result = self.an*self.n0 - self.dn1*self.n1
+    def n2_derivative(self):
+        result = self.an*self.n[0] - self.dn1*self.n[2]
         return result
     
-    def m1_derivative(self):
-        result = self.am*self.m0 - self.dm1*self.m1
+    def n3_derivative(self):
+        result = self.am*self.n[1] - self.dm1*self.n[3]
         return result
         
