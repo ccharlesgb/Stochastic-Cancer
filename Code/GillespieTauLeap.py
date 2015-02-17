@@ -74,8 +74,7 @@ class Gillespie:
     def GetAuxSigma(self, i):
         summation = 0.0        
         for j in range(0,self.rateCallbackCount):
-            summation += math.pow( (self.eventCallbacks[j][i]), 2 )*self.rateCache[j]
-        #print("sigma is given as: {0}".format(summation))
+            summation += (self.eventCallbacks[j][i] * self.eventCallbacks[j][i]) * self.rateCache[j]
         if(summation == 0):
             summation = 0.001
             #print("WARNING: sigma was found to be zero.")
