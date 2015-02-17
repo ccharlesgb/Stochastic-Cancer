@@ -22,9 +22,8 @@ class Gillespie:
         self.lambd = 0.0
         self.simSteps = 0
         self.curTime = 0.0
-        self.timeStep = 0.0
-        self.timeLimit = 100.0
-        self.epsilon = 1.0        
+        self.timeLimit = 10.0
+        self.epsilon = 0.05        
         
         self.history = 0
         
@@ -32,6 +31,7 @@ class Gillespie:
         self.postSim = 0
         
         self.tau = 0.1
+        self.tauCache = []
         
     def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
@@ -42,6 +42,9 @@ class Gillespie:
         
     def Hook(self, param):
         self.params = param
+        for i in range(0,len(self.params.n)):
+            self.tauCache.append(0.0)
+            print("adding")
         param.Hook(self)
         
     def UnHook(self):
@@ -67,7 +70,7 @@ class Gillespie:
         if(summation == 0):
              summation = 0.001
              #print("WARNING: mu was found to be zero.")
-            #print("rate cache is:".format(self.rateCache))
+             #print("rate cache is:".format(self.rateCache))
             
         return summation
 
@@ -82,17 +85,15 @@ class Gillespie:
         
     #Returns an exponentially distributed number based on the lambda parameter
     def GetTimeStep(self):
-             
-        tau_array = []        
         for i in range(0,len(self.params.n)):        
             comp = max(self.epsilon*self.params.n[i], 1.0 )
             #print("mu is: {0} and sigma is: {1}".format(self.GetAuxMu(i),self.GetAuxSigma(i)) )            
-                        
-            tau_element = min( comp / math.fabs(self.GetAuxMu(i)) , math.pow(comp,2) / math.pow(self.GetAuxSigma(i), 2) )
-            tau_array.append(tau_element)
+            tau_element = min( comp / math.fabs(self.GetAuxMu(i)) , (comp * comp) / self.GetAuxSigma(i) )
+            self.tauCache[i] = tau_element
             #print("tau is: {0}".format(self.tau))
-        self.tau = min(tau_array)
-             
+            
+        self.tau = min(self.tauCache)
+        #self.tau = 0.01
         return self.tau
         
     #Chose and execute which event to carry out. Updates population counts
@@ -100,21 +101,18 @@ class Gillespie:
     def ChooseEvent(self):
         goodFrame  = 0
         while goodFrame == 0:        
-            goodFrame = 1 
+            goodFrame = 1
             for i in range(0,self.rateCallbackCount):
-                #print("For rate {0}, the `mean' is: {1}".format(i, self.rateCache[i]*self.tau))            
                 self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
                 for pop in range(0, len(self.params.n)):
                     self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
-                    #print(self.eventCallbacks[i][pop])
                     if self.params.n[pop] < 0:
                         goodFrame = 0
-                        print("Warning - bad frame. Resampling.")
-                        print("For type {0}, the population is {1}".format(pop,self.params.n[pop]))
             if goodFrame == 0:
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
                         self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
+                        
                 self.tau /= 2.0
   
     def UpdateRates(self):
@@ -129,7 +127,6 @@ class Gillespie:
     def Reset(self):
         self.simSteps = 0
         self.curTime = 0.0      
-        self.timeStep = 0.0
     
     def SetHistory(self, hist):
         self.history = hist
