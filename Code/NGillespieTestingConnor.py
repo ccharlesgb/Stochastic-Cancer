@@ -35,7 +35,7 @@ myGillespie.timeLimit = 10000
 
 myGillespie.RECORD_TAU_INFO = 1
 
-myParam.n0[0] = 1e10
+myParam.n0[0] = 1e7
 
 for i in range(0,TYPE_COUNT):
     myParam.r[i] = math.pow(1.0 + 0.01, i)
