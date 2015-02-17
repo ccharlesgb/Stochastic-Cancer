@@ -78,6 +78,7 @@ class Gillespie:
     
     def SetHistory(self, hist):
         self.history = hist
+            
     
     def Simulate(self):
         self.params.Reset()

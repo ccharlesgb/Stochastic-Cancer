@@ -30,6 +30,8 @@ dataY = []
 
 myGillespie.timeLimit = 100
 
+myGillespie.RECORD_TAU_INFO = 1
+
 myParam.addRate = 0.0
 
 myParam.n0[0] = 10
@@ -43,7 +45,7 @@ myParam.c2 = 0.001
 myParam.u1 = 0.1
 myParam.u2 = 0.1
 
-myGillespie.epsilon = 1.0
+myGillespie.epsilon = 0.1
 
 myGillespie.Simulate()
 
@@ -52,30 +54,20 @@ for i in range(0, DPC):
     myParam.r1 = ((float(i) / (DPC - 1)) * (maxr1 - minr1)) + minr1
     dataX.append(myParam.r1)
     print(myParam.r1)
-    fixCount = 0
     
-    avgBadFrame = 0
-    avgTotFrame = 0
-    
-    for i in range(0,SDP):
-        myGillespie.Simulate()
-        avgBadFrame += myGillespie.BAD_FRAME_COUNT
-        avgTotFrame += myGillespie.simSteps
-        if myParam.n[2] == myParam.N:
-            fixCount += 1
+    res = myGillespie.SimulateBatch(SDP)
 
-    print("AVERAGE BAD FRAMES: ", float(avgBadFrame) / SDP, float(avgTotFrame) / SDP)    
+    print("AVERAGE BAD FRAMES: ", float(res.avgBadFrames), float(res.avgFrames))    
     
-    fixProb = float(fixCount) / SDP 
-    dataY.append(fixProb)
+    dataY.append(res.avgFixProb)
 
 plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
 
-plt.figure()
-plt.hist(myGillespie.TAU_HIST)
+if myGillespie.RECORD_TAU_INFO:
+    plt.figure()
+    plt.hist(myGillespie.TAU_HIST)
 
 '''
-
 plt.plot(myHist.tHist, myHist.n0Hist, 'o')
 plt.plot(myHist.tHist, myHist.n1Hist)
 plt.plot(myHist.tHist, myHist.n2Hist)

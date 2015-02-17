@@ -9,6 +9,23 @@ import math
 import random
 import numpy
 
+class BatchResult:
+    def __init__(self):
+        self.simCount = 0
+        self.avgFixTime = 0.0
+        self.avgFixProb = 0.0
+        self.avgBadFrames = 0
+        self.avgFrames = 0
+        self.Reset()
+
+    def Reset(self):
+        self.simCount = 0
+        self.avgFixTime = 0.0
+        self.avgFixProb = 0.0
+        self.avgBadFrames = 0
+        self.avgFrames = 0
+        
+
 class Gillespie:
     def __init__(self):
         self.rateCallbacks = [] #Array of callbacks for all our rates
@@ -168,4 +185,22 @@ class Gillespie:
             
             if self.history != 0:
                 self.history.RecordFrame(self.curTime, self.params)
+                
+    def SimulateBatch(self, simCount):
+        res = BatchResult()
+        res.simCount = simCount
+        for i in range(0, simCount):
+            self.Simulate()
+            if self.curTime < self.timeLimit: #we finished early
+                res.avgFixProb += 1.0
+                
+            res.avgFixTime += self.curTime
+            res.avgBadFrames += self.BAD_FRAME_COUNT
+            res.avgFrames += self.simSteps
+        
+        res.avgFixProb = float(res.avgFixProb) / simCount
+        res.avgFixTime = float(res.avgFixTime) / simCount
+        res.avgBadFrames = float(res.avgBadFrames) / simCount
+        res.avgFrames = float(res.avgFrames) / simCount
+        return res
                 
