@@ -105,7 +105,7 @@ class Gillespie:
         goodFrame  = 0
         while goodFrame == 0:        
             goodFrame = 1
-            for i in range(0,self.rateCallbackCount):           
+            for i in range(0,self.rateCallbackCount):
                 self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
                 for pop in range(0, len(self.params.n)):
                     self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
@@ -116,7 +116,8 @@ class Gillespie:
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
                         self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
-                self.tau = self.tau / 2.0
+                        
+                self.tau /= 2.0
   
     def UpdateRates(self):
         self.lambd = 0.0
@@ -152,7 +153,7 @@ class Gillespie:
             if self.lambd == 0: #We have fixated at an absorbing state
                 return
                 
-            self.timeStep = self.GetTimeStep() #How much time until the next event?
+            self.tau = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Choose what kind of event and update cell counts
             
             self.curTime += self.tau #Increment time
