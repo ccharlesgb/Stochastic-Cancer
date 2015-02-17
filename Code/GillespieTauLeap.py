@@ -32,6 +32,7 @@ class Gillespie:
         self.postSim = 0
         
         self.tau = 0.1
+        self.tauCache = []
         
     def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
@@ -42,6 +43,8 @@ class Gillespie:
         
     def Hook(self, param):
         self.params = param
+        for i in range(0,len(self.params.n)):
+            self.tauCache.append(0.0)
         param.Hook(self)
         
     def UnHook(self):
@@ -81,14 +84,12 @@ class Gillespie:
         
     #Returns an exponentially distributed number based on the lambda parameter
     def GetTimeStep(self):
-             
-        tau_array = []        
         for i in range(0,len(self.params.n)):        
             comp = max(self.epsilon*self.params.n[i], 1.0 )
             #print("mu is: {0} and sigma is: {1}".format(self.GetAuxMu(i),self.GetAuxSigma(i)) )            
             tau_element = min( comp / max(self.GetAuxMu(i),-self.GetAuxMu(i)) , math.pow(comp,2) / math.pow(self.GetAuxSigma(i), 2) )
-            tau_array.append(tau_element)
-        self.tau = min(tau_array)
+            self.tauCache[i] = tau_element
+        self.tau = min(self.tauCache)
              
         return self.tau
         
