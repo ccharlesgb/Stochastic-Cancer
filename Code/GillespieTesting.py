@@ -11,9 +11,7 @@ import CarcinogenParam
 
 myParam = CarcinogenParam.CarcinogenParam()
 myGillespie = GillespieTauLeap.Gillespie()
-
-myGillespie.params = myParam
-myParam.Hook(myGillespie)
+myGillespie.Hook(myParam)
 
 myHist = CarcinogenParam.CarcinogenHist()
 
@@ -22,8 +20,8 @@ myGillespie.history = myHist
 minr1 = 0.3
 maxr1 = 3.0
 
-DPC = 10
-SDP = 500
+DPC = 5
+SDP = 50
 
 dataX = []
 dataY = []
@@ -32,7 +30,7 @@ myGillespie.timeLimit = 1000
 
 myParam.addRate = 0.0
 
-myParam.n0[0] = 1e3
+myParam.n0[0] = 100
 myParam.n0[1] = 0
 myParam.n0[2] = 0
 
@@ -47,7 +45,7 @@ myParam.u2 = 0.1
 
 myGillespie.Simulate()
 
-
+'''
 for i in range(0, DPC):
     myParam.r1 = ((float(i) / (DPC - 1)) * (maxr1 - minr1)) + minr1
     dataX.append(myParam.r1)
@@ -69,4 +67,3 @@ plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
 plt.plot(myHist.tHist, myHist.n0Hist)
 plt.plot(myHist.tHist, myHist.n1Hist)
 plt.plot(myHist.tHist, myHist.n2Hist)
-'''

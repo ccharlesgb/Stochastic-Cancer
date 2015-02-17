@@ -60,7 +60,8 @@ class Gillespie:
         for i in range(0,self.rateCallbackCount):
             threshold += self.rateCache[i]
             if (rand < threshold):
-                self.eventCallbacks[i]()
+                for pop in range(0, len(self.params.n)):
+                    self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
                 return
             
     def UpdateRates(self):
