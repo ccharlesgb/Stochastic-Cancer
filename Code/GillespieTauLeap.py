@@ -24,7 +24,7 @@ class Gillespie:
         self.curTime = 0.0
         self.timeStep = 0.0
         self.timeLimit = 100.0
-        self.epsilon = 0.03        
+        self.epsilon = 1.0        
         
         self.history = 0
         
@@ -66,9 +66,10 @@ class Gillespie:
         for j in range(0,self.rateCallbackCount):
             summation += self.eventCallbacks[j][i]*self.rateCache[j]
         #print("rate cache is: {0}".format(self.rateCache))
+        #print("mu is given as: {0}".format(summation))
         if(summation == 0):
              summation = 0.001
-             print("WARNING: mu was found to be zero.")
+             #print("WARNING: mu was found to be zero.")
             #print("rate cache is:".format(self.rateCache))
             
         return summation
@@ -79,7 +80,7 @@ class Gillespie:
             summation += (self.eventCallbacks[j][i] * self.eventCallbacks[j][i]) * self.rateCache[j]
         if(summation == 0):
             summation = 0.001
-            print("WARNING: sigma was found to be zero.")
+            #print("WARNING: sigma was found to be zero.")
         return summation
         
     #Returns an exponentially distributed number based on the lambda parameter
@@ -87,10 +88,11 @@ class Gillespie:
         for i in range(0,len(self.params.n)):        
             comp = max(self.epsilon*self.params.n[i], 1.0 )
             #print("mu is: {0} and sigma is: {1}".format(self.GetAuxMu(i),self.GetAuxSigma(i)) )            
-            tau_element = min( comp / max(self.GetAuxMu(i),-self.GetAuxMu(i)) , math.pow(comp,2) / math.pow(self.GetAuxSigma(i), 2) )
-            self.tauCache[i] = tau_element
-        self.tau = min(self.tauCache)
-             
+            tau_element = min( comp / math.fabs(self.GetAuxMu(i)) , math.pow(comp,2) / math.pow(self.GetAuxSigma(i), 2) )
+            tau_array.append(tau_element)
+            #print("tau is: {0}".format(self.tau))
+            
+        self.tau = min(tau_array)
         return self.tau
         
     #Chose and execute which event to carry out. Updates population counts
@@ -112,8 +114,9 @@ class Gillespie:
             if goodFrame == 0:
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
-                        self.params.n[pop] -+ self.eventCallbacks[i][pop]*self.eventCount[i]
-                        
+                        self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
+                self.timeStep /= 2.0
+  
     def UpdateRates(self):
         self.lambd = 0.0
         for i in range(0,self.rateCallbackCount):

@@ -32,7 +32,7 @@ myGillespie.timeLimit = 1000
 
 myParam.addRate = 0.0
 
-myParam.n0[0] = 1000
+myParam.n0[0] = 1e3
 myParam.n0[1] = 0
 myParam.n0[2] = 0
 
@@ -42,12 +42,12 @@ myParam.c0 = 0.003
 myParam.c1 = 0.002
 myParam.c2 = 0.001
 
-myParam.u1 = 0.01
-myParam.u2 = 0.01
+myParam.u1 = 0.1
+myParam.u2 = 0.1
 
 myGillespie.Simulate()
 
-'''
+
 for i in range(0, DPC):
     myParam.r1 = ((float(i) / (DPC - 1)) * (maxr1 - minr1)) + minr1
     dataX.append(myParam.r1)
@@ -57,7 +57,7 @@ for i in range(0, DPC):
     for i in range(0,SDP):
         myGillespie.Simulate()
         
-        if myParam.n2 == myParam.N:
+        if myParam.n[2] == myParam.N:
             fixCount += 1
     
     fixProb = float(fixCount) / SDP 
@@ -69,3 +69,4 @@ plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
 plt.plot(myHist.tHist, myHist.n0Hist)
 plt.plot(myHist.tHist, myHist.n1Hist)
 plt.plot(myHist.tHist, myHist.n2Hist)
+'''
