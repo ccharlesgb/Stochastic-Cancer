@@ -24,6 +24,7 @@ class Gillespie:
         self.curTime = 0.0
         self.timeStep = 0.0
         self.timeLimit = 100.0
+        self.epsilon = 0.03        
         
         self.history = 0
         
@@ -38,8 +39,8 @@ class Gillespie:
         self.rateCallbackCount += 1
         self.rateCache.append(0.0)
         self.eventCount.append(0)
-        
         print(self.eventCallbacks[0])
+        
         
     def Hook(self, param):
         self.params = param
@@ -58,14 +59,42 @@ class Gillespie:
     def GetLambda(self):
         return self.lambd
 
+    #Get the axillary quanitity mu        
+    def GetAuxMu(self, i):
+        summation = 0.0        
+        for j in range(0,self.rateCallbackCount):
+            summation += self.eventCallbacks[j][i]*self.rateCache[j]
+        if(summation == 0):
+            summation = 0.001
+            print("WARNING: mu was found to be zero.")
+        return summation
+
+    def GetAuxSigma(self, i):
+        summation = 0.0        
+        for j in range(0,self.rateCallbackCount):
+            summation += math.pow( (self.eventCallbacks[j][i]), 2 )*self.rateCache[j]
+        if(summation == 0):
+            summation = 0.001
+            print("WARNING: sigma was found to be zero.")
+        
+        return summation
+        
     #Returns an exponentially distributed number based on the lambda parameter
     def GetTimeStep(self):
+        tau_array = []        
+        for i in range(0,2):        
+            comp = max(self.epsilon*self.rateCache[i], 1.0 )
+            #print("mu is: {0} and sigma is: {1}".format(self.GetAuxMu(i),self.GetAuxSigma(i)) )            
+            tau_element = min( comp / max(self.GetAuxMu(i),-self.GetAuxMu(i)) , math.pow(comp,2) / math.pow(self.GetAuxSigma(i), 2) )
+            tau_array.append(tau_element)
+        self.tau = min(tau_array)
         return self.tau
         
     #Chose and execute which event to carry out. Updates population counts
     #Uses weighted random number between 0 and 1
     def ChooseEvent(self):
         for i in range(0,self.rateCallbackCount):
+            #print("For rate {0}, the `mean' is: {1}".format(i, self.rateCache[i]*self.tau))            
             self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
             for pop in range(0, len(self.params.n)):
                 self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
