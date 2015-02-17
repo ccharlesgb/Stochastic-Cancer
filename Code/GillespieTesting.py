@@ -47,7 +47,7 @@ myParam.u2 = 0.1
 
 myGillespie.Simulate()
 
-
+'''
 for i in range(0, DPC):
     myParam.r1 = ((float(i) / (DPC - 1)) * (maxr1 - minr1)) + minr1
     dataX.append(myParam.r1)
@@ -65,8 +65,6 @@ for i in range(0, DPC):
 
 plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
 '''
-
 plt.plot(myHist.tHist, myHist.n0Hist)
 plt.plot(myHist.tHist, myHist.n1Hist)
 plt.plot(myHist.tHist, myHist.n2Hist)
-'''

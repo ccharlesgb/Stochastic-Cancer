@@ -99,8 +99,8 @@ class Gillespie:
     #Uses weighted random number between 0 and 1
     def ChooseEvent(self):
         goodFrame  = 0
-        while goodFrame == 0 :        
-            goodFrame = 1
+        while goodFrame == 0:        
+            goodFrame = 1 
             for i in range(0,self.rateCallbackCount):
                 #print("For rate {0}, the `mean' is: {1}".format(i, self.rateCache[i]*self.tau))            
                 self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
@@ -115,7 +115,7 @@ class Gillespie:
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
                         self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
-                self.timeStep /= 2.0
+                self.tau /= 2.0
   
     def UpdateRates(self):
         self.lambd = 0.0
@@ -150,10 +150,10 @@ class Gillespie:
             if self.lambd == 0: #We have fixated at an absorbing state
                 return
                 
-            self.timeStep = self.GetTimeStep() #How much time until the next event?
+            self.tau = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Choose what kind of event and update cell counts
             
-            self.curTime += self.timeStep #Increment time
+            self.curTime += self.tau #Increment time
             self.simSteps+= 1 #Increase event count
             
             self.params.PostSim(self)
