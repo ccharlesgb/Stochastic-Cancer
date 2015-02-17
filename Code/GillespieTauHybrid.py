@@ -52,17 +52,6 @@ class Gillespie:
         
         #Tau Debug Info
         self.RECORD_TAU_INFO = 0
-        self.TAU_HIST = []
-        self.BAD_FRAME_COUNT = 0
-        self.BAD_FRAME_WARN = 0.05 #Fraction of frames that need to be bad to give a warning
-        
-    def Reset(self):
-        self.simSteps = 0
-        self.curTime = 0.0      
-        self.TAU_HIST = []
-        self.BAD_FRAME_COUNT = 0
-    
-        
         
     def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
@@ -75,6 +64,7 @@ class Gillespie:
         self.params = param
         for i in range(0,len(self.params.n)):
             self.tauCache.append(0.0)
+            print("adding")
         param.Hook(self)
         
     def UnHook(self):
@@ -154,7 +144,13 @@ class Gillespie:
             self.lambd += self.rateCache[i]
                 
         #print("SELF.LAMBDA = ", self.lambd)
-                
+            
+    def Reset(self):
+        self.simSteps = 0
+        self.curTime = 0.0      
+        self.TAU_HIST = []
+        self.BAD_FRAME_COUNT = 0
+    
     def SetHistory(self, hist):
         self.history = hist
     
@@ -169,9 +165,11 @@ class Gillespie:
             #self.params.PreSim(self)
             if self.preSim != 0:
                 self.preSim(self.curTime, self.params)
+                
             self.UpdateRates()
             if self.lambd == 0: #We have fixated at an absorbing state
                 return
+                
             self.tau = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Choose what kind of event and update cell counts
             
@@ -187,9 +185,6 @@ class Gillespie:
             
             if self.history != 0:
                 self.history.RecordFrame(self.curTime, self.params)
-                
-        if float(self.BAD_FRAME_COUNT) / self.simSteps > self.BAD_FRAME_WARN:
-            print("WARNING: Bad Frames percentage was %1. Consider lower epsilon!".format(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0))
                 
     def SimulateBatch(self, simCount):
         res = BatchResult()
