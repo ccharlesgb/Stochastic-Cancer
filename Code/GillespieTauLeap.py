@@ -30,8 +30,11 @@ class Gillespie:
         self.preSim = 0
         self.postSim = 0
         
-        self.tau = 0.1
+        self.tau = -1.0
         self.tauCache = []
+        
+        #Tau Debug Info
+        self.RECORD_TAU_INFO = 0
         
     def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
@@ -109,6 +112,7 @@ class Gillespie:
                     if self.params.n[pop] < 0:
                         goodFrame = 0
             if goodFrame == 0:
+                self.BAD_FRAME_COUNT += 1
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
                         self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
@@ -126,6 +130,8 @@ class Gillespie:
     def Reset(self):
         self.simSteps = 0
         self.curTime = 0.0      
+        self.TAU_HIST = []
+        self.BAD_FRAME_COUNT = 0
     
     def SetHistory(self, hist):
         self.history = hist
@@ -150,6 +156,9 @@ class Gillespie:
             self.ChooseEvent() #Choose what kind of event and update cell counts
             
             self.curTime += self.tau #Increment time
+            
+            if self.RECORD_TAU_INFO:
+                self.TAU_HIST.append(self.tau)
             self.simSteps+= 1 #Increase event count
             
             self.params.PostSim(self)
