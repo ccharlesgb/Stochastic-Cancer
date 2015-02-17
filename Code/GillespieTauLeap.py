@@ -24,6 +24,7 @@ class Gillespie:
         self.curTime = 0.0
         self.timeStep = 0.0
         self.timeLimit = 100.0
+        self.epsilon = 0.03        
         
         self.history = 0
         
@@ -56,34 +57,67 @@ class Gillespie:
     def GetLambda(self):
         return self.lambd
 
+    #Get the axillary quanitity mu        
+    def GetAuxMu(self, i):
+        summation = 0.0        
+        for j in range(0,self.rateCallbackCount):
+            summation += self.eventCallbacks[j][i]*self.rateCache[j]
+        #print("rate cache is: {0}".format(self.rateCache))
+        if(summation == 0):
+             summation = 0.001
+             print("WARNING: mu was found to be zero.")
+            #print("rate cache is:".format(self.rateCache))
+            
+        return summation
+
+    def GetAuxSigma(self, i):
+        summation = 0.0        
+        for j in range(0,self.rateCallbackCount):
+            summation += math.pow( (self.eventCallbacks[j][i]), 2 )*self.rateCache[j]
+        if(summation == 0):
+            summation = 0.001
+            print("WARNING: sigma was found to be zero.")
+        return summation
+        
     #Returns an exponentially distributed number based on the lambda parameter
     def GetTimeStep(self):
+             
+        tau_array = []        
+        for i in range(0,len(self.params.n)):        
+            comp = max(self.epsilon*self.params.n[i], 1.0 )
+            #print("mu is: {0} and sigma is: {1}".format(self.GetAuxMu(i),self.GetAuxSigma(i)) )            
+            tau_element = min( comp / max(self.GetAuxMu(i),-self.GetAuxMu(i)) , math.pow(comp,2) / math.pow(self.GetAuxSigma(i), 2) )
+            tau_array.append(tau_element)
+        self.tau = min(tau_array)
+             
         return self.tau
         
     #Chose and execute which event to carry out. Updates population counts
     #Uses weighted random number between 0 and 1
     def ChooseEvent(self):
-        goodFrame = 0
-        while goodFrame == 0:
-            goodFrame = 1 #Assume the frame was good
+        goodFrame  = 0
+        while goodFrame == 0 :        
+            goodFrame = 1
             for i in range(0,self.rateCallbackCount):
+                #print("For rate {0}, the `mean' is: {1}".format(i, self.rateCache[i]*self.tau))            
                 self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
                 for pop in range(0, len(self.params.n)):
                     self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
+                    #print(self.eventCallbacks[i][pop])
                     if self.params.n[pop] < 0:
                         goodFrame = 0
-                        print("WARNING BAD FRAME: RESAMPLING")
-            if goodFrame == 0: #We went negative
-                for i in range(0,self.rateCallbackCount): #Revert changes
-                    for pop in range(0, len(self.params.n)):
-                        self.params.n[pop] -= self.eventCallbacks[i][pop] * self.eventCount[i]
-                        print(pop, self.params.n[pop])
-                    
-            
+                        print("Warning - bad frame. Resampling.")
+                        print("For type {0}, the population is {1}".format(pop,self.params.n[pop]))
+            if goodFrame == 0:
+                for i in range(0,self.rateCallbackCount):
+                    for pop in range(0,len(self.params.n)):
+                        self.params.n[pop] -+ self.eventCallbacks[i][pop]*self.eventCount[i]
+                        
     def UpdateRates(self):
         self.lambd = 0.0
         for i in range(0,self.rateCallbackCount):
             self.rateCache[i] = self.rateCallbacks[i]()
+            #print("the rate caches are :".format(self.rateCache[i]))
             self.lambd += self.rateCache[i]
                 
         #print("SELF.LAMBDA = ", self.lambd)

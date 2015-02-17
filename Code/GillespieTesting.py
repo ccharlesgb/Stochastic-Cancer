@@ -32,9 +32,11 @@ myGillespie.timeLimit = 1000
 
 myParam.addRate = 0.0
 
-myParam.n0[0] = 100000
+myParam.n0[0] = 1000
+myParam.n0[1] = 0
+myParam.n0[2] = 0
 
-myGillespie.tau = 1.0
+myGillespie.tau = 0.1
 
 myParam.c0 = 0.003
 myParam.c1 = 0.002
