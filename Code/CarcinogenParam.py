@@ -5,13 +5,6 @@ Created on Tue Feb 03 13:10:36 2015
 @author: Connor
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 03 12:01:50 2015
-
-@author: Connor
-"""
-
 class CarcinogenHist:
     def __init__(self):
        self.ClearFrames()
@@ -72,11 +65,10 @@ class CarcinogenParam:
         return (self.r0*self.n[0] + self.r1*self.n[1] + self.r2 * self.n[2])
         
     def Reset(self):
-        self.n[0] = self.n0[0]
-        self.n[1] = self.n0[1]
-        self.n[2] = self.n0[2]
-        
-        self.N = self.n0[0] + self.n0[1] + self.n0[2]
+        self.N = 0        
+        for pop in range(0,len(self.n)):        
+            self.n[pop] = self.n0[pop]
+            self.N = self.n0[0] + self.n0[1] + self.n0[2]
     
     def Hook(self, gillespie):
         gillespie.AddCallback(self.GetT10, self.EventT10)
