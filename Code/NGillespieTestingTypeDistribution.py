@@ -10,7 +10,7 @@ import GillespieTauLeap
 import CarcinogenNParam
 import math
 
-TYPE_COUNT = 10
+TYPE_COUNT = 5
 
 myParam = CarcinogenNParam.CarcinogenNParam(TYPE_COUNT)
 
@@ -31,37 +31,30 @@ SDP = 500
 dataX = []
 dataY = []
 
-myGillespie.timeLimit = 10000
+myGillespie.timeLimit = 5000
 
 myGillespie.RECORD_TAU_INFO = 1
 
-myParam.n0[0] = 1e6
+myParam.n0[0] = 1e9
 
 for i in range(0,TYPE_COUNT):
     myParam.r[i] = math.pow(1.0 + 0.01, i)
     myParam.u[i] = 1.0 / myParam.n0[0]
     
-
 myGillespie.epsilon = 0.1
 
 myGillespie.Simulate()
 
 plt.figure()
-for i in range(0, TYPE_COUNT):
-   plt.plot(myHist.tHist, myHist.histArray[i])
-   plt.yscale("log")
 
-plt.show()
+print("STEPS", myGillespie.simSteps)
+for t in range(0, myGillespie.simSteps, myGillespie.simSteps / 8):
+    dataX = []
+    dataY = []
+    for i in range(0, TYPE_COUNT):
+        dataX.append(i)
+        dataY.append(myHist.histArray[i][t])
+        plt.plot(dataX,dataY, 'o-')
+        plt.yscale("log")
 
-
-plt.figure()
-plt.subplot(211)
-plt.hist(myGillespie.TAU_HIST, log=1)
-plt.xlabel("Tau")
-plt.ylabel("Frequency")
-
-plt.subplot(212)
-plt.plot(myGillespie.TAU_HIST)
-plt.xlabel("Step")
-plt.ylabel("Tau")
 plt.show()

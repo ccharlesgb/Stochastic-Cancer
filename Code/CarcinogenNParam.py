@@ -44,6 +44,7 @@ class CarcinogenNParam:
             self.u.append(0.0001)
             
         self.n[0] = 10
+        self.avgFit = 0.0
         
     def SetTypeCount(typeCount):
         return
@@ -72,7 +73,7 @@ class CarcinogenNParam:
                 if i != j:
                     gillespie.AddCallback(partial(self.GetTIJ,i,j), self.EventTIJ(i,j))
 
-#Todo calculate this once
+    #Todo calculate this once
     def GetAvgFit(self):
         tot = 0.0
         for i in range(0, self.typeCount):
@@ -91,10 +92,10 @@ class CarcinogenNParam:
         else:
             top = self.n[i] * (self.r[j]*(1 - self.u[j])*self.n[j] + self.r[j-1]*self.u[j-1]*self.n[j-1])
         
-        return top / self.GetAvgFit()
+        return top / self.avgFit
         
     def PreSim(self, gillespie):
-        return        
+        self.avgFit = self.GetAvgFit()
     
     def PostSim(self, gillespie):
         return

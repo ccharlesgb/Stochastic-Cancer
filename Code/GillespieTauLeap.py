@@ -8,6 +8,7 @@ Created on Tue Feb 03 12:48:47 2015
 import math
 import random
 import numpy
+import gc
 
 class BatchResult:
     def __init__(self):
@@ -159,6 +160,7 @@ class Gillespie:
         self.history = hist
     
     def Simulate(self):
+        gc.disable()
         self.params.Reset()
         self.Reset()
         
@@ -166,7 +168,7 @@ class Gillespie:
             self.history.RecordFrame(self.curTime, self.params)
       
         while self.curTime < self.timeLimit:   
-            #self.params.PreSim(self)
+            self.params.PreSim(self)
             if self.preSim != 0:
                 self.preSim(self.curTime, self.params)
             self.UpdateRates()
@@ -189,7 +191,9 @@ class Gillespie:
                 self.history.RecordFrame(self.curTime, self.params)
                 
         if float(self.BAD_FRAME_COUNT) / self.simSteps > self.BAD_FRAME_WARN:
-            print("WARNING: Bad Frames percentage was %1. Consider lower epsilon!".format(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0))
+            print("WARNING: Bad Frames percentage was {0}. Consider lower epsilon!".format(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0))
+            
+        gc.enable()
                 
     def SimulateBatch(self, simCount):
         res = BatchResult()
