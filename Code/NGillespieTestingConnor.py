@@ -6,20 +6,21 @@ Created on Tue Feb 03 13:13:05 2015
 """
 
 import matplotlib.pyplot as plt
-import GillespieTauLeap
-import CarcinogenNParam
+import GillespieTauLeap_OPTON
+import CarcinogenNParam_OPTON
 import math
 
-TYPE_COUNT = 10
+TYPE_COUNT = 20
 
-myParam = CarcinogenNParam.CarcinogenNParam(TYPE_COUNT)
+myParam = CarcinogenNParam_OPTON.CarcinogenNParam(TYPE_COUNT)
+myParam.IJ_DIFF_TOLERANCE = 7
 
 #Create the simulator
-myGillespie = GillespieTauLeap.Gillespie()
+myGillespie = GillespieTauLeap_OPTON.Gillespie()
 myGillespie.Hook(myParam) #VERY IMPORTANT
 
 #Set History
-myHist = CarcinogenNParam.CarcinogenNHist(TYPE_COUNT)
+myHist = CarcinogenNParam_OPTON.CarcinogenNHist(TYPE_COUNT)
 myGillespie.history = myHist
 
 minr1 = 0.3
@@ -42,7 +43,7 @@ for i in range(0,TYPE_COUNT):
     myParam.u[i] = 1.0 / myParam.n0[0]
     
 
-myGillespie.epsilon = 0.1
+myGillespie.epsilon = 0.3
 
 myGillespie.Simulate()
 

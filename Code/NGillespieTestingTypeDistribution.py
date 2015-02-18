@@ -10,7 +10,7 @@ import GillespieTauLeap
 import CarcinogenNParam
 import math
 
-TYPE_COUNT = 5
+TYPE_COUNT = 10
 
 myParam = CarcinogenNParam.CarcinogenNParam(TYPE_COUNT)
 
@@ -31,11 +31,11 @@ SDP = 500
 dataX = []
 dataY = []
 
-myGillespie.timeLimit = 5000
+myGillespie.timeLimit = 10000
 
 myGillespie.RECORD_TAU_INFO = 1
 
-myParam.n0[0] = 1e9
+myParam.n0[0] = 1e6
 
 for i in range(0,TYPE_COUNT):
     myParam.r[i] = math.pow(1.0 + 0.01, i)
