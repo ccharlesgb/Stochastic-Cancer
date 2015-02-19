@@ -16,7 +16,7 @@ cumPVec = []
 CELL_COUNT = int(1e9)
 X = []
 
-TYPE_COUNT = 20
+TYPE_COUNT = 30
 
 U = []
 
@@ -54,6 +54,7 @@ while (step < STEPS and fixed != 1):
     print(step)
     U = []
     total = 0.0
+    # getting theta_i    
     for i in range(0, TYPE_COUNT):
         avgFit = 0.0
         for l in range(0, TYPE_COUNT):
@@ -64,16 +65,14 @@ while (step < STEPS and fixed != 1):
             theta_i += float(u * (TYPE_COUNT - i + 1) * r[i-1]*X[i-1] )/ avgFit
         pVec[i] = theta_i
         total += pVec[i]
-        cumPVec[i] = total
-        
+
+    # get proba vector
     for i in range(0, TYPE_COUNT):
         pVec[i] /= total
         if pVec[i] == 1.0:
             print("FIXATION")
             fixed = 1
-        
-    for i in range(0, TYPE_COUNT):
-        X[i] = 0.0
+
 
     X = np.random.multinomial(CELL_COUNT, pVec)
     
