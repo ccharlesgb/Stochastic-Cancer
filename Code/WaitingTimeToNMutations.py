@@ -5,13 +5,6 @@ Created on Thu Feb 19 13:45:50 2015
 @author: Connor
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Feb 03 13:13:05 2015
-
-@author: Connor
-"""
-
 import matplotlib.pyplot as plt
 import GillespieTauLeap
 import CarcinogenNParam_OPTON
