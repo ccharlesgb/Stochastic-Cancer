@@ -1,0 +1,29 @@
+﻿Build started 19/02/2015 12:56:20.
+     1>Project "C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\GillespieSimulator\GillespieSimulator.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\GillespieSimulator.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Gillespie.cpp
+         Gillespie.cpp
+     1>c:\users\connor\documents\visual studio 2010\projects\gillespiesimulator\gillespiesimulator\gillespieparam.h(90): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\connor\documents\visual studio 2010\projects\gillespiesimulator\gillespiesimulator\gillespie.h(59): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\connor\documents\visual studio 2010\projects\gillespiesimulator\gillespiesimulator\gillespie.cpp(13): warning C4305: '=' : truncation from 'double' to 'float'
+     1>c:\users\connor\documents\visual studio 2010\projects\gillespiesimulator\gillespiesimulator\gillespie.cpp(34): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\connor\documents\visual studio 2010\projects\gillespiesimulator\gillespiesimulator\gillespie.cpp(141): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\Debug\GillespieSimulator.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\GillespieSimulator.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\Debug\GillespieSimulator.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\Debug\GillespieSimulator.lib" /MACHINE:X86 Debug\Gillespie.obj
+         Debug\GillespieHist.obj
+         Debug\GillespieParam.obj
+         Debug\main.obj
+         LINK : C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\Debug\GillespieSimulator.exe not found or not built by the last incremental link; performing full link
+         GillespieSimulator.vcxproj -> C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\Debug\GillespieSimulator.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\Debug\GillespieSimulator.exe;#1" /manifest Debug\GillespieSimulator.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\GillespieSimulator.unsuccessfulbuild".
+         Touching "Debug\GillespieSimulator.lastbuildstate".
+     1>Done Building Project "C:\Users\Connor\documents\visual studio 2010\Projects\GillespieSimulator\GillespieSimulator\GillespieSimulator.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.87

@@ -5,7 +5,6 @@ Created on Tue Feb 03 13:10:36 2015
 @author: Connor
 """
 
-from functools import partial
 import math
 
 class CarcinogenNHist:

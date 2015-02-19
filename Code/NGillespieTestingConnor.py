@@ -13,7 +13,7 @@ import math
 TYPE_COUNT = 20
 
 myParam = CarcinogenNParam_OPTON.CarcinogenNParam(TYPE_COUNT)
-myParam.IJ_DIFF_TOLERANCE = 7
+myParam.IJ_DIFF_TOLERANCE = 5
 
 #Create the simulator
 myGillespie = GillespieTauLeap_OPTON.Gillespie()
@@ -43,7 +43,7 @@ for i in range(0,TYPE_COUNT):
     myParam.u[i] = 1.0 / myParam.n0[0]
     
 
-myGillespie.epsilon = 0.3
+myGillespie.epsilon = 1.0
 
 myGillespie.Simulate()
 
