@@ -8,19 +8,20 @@ Created on Thu Feb 19 18:53:15 2015
 import wright_fisher
 import matplotlib.pyplot as plt
 
-cellTypes = 100
-population = 1000
+cellTypes = 60
+population = 1000000
 
 myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
 
+myWF.s = 0.1
 
 myWF.cellTypes = cellTypes
 myWF.popSize = population
 
 myWF.history = myHist
 
-myWF.popSize = 100
+myWF.popSize = population
 
 myWF.stepLimit = 3000
 
