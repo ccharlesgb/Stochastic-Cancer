@@ -37,8 +37,8 @@ r = []
 sigma = 0.01
 
 for i in range(0,TYPE_COUNT):
-    #r.append(random.gauss(math.pow(1.0 + 0.01, i), sigma))
-    r.append(math.pow(1.0 + 0.01, i))
+    r.append(random.gauss(math.pow(1.0 + 0.01, i), sigma))
+    #r.append(math.pow(1.0 + 0.01, i))
 
 print(r)
 
