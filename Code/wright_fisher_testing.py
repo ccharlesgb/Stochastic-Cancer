@@ -10,15 +10,12 @@ import matplotlib.pyplot as plt
 import math
 
 cellTypes = 21
-population = 1e7
-
-
+population = 1e9
 
 myWF = wright_fisher.wright_fisher(cellTypes)
 myHist = wright_fisher.wf_hist(cellTypes)
 
-myWF.s = 0.05
-myWF.u = 1.0 / population
+myWF.u = 1e2 / population
 #myWF.u = 1e-2 / population
 
 myWF.popSize = population
@@ -29,8 +26,15 @@ myWF.popSize = population
 
 myWF.stepLimit = 30000
 
+myWF.useApproxTheta = 0
+
+for i in range(0,cellTypes):
+    myWF.r[i] = math.pow(1.0 + 0.01, i)
+
+
 myWF.Simulate()
 
+'''
 for t in range(0, myWF.curStep, myWF.curStep / 8):
     dataX = []
     dataY = []
@@ -42,14 +46,23 @@ for t in range(0, myWF.curStep, myWF.curStep / 8):
         plt.xlabel("Number of Mutations")
         plt.ylabel("Cell count")
 plt.show()
+'''
+
+for i in range(0, cellTypes):
+   plt.plot(myHist.stepHist, myHist.thetajHist[i])
 
 
 '''
 for i in range(0, cellTypes):
    plt.plot(myHist.stepHist, myHist.histArray[i])
+   
 
-#plt.yscale("log")
-plt.show()   
+plt.yscale("log")
+plt.show()
+'''
+
+
+'''
 
 s_min = 0.01
 s_max = 0.50
