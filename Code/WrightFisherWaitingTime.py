@@ -76,18 +76,18 @@ def GetAvgWaitTime(TYPE_COUNT, SDP, u = 1e-7, s = 1e-2):
 dataX = []
 dataY = []
 
-SDP = 100
+SDP = 1
 
-minU = 1e-4
+minU = 1e-2
 maxU = 1e-7
 
-DPC = 30
+DPC = 2
 
 for i in range(0,DPC):
     print("DATA POINT" , i)
     U = (maxU - minU) * float(i) / (DPC - 1) + minU
     dataX.append(U)
-    dataY.append(GetAvgWaitTime(10, SDP, U))
+    dataY.append(GetAvgWaitTime(40, SDP, U))
     
 plt.plot(dataX, dataY)
 

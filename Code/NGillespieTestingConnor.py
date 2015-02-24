@@ -5,15 +5,15 @@ Created on Tue Feb 03 13:13:05 2015
 @author: Connor
 """
 
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plts
 import GillespieTauLeap_OPTON
 import CarcinogenNParam_OPTON
 import math
 
-TYPE_COUNT = 20
+TYPE_COUNT = 11
 
 myParam = CarcinogenNParam_OPTON.CarcinogenNParam(TYPE_COUNT)
-myParam.IJ_DIFF_TOLERANCE = 5
+myParam.IJ_DIFF_TOLERANCE = 12
 
 #Create the simulator
 myGillespie = GillespieTauLeap_OPTON.Gillespie()
@@ -40,7 +40,7 @@ myParam.n0[0] = 1e6
 
 for i in range(0,TYPE_COUNT):
     myParam.r[i] = math.pow(1.0 + 0.01, i)
-    myParam.u[i] = 1.0 / myParam.n0[0]
+    myParam.u[i] = 1e2 / myParam.n0[0]
     
 
 myGillespie.epsilon = 1.0
