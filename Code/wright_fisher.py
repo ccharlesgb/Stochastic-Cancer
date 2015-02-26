@@ -61,7 +61,7 @@ class wright_fisher:
     def reset(self):
         self.CacheCombinations()
         #self.iN = [0]*self.cellTypes
-        #self.iN[0] = self.popSize   
+        #self.iN[0] = self.popSize 
         self.popSize = 0
         for i in range(0,self.cellTypes):
             self.N[i] = self.iN[i]
@@ -149,6 +149,9 @@ class wright_fisher:
         res.avgFixTime = float(res.avgFixTime) / simCount
         return res
             
+    def AnalyticalWaitingTime(self):
+        return 0.0
+    
 class wf_hist:
     def __init__(self, cellTypes):
         self.cellTypes = cellTypes

@@ -28,10 +28,10 @@ s = 0.01
 myWF.SetCompoundFitness(s)
 
 
-minN = 1e6
-maxN = 1e9
+minD = 20
+maxD = 200
 
-SDP = 3
+SDP = 2
 PointCount = 4
 
 dataX = []
@@ -41,18 +41,17 @@ for p in range(0,PointCount):
     startTime = time.clock()
     print("Current Data Point = {0}/{1} ({2}%)".format(p + 1, PointCount, 100.0 * float(p)/(PointCount-1)))
     
-    myWF.iN[0] = round(SimUtil.SweepParameterLog(p,PointCount, minN, maxN))
-    print("IN0", myWF.iN[0])
+    myWF.d = round(SimUtil.SweepParameter(p,PointCount, minD, maxD))
+    print("D", myWF.d)
     res = myWF.SimulateBatch(SDP)
-    dataX.append(myWF.iN[0])
+    dataX.append(myWF.d)
     dataY.append(res.avgFixTime)
     
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=1))    
     
 plt.plot(dataX,dataY, 'o')
-plt.xscale("log")
-plt.xlabel("N")
+plt.xlabel("d")
 plt.ylabel("t_{0}".format(cellTypes - 1))
-plt.xlim(minN, maxN)
+plt.xlim(minD, maxD)
 plt.show()
 

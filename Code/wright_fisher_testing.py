@@ -28,6 +28,8 @@ myWF.stepLimit = 10000
 
 myWF.useApproxTheta = 0
 
+myWF.d = 100
+
 s = 0.01
 for i in range(0,cellTypes):
     myWF.r[i] = math.pow(1.0 + s, i)
