@@ -15,7 +15,7 @@ population = 1e9
 myWF = wright_fisher.wright_fisher(cellTypes)
 myHist = wright_fisher.wf_hist(cellTypes)
 
-myWF.u = 1e2 / population
+myWF.u = 1e-7
 #myWF.u = 1e-2 / population
 
 myWF.popSize = population
@@ -24,12 +24,13 @@ myWF.history = myHist
 
 myWF.popSize = population
 
-myWF.stepLimit = 30000
+myWF.stepLimit = 10000
 
 myWF.useApproxTheta = 0
 
+s = 0.01
 for i in range(0,cellTypes):
-    myWF.r[i] = math.pow(1.0 + 0.01, i)
+    myWF.r[i] = math.pow(1.0 + s, i)
 
 
 myWF.Simulate()
@@ -48,18 +49,19 @@ for t in range(0, myWF.curStep, myWF.curStep / 8):
 plt.show()
 '''
 
-for i in range(0, cellTypes):
-   plt.plot(myHist.stepHist, myHist.thetajHist[i])
-
-
 '''
 for i in range(0, cellTypes):
+   plt.plot(myHist.stepHist, myHist.thetajHist[i])
+'''
+
+
+for i in range(0, cellTypes):
    plt.plot(myHist.stepHist, myHist.histArray[i])
-   
+   plt.yscale("log")
 
 plt.yscale("log")
 plt.show()
-'''
+
 
 
 '''

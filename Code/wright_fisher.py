@@ -47,17 +47,18 @@ class wright_fisher:
         for i in range(0,self.cellTypes):
             self.N[i] = self.iN[i]
         self.curStep = 0 
-        self.isFixated = 0        
+        self.isFixated = 0       
+        self.nextProgressFrac = 0.0
     
     def GetXi(self, i):     
         result = float(self.N[i])/float(self.popSize)       
         return result
     
     def GetFitnessRatio(self, i):
-        top = self.r[i] * self.GetXi(i)
+        top = self.r[i] * self.N[i]
         bottom = 0.0       
         for l in range(0,self.cellTypes):
-            bottom += self.r[i]*self.GetXi(l)
+            bottom += self.r[l]*self.N[l]
         return top/bottom
         
     def GetThetaj(self,j):
@@ -72,11 +73,9 @@ class wright_fisher:
                 
             return theta_j
         else:
-            summation = 0.0
+            summation = 0.0       
             for i in range(0, j + 1):
-                #TODO: COMBINATIONS TABLE
                 summation += scimisc.comb(self.cellTypes - i , j - i )*math.pow(self.u, j-i)*math.pow(1-self.u, self.cellTypes-j)*self.GetFitnessRatio(i)
-                #summation += scipy.misc.comb(self.cellTypes - i , j - i )*self.u .** (j-i) * (1-self.u) .** (self.cellTypes-j) * self.GetFitnessRatio(i)
             return summation
         
     def UpdateProbVector(self):    
@@ -84,9 +83,9 @@ class wright_fisher:
             self.prob_vector[i] = (self.GetThetaj(i))
             
         #print(self.prob_vector)
-        normalisation = sum(self.prob_vector)
-        for i in range(0,self.cellTypes):
-            self.prob_vector[i] /= normalisation
+        #normalisation = sum(self.prob_vector)
+        #for i in range(0,self.cellTypes):
+            #self.prob_vector[i] /= normalisation
          
         for i in range(0,self.cellTypes):        
             if(self.prob_vector[i] == 1.0):
@@ -104,9 +103,8 @@ class wright_fisher:
 
         while(self.curStep < self.stepLimit and self.isFixated != 1):
             if (float(self.curStep) / self.stepLimit > self.nextProgressFrac):
-            {
-                
-            }
+                print(float(self.curStep) / self.stepLimit * 100.0)
+                self.nextProgressFrac += 0.1
             self.UpdateProbVector()
             self.N = np.random.multinomial(self.popSize, self.prob_vector)           
             self.curStep += 1
