@@ -9,6 +9,16 @@ import numpy as np
 import random
 import scipy.misc as scimisc
 
+class BatchResult:
+    def __init__(self):
+        self.simCount = 0
+        self.avgFixTime = 0.0
+        self.Reset()
+
+    def Reset(self):
+        self.simCount = 0
+        self.avgFixTime = 0.0
+
 class wright_fisher:
     def __init__(self, cellTypes):
         self.popSize = 100
@@ -30,10 +40,15 @@ class wright_fisher:
         
         self.iN[0] = self.popSize
         
+        self.printProgress = 0
         self.curStep = 0        
         self.isFixated = 0
         self.stepLimit = 2000
         self.history = 0
+        
+    def SetCompoundFitness(self,s):
+        for i in range(0,self.cellTypes):
+            self.r[i] = math.pow(1.0 + s, i)
         
     def CacheCombinations(self):
         self.combinations = [[]]
@@ -42,16 +57,15 @@ class wright_fisher:
             for j in range(0,self.cellTypes):
                 comb = scimisc.comb(self.d-i, j-i)
                 self.combinations[i].append(comb)
-        print(self.combinations[0][0])
-        print(self.combinations[0][1])
-        print(self.combinations[1][0])
         
     def reset(self):
         self.CacheCombinations()
         #self.iN = [0]*self.cellTypes
         #self.iN[0] = self.popSize   
+        self.popSize = 0
         for i in range(0,self.cellTypes):
             self.N[i] = self.iN[i]
+            self.popSize += self.iN[i]
         self.curStep = 0 
         self.isFixated = 0       
         self.nextProgressFrac = 0.0
@@ -112,7 +126,7 @@ class wright_fisher:
             self.history.RecordFrame(self)
         
         while(self.curStep < self.stepLimit and self.isFixated != 1):
-            if (float(self.curStep) / self.stepLimit > self.nextProgressFrac):
+            if (self.printProgress and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
                 print(float(self.curStep) / self.stepLimit * 100.0)
                 self.nextProgressFrac += 0.1
             self.UpdateProbVector()
@@ -125,7 +139,16 @@ class wright_fisher:
             if(self.history != 0):        
                 self.history.RecordFrame(self)
             
-        
+    def SimulateBatch(self, simCount):
+        res = BatchResult()
+        res.simCount = simCount
+        for i in range(0, simCount):
+            self.Simulate()
+            res.avgFixTime += self.curStep
+            
+        res.avgFixTime = float(res.avgFixTime) / simCount
+        return res
+            
 class wf_hist:
     def __init__(self, cellTypes):
         self.cellTypes = cellTypes
