@@ -47,6 +47,8 @@ class Determenistic:
         deltaT = 0.2
         steps = int(sim.timeLimit / deltaT)
         sim.ResetSim()
+        print("SIM N0", sim.n0)
+        print("SIM N", sim.N)
         self.curT = 0.0
         x2Fixed = 0    
         
@@ -72,7 +74,7 @@ class Determenistic:
             self.xi[1] = newx1
             self.xi[2] = newx2
             
-            self.curT = (float(it + 1) * deltaT) 
+            self.curT = (float(it + 1) * deltaT)
             
             if sim.populationHistory >= 1:
                 sim.tHist.append(self.curT)

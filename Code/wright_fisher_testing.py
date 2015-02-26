@@ -35,26 +35,22 @@ for i in range(0,cellTypes):
 
 myWF.Simulate()
 
-'''
+plt.figure()
+plt.subplot(211)
 for t in range(0, myWF.curStep, myWF.curStep / 8):
     dataX = []
     dataY = []
     for i in range(0, cellTypes):
         dataX.append(i)
         dataY.append(myHist.histArray[i][t])
-        plt.plot(dataX,dataY, 'o-')
-        plt.yscale("log")
-        plt.xlabel("Number of Mutations")
-        plt.ylabel("Cell count")
+    plt.plot(dataX,dataY, 'o-')
+    
+plt.yscale("log")
+plt.xlabel("Number of Mutations")
+plt.ylabel("Cell count")
 plt.show()
-'''
 
-'''
-for i in range(0, cellTypes):
-   plt.plot(myHist.stepHist, myHist.thetajHist[i])
-'''
-
-
+plt.subplot(212)
 for i in range(0, cellTypes):
    plt.plot(myHist.stepHist, myHist.histArray[i])
    plt.yscale("log")
@@ -62,6 +58,13 @@ for i in range(0, cellTypes):
 plt.yscale("log")
 plt.show()
 
+plt.figure()
+plt.subplot(211)
+for i in range(0, cellTypes):
+   plt.plot(myHist.stepHist, myHist.thetajHist[i])
+
+plt.subplot(212)
+plt.plot(myHist.avgJHist)
 
 
 '''

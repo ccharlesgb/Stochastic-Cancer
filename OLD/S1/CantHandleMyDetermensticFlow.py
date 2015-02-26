@@ -9,18 +9,21 @@ import SimTools
 import matplotlib.pyplot as plt
 import MatTools
 import DetermenisticModel
+import math
 
-sim = SimTools.Gillespie(100)
+sim = SimTools.Gillespie(1e7)
+sim.populationHistory = 1
 sim.r0 = 1.0
-sim.r1 = 1.1
-sim.r2 = 1.0
+sim.r1 = math.pow(1.0 + 0.01,1)
+sim.r2 = math.pow(1.0 + 0.01,2)
 
-sim.in0 = 100
+sim.in0 = 1e7
+sim.N = 1e7
 
-sim.u1 = 0.1
-sim.u2 = 0.1
+sim.u1 = 1e-7
+sim.u2 = 1e-7
 
-sim.timeLimit = 400.0
+sim.timeLimit = 100.0
 
 deterSim = DetermenisticModel.Determenistic()
 

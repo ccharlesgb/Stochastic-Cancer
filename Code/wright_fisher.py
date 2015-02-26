@@ -21,12 +21,6 @@ class wright_fisher:
         self.iN = []
         self.prob_vector = []
         self.d = 100
-        '''
-        self.combinations = [[]]
-        for i in range(0,cellTypes):
-            for j in range(0,cellTypes):
-                self.combinations[0][0] = 0.0
-        '''
         
         for i in range(0,self.cellTypes):
             self.N.append(0)            
@@ -41,7 +35,19 @@ class wright_fisher:
         self.stepLimit = 2000
         self.history = 0
         
+    def CacheCombinations(self):
+        self.combinations = [[]]
+        for i in range(0,self.cellTypes):
+            self.combinations.append([])
+            for j in range(0,self.cellTypes):
+                comb = scimisc.comb(self.d-i, j-i)
+                self.combinations[i].append(comb)
+        print(self.combinations[0][0])
+        print(self.combinations[0][1])
+        print(self.combinations[1][0])
+        
     def reset(self):
+        self.CacheCombinations()
         #self.iN = [0]*self.cellTypes
         #self.iN[0] = self.popSize   
         for i in range(0,self.cellTypes):
@@ -54,12 +60,11 @@ class wright_fisher:
         result = float(self.N[i])/float(self.popSize)       
         return result
     
-    def GetFitnessRatio(self, i):
-        top = self.r[i] * self.N[i]
+    def GetAvgFitness(self):
         bottom = 0.0       
         for l in range(0,self.cellTypes):
             bottom += self.r[l]*self.N[l]
-        return top/bottom
+        return bottom
         
     def GetThetaj(self,j):
         if self.useApproxTheta == 1:
@@ -73,15 +78,20 @@ class wright_fisher:
                 
             return theta_j
         else:
-            summation = 0.0       
-            for i in range(0, j + 1):
-                summation += scimisc.comb(self.cellTypes - i , j - i )*math.pow(self.u, j-i)*math.pow(1-self.u, self.cellTypes-j)*self.GetFitnessRatio(i)
+            summation = 0.0
+            avgFit = self.GetAvgFitness()
+            for i in range(0, j+1):
+                #summation += scimisc.comb(self.cellTypes - i , j - i )*math.pow(self.u, j-i)*math.pow(1-self.u, self.cellTypes-j)*self.GetFitnessRatio(i)
+                summation += self.combinations[i][j]*math.pow(self.u, j-i)*math.pow(1-self.u, self.d-j)*(self.r[i] * self.N[i])/avgFit
             return summation
         
     def UpdateProbVector(self):    
-        for i in range(0,self.cellTypes):
+        probSum = 0.0
+        for i in range(0,self.cellTypes - 1):
             self.prob_vector[i] = (self.GetThetaj(i))
-            
+            probSum += self.prob_vector[i]
+        self.prob_vector[self.cellTypes - 1] = 1.0 - probSum
+        
         #print(self.prob_vector)
         #normalisation = sum(self.prob_vector)
         #for i in range(0,self.cellTypes):
@@ -100,7 +110,7 @@ class wright_fisher:
         self.reset()
         if(self.history != 0):        
             self.history.RecordFrame(self)
-
+        
         while(self.curStep < self.stepLimit and self.isFixated != 1):
             if (float(self.curStep) / self.stepLimit > self.nextProgressFrac):
                 print(float(self.curStep) / self.stepLimit * 100.0)
@@ -109,8 +119,12 @@ class wright_fisher:
             self.N = np.random.multinomial(self.popSize, self.prob_vector)           
             self.curStep += 1
             
+            if self.N[self.cellTypes-1] >= 1:
+                self.isFixated = 1
+            
             if(self.history != 0):        
                 self.history.RecordFrame(self)
+            
         
 class wf_hist:
     def __init__(self, cellTypes):
@@ -119,8 +133,9 @@ class wf_hist:
        
     def ClearFrames(self):
         self.histArray = dict()
-        self.stepHist = []      
+        self.stepHist = []
         self.thetajHist = dict()
+        self.avgJHist = []
         for i in range(0, self.cellTypes):
             self.histArray[i] = []
             self.thetajHist[i] = []
@@ -128,9 +143,12 @@ class wf_hist:
     def RecordFrame(self, sim):
         if random.random() < 1.1:
             self.stepHist.append(sim.curStep)
+            totalJ = 0.0
             for i in range(0, self.cellTypes):
                 self.histArray[i].append(sim.N[i])
                 self.thetajHist[i].append(sim.prob_vector[i])
+                totalJ += i * float(sim.N[i]/sim.popSize)
+            self.avgJHist.append(totalJ)
          
     def GetDictionary(self):
         runDict = dict()
