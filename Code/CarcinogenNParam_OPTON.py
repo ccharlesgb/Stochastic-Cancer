@@ -36,8 +36,6 @@ class CarcinogenNParam:
         self.r = []
         self.u = []
         
-        self.IJ_DIFF_TOLERANCE = 5
-        
         for i in range(0, typeCount):
             self.n.append(0)
             self.n0.append(0)
@@ -71,7 +69,7 @@ class CarcinogenNParam:
     def Hook(self, gillespie):
         for i in range(0,self.typeCount):
             for j in range(0, self.typeCount):
-                if i != j and abs(i-j) < self.IJ_DIFF_TOLERANCE:
+                if i != j:
                     print("ADDING",i,j)
                     gillespie.AddCallback(0, self.EventTIJ(i,j))
 
@@ -93,8 +91,10 @@ class CarcinogenNParam:
             top = self.n[i] * (self.r[j]*self.n[j] + self.r[j-1] * self.u[j-1] * self.n[j-1])
         else:
             top = self.n[i] * (self.r[j]*(1 - self.u[j])*self.n[j] + self.r[j-1]*self.u[j-1]*self.n[j-1])
-        
-        return top / self.avgFit
+        rate = top / self.avgFit
+        #if rate > 1e6:
+            #print("Large Rate T{0}>{1}: {2} Avg Fit: {3} n_{4} = {5} n_{6} = {7}".format(i,j,rate, self.avgFit, i, self.n[i],j,self.n[j]))
+        return rate
         
     def PreSim(self, gillespie):
         self.avgFit = self.GetAvgFit()

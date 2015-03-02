@@ -43,6 +43,8 @@ class Gillespie:
         self.timeLimit = 10.0
         self.epsilon = 0.05        
         
+        self.stopAtAppear = 1        
+        
         self.history = 0
         
         self.preSim = 0
@@ -51,6 +53,7 @@ class Gillespie:
         self.tau = -1.0
         self.tauCache = []
         
+        self.printProgress = 0
         #Tau Debug Info
         self.RECORD_TAU_INFO = 0
         self.TAU_HIST = []
@@ -62,8 +65,7 @@ class Gillespie:
         self.curTime = 0.0      
         self.TAU_HIST = []
         self.BAD_FRAME_COUNT = 0
-    
-        
+        self.nextProgressFrac = 0.0
         
     def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
@@ -137,7 +139,6 @@ class Gillespie:
             goodFrame = 1
             for i in range(0,self.rateCallbackCount):
                 if self.rateCache[i] > 0.001:
-                    
                     self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
                     
                     for pop in range(0, len(self.params.n)):
@@ -158,7 +159,7 @@ class Gillespie:
         index = 0
         for i in range(0,self.params.typeCount):
             for j in range(0, self.params.typeCount):
-                if i == j or abs(i-j) >= self.params.IJ_DIFF_TOLERANCE:
+                if i == j:
                     continue;
                 self.rateCache[index] = self.params.GetTIJ(i,j)
                 self.lambd += self.rateCache[index]
@@ -176,12 +177,16 @@ class Gillespie:
         if self.history != 0:
             self.history.RecordFrame(self.curTime, self.params)
       
-        while self.curTime < self.timeLimit:   
+        while self.curTime < self.timeLimit:
+            if (self.printProgress and float(self.curTime) / self.timeLimit > self.nextProgressFrac):
+                print("{:.{s}f}".format(float(self.curTime) / self.timeLimit * 100.0, s=1))
+                self.nextProgressFrac += 0.1
+                
             self.params.PreSim(self)
             if self.preSim != 0:
                 self.preSim(self.curTime, self.params)
             self.UpdateRates()
-            if self.lambd == 0: #We have fixated at an absorbing state
+            if self.lambd == 0 or (self.stopAtAppear == 1 and (self.params.n[self.params.typeCount - 1] >= 1)): #We have fixated at an absorbing state
                 return
             self.tau = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Choose what kind of event and update cell counts

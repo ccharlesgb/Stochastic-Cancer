@@ -5,7 +5,7 @@ Created on Tue Feb 03 13:13:05 2015
 @author: Connor
 """
 
-import matplotlib.pyplot as plts
+import matplotlib.pyplot as plt
 import GillespieTauLeap_OPTON
 import CarcinogenNParam_OPTON
 import math

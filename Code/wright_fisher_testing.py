@@ -9,7 +9,7 @@ import wright_fisher
 import matplotlib.pyplot as plt
 import math
 
-cellTypes = 21
+cellTypes = 11
 population = 1e9
 
 myWF = wright_fisher.wright_fisher()
@@ -28,8 +28,6 @@ myWF.params = myParam
 s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
-
-
 
 myWF.Simulate()
 
@@ -64,6 +62,7 @@ for i in range(0, cellTypes):
 plt.subplot(212)
 plt.plot(myHist.avgJHist)
 
+print("Appearance Time: {0}".format(myWF.curStep))
 
 '''
 
