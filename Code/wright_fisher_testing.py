@@ -12,33 +12,23 @@ import math
 cellTypes = 21
 population = 1e9
 
-myWF = wright_fisher.wright_fisher(cellTypes)
+myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
+myParam = wright_fisher.wright_fisher_params(cellTypes)
 
-myWF.u = 1e-9
-#myWF.u = 1e-2 / population
+myParam.u = [1e-9] * 10
+myParam.d = 200
 
-myWF.iN[0] = population
-
+myParam.iN[0] = population
 myWF.history = myHist
-
-myWF.popSize = population
-
 myWF.stepLimit = 10000
-
 myWF.useApproxTheta = 0
-
-myWF.d = 200
+myWF.params = myParam
 
 s = 0.01
-adv = 0
 for i in range(0,cellTypes):
-    if i % 2 == 0:
-        myWF.r[i] = math.pow(1.0 + s, adv)
-        adv += 1
-    else:
-        myWF.r[i] = math.pow(1.0 + s, adv)
-        adv += 1
+    myParam.r[i] = math.pow(1.0 + s, i)
+
 
 
 myWF.Simulate()

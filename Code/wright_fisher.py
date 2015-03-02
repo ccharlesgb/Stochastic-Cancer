@@ -9,76 +9,32 @@ import numpy as np
 import random
 import scipy.misc as scimisc
 
-class BatchResult:
-    def __init__(self):
-        self.simCount = 0
-        self.avgFixTime = 0.0
-        self.Reset()
 
-    def Reset(self):
-        self.simCount = 0
-        self.avgFixTime = 0.0
-
-class wright_fisher:
+class wright_fisher_params:
     def __init__(self, cellTypes):
-        self.popSize = 100
-
         self.r = []
+        self.u = []
         self.useApproxTheta = 0
-        self.u = 0.01
         self.cellTypes = cellTypes
         self.N = []
         self.iN = []
-        self.prob_vector = []
         self.d = 100
         
         for i in range(0,self.cellTypes):
             self.N.append(0)            
             self.iN.append(0)
             self.r.append(1.0)
-            self.prob_vector.append(0.0)
-        
-        self.iN[0] = self.popSize
-        
-        self.printProgress = 0
-        self.curStep = 0        
-        self.isFixated = 0
-        self.stepLimit = 2000
-        self.history = 0
-        
-    def SetCompoundFitness(self,s):
-        for i in range(0,self.cellTypes):
-            self.r[i] = math.pow(1.0 + s, i)
-        
-    def CacheCombinations(self):
-        self.combinations = [[]]
-        for i in range(0,self.cellTypes):
-            self.combinations.append([])
-            for j in range(0,self.cellTypes):
-                comb = scimisc.comb(self.d-i, j-i)
-                self.combinations[i].append(comb)
-        
-    def reset(self):
-        self.CacheCombinations()
+            self.u.append(1e-7)
 
-        self.popSize = 0
-        for i in range(0,self.cellTypes):
-            self.N[i] = self.iN[i]
-            self.popSize += self.iN[i]
-            
-        self.curStep = 0 
-        self.isFixated = 0       
-        self.nextProgressFrac = 0.0
-    
-    def GetXi(self, i):     
-        result = float(self.N[i])/float(self.popSize)       
-        return result
-    
+        
+        self.iN[0] = 100
+        self.popSize = 100
+        
     def GetAvgFitness(self):
         bottom = 0.0       
         for l in range(0,self.cellTypes):
             bottom += self.r[l]*self.N[l]
-        return bottom
+        return bottom        
         
     def GetThetaj(self,j):
         if self.useApproxTheta == 1:
@@ -96,22 +52,81 @@ class wright_fisher:
             avgFit = self.GetAvgFitness()
             for i in range(0, j+1):
                 #summation += scimisc.comb(self.cellTypes - i , j - i )*math.pow(self.u, j-i)*math.pow(1-self.u, self.cellTypes-j)*self.GetFitnessRatio(i)
-                summation += self.combinations[i][j]*math.pow(self.u, j-i)*math.pow(1-self.u, self.d-j)*(self.r[i] * self.N[i])/avgFit
+                summation += self.combinations[i][j]*math.pow(self.u[0], j-i)*math.pow(1-self.u[0], self.d-j)*(self.r[i] * self.N[i])/avgFit
             return summation
+        
+    def CacheCombinations(self):
+        self.combinations = [[]]
+        for i in range(0,self.cellTypes):
+            self.combinations.append([])
+            for j in range(0,self.cellTypes):
+                comb = scimisc.comb(self.d-i, j-i)
+                self.combinations[i].append(comb)    
+    
+    def Reset(self):   
+        self.popSize = 0
+        for i in range(0,self.cellTypes):
+            self.N[i] = self.iN[i]
+            self.popSize += self.iN[i]
+        self.CacheCombinations()
+        
+    def SetCompoundFitness(self,s):
+        for i in range(0,self.cellTypes):
+            self.r[i] = math.pow(1.0 + s, i)
+
+class BatchResult:
+    def __init__(self):
+        self.simCount = 0
+        self.avgFixTime = 0.0
+        self.Reset()
+
+    def Reset(self):
+        self.simCount = 0
+        self.avgFixTime = 0.0
+        
+    def AnalyticalWaitingTime(self):
+        s = self.r[1] - 1.00
+        print("S IS", s)
+        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
+        denom = 2.0 * s * math.log(self.popSize)
+        return float(numer)/denom
+
+class wright_fisher:
+    def __init__(self):
+        self.printProgress = 0
+        self.curStep = 0        
+        self.isFixated = 0
+        self.stepLimit = 2000
+        self.history = 0
+        self.params = 0
+        self.prob_vector = []
+        
+    def reset(self):
+        self.params.Reset()
+        
+        for i in range(0,self.params.cellTypes):
+            self.prob_vector.append(0.0)
+        self.curStep = 0 
+        self.isFixated = 0       
+        self.nextProgressFrac = 0.0
+    
+    def GetXi(self, i):     
+        result = float(self.N[i])/float(self.popSize)       
+        return result
         
     def UpdateProbVector(self):    
         probSum = 0.0
-        for i in range(0,self.cellTypes - 1):
-            self.prob_vector[i] = (self.GetThetaj(i))
+        for i in range(0,self.params.cellTypes - 1):
+            self.prob_vector[i] = (self.params.GetThetaj(i))
             probSum += self.prob_vector[i]
-        self.prob_vector[self.cellTypes - 1] = 1.0 - probSum
+        self.prob_vector[self.params.cellTypes - 1] = 1.0 - probSum
         
         #print(self.prob_vector)
         #normalisation = sum(self.prob_vector)
         #for i in range(0,self.cellTypes):
             #self.prob_vector[i] /= normalisation
          
-        for i in range(0,self.cellTypes):        
+        for i in range(0,self.params.cellTypes):        
             if(self.prob_vector[i] == 1.0):
                     self.isFixated = 1      
                     print("The system is fixed. Took {0} steps".format(self.curStep))
@@ -130,10 +145,10 @@ class wright_fisher:
                 print(float(self.curStep) / self.stepLimit * 100.0)
                 self.nextProgressFrac += 0.1
             self.UpdateProbVector()
-            self.N = np.random.multinomial(self.popSize, self.prob_vector)           
+            self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)           
             self.curStep += 1
             
-            if self.N[self.cellTypes-1] >= 1:
+            if self.params.N[self.params.cellTypes-1] >= 1:
                 self.isFixated = 1
             
             if(self.history != 0):        
@@ -148,13 +163,6 @@ class wright_fisher:
             
         res.avgFixTime = float(res.avgFixTime) / simCount
         return res
-            
-    def AnalyticalWaitingTime(self):
-        s = self.r[1] - 1.00
-        print("S IS", s)
-        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
-        denom = 2.0 * s * math.log(self.popSize)
-        return float(numer)/denom
     
 class wf_hist:
     def __init__(self, cellTypes):
@@ -175,9 +183,9 @@ class wf_hist:
             self.stepHist.append(sim.curStep)
             totalJ = 0.0
             for i in range(0, self.cellTypes):
-                self.histArray[i].append(sim.N[i])
+                self.histArray[i].append(sim.params.N[i])
                 self.thetajHist[i].append(sim.prob_vector[i])
-                totalJ += i * float(sim.N[i]/sim.popSize)
+                totalJ += i * float(sim.params.N[i]/sim.params.popSize)
             self.avgJHist.append(totalJ)
          
     def GetDictionary(self):
