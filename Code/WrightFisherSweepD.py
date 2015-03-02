@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import math
 import SimUtil
 import time
+import MatTools
 
 cellTypes = 21
 population = 1e9
@@ -19,7 +20,7 @@ myHist = wright_fisher.wf_hist(cellTypes)
 
 myWF.u = 1e-7
 
-myWF.popSize = population
+myWF.iN[0] = population
 myWF.history = myHist
 
 myWF.stepLimit = 10000
@@ -31,11 +32,12 @@ myWF.SetCompoundFitness(s)
 minD = 20
 maxD = 200
 
-SDP = 2
-PointCount = 4
+SDP = 10
+PointCount = 5
 
 dataX = []
 dataY = []
+dataY_anal = []
 
 for p in range(0,PointCount):
     startTime = time.clock()
@@ -47,11 +49,22 @@ for p in range(0,PointCount):
     dataX.append(myWF.d)
     dataY.append(res.avgFixTime)
     
+    dataY_anal.append(myWF.AnalyticalWaitingTime())
+    
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=1))    
     
 plt.plot(dataX,dataY, 'o')
+plt.plot(dataX,dataY_anal)
 plt.xlabel("d")
 plt.ylabel("t_{0}".format(cellTypes - 1))
 plt.xlim(minD, maxD)
 plt.show()
 
+file_name = "WrightFisherSweepD_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myWF.u)
+
+data = dict()
+data["D"] = dataX
+data["Dt_20"] = dataY
+data["Dt_20_anal"] = dataY_anal
+
+MatTools.SaveDict(file_name, data)

@@ -15,10 +15,10 @@ population = 1e9
 myWF = wright_fisher.wright_fisher(cellTypes)
 myHist = wright_fisher.wf_hist(cellTypes)
 
-myWF.u = 1e-7
+myWF.u = 1e-9
 #myWF.u = 1e-2 / population
 
-myWF.popSize = population
+myWF.iN[0] = population
 
 myWF.history = myHist
 
@@ -28,11 +28,17 @@ myWF.stepLimit = 10000
 
 myWF.useApproxTheta = 0
 
-myWF.d = 100
+myWF.d = 200
 
 s = 0.01
+adv = 0
 for i in range(0,cellTypes):
-    myWF.r[i] = math.pow(1.0 + s, i)
+    if i % 2 == 0:
+        myWF.r[i] = math.pow(1.0 + s, adv)
+        adv += 1
+    else:
+        myWF.r[i] = math.pow(1.0 + s, adv)
+        adv += 1
 
 
 myWF.Simulate()

@@ -60,12 +60,12 @@ class wright_fisher:
         
     def reset(self):
         self.CacheCombinations()
-        #self.iN = [0]*self.cellTypes
-        #self.iN[0] = self.popSize 
+
         self.popSize = 0
         for i in range(0,self.cellTypes):
             self.N[i] = self.iN[i]
             self.popSize += self.iN[i]
+            
         self.curStep = 0 
         self.isFixated = 0       
         self.nextProgressFrac = 0.0
@@ -150,7 +150,11 @@ class wright_fisher:
         return res
             
     def AnalyticalWaitingTime(self):
-        return 0.0
+        s = self.r[1] - 1.00
+        print("S IS", s)
+        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
+        denom = 2.0 * s * math.log(self.popSize)
+        return float(numer)/denom
     
 class wf_hist:
     def __init__(self, cellTypes):
