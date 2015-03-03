@@ -35,6 +35,7 @@ class CarcinogenNParam:
         self.n0 = []
         self.r = []
         self.u = []
+        self.d = typeCount
         
         for i in range(0, typeCount):
             self.n.append(0)
@@ -53,9 +54,7 @@ class CarcinogenNParam:
         for pop in range(0,len(self.n)):        
             self.n[pop] = self.n0[pop]
             self.N += self.n0[pop]
-
-    
-    
+            
     def EventTIJ(self, i,j):
         arr = []
         for x in range(0,self.typeCount):
@@ -85,12 +84,14 @@ class CarcinogenNParam:
         if self.n[i] == 0: #Quick get out case
             return 0.0
         top = 0.0
+        u_j = self.u[j] * (self.d - j + 1)
+        u_jm1 = self.u[j] * (self.d - (j-1) + 1)
         if j == 0:
-            top = self.n[i] * (self.r[j] * (1 - self.u[j]) * self.n[j])
+            top = self.n[i] * (self.r[j] * (1 - u_j) * self.n[j])
         elif j == self.typeCount - 1:
-            top = self.n[i] * (self.r[j]*self.n[j] + self.r[j-1] * self.u[j-1] * self.n[j-1])
+            top = self.n[i] * (self.r[j]*self.n[j] + self.r[j-1] * u_jm1 * self.n[j-1])
         else:
-            top = self.n[i] * (self.r[j]*(1 - self.u[j])*self.n[j] + self.r[j-1]*self.u[j-1]*self.n[j-1])
+            top = self.n[i] * (self.r[j]*(1 - u_j)*self.n[j] + self.r[j-1]*u_jm1*self.n[j-1])
         rate = top / self.avgFit
         #if rate > 1e6:
             #print("Large Rate T{0}>{1}: {2} Avg Fit: {3} n_{4} = {5} n_{6} = {7}".format(i,j,rate, self.avgFit, i, self.n[i],j,self.n[j]))

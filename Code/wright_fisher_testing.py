@@ -9,19 +9,19 @@ import wright_fisher
 import matplotlib.pyplot as plt
 import math
 
-cellTypes = 11
+cellTypes = 21
 population = 1e9
 
 myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
 myParam = wright_fisher.wright_fisher_params(cellTypes)
 
-myParam.u = [1e-9] * 10
-myParam.d = 200
+myParam.u = [1e-12] * 10
+myParam.d = 100
 
 myParam.iN[0] = population
 myWF.history = myHist
-myWF.stepLimit = 10000
+myWF.stepLimit = 100000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 

@@ -138,19 +138,21 @@ class Gillespie:
         while goodFrame == 0:        
             goodFrame = 1
             for i in range(0,self.rateCallbackCount):
-                if self.rateCache[i] > 0.001:
+                if self.rateCache[i] > 0.0001:
                     self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
-                    
-                    for pop in range(0, len(self.params.n)):
-                        self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
-                        if self.params.n[pop] < 0:
-                            goodFrame = 0
-                            
+                else:
+                    self.eventCount[i] = 0
+                
+                for pop in range(0, len(self.params.n)):
+                    self.params.n[pop] += self.eventCallbacks[i][pop] * self.eventCount[i]
+                    if self.params.n[pop] < 0:
+                        goodFrame = 0
+                        
             if goodFrame == 0:
                 self.BAD_FRAME_COUNT += 1
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
-                        self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
+                        self.params.n[pop] -= self.eventCallbacks[i][pop] * self.eventCount[i]
                         
                 self.tau /= 2.0
   
