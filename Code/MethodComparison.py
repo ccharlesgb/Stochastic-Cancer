@@ -57,8 +57,8 @@ for i in range(0,TYPE_COUNT):
     
 myGillespie.epsilon = 0.05
 
-SDP = 3
-pointCount = 5
+SDP = 10
+pointCount = 7
 
 dataX = []
 dataY_Gill = []
@@ -71,9 +71,8 @@ for i in range(0, pointCount):
     myParam.n0[0] = int(SimUtil.SweepParameterLog(i,pointCount, minN, maxN))
     myParamWF.iN[0] = int(myParam.n0[0] / math.sqrt(2.0))
     dataX.append(myParam.n0[0])
-    print("START WF BATCH")
+    print("N IS",myParam.n0[0])
     wfRes = myWF.SimulateBatch(SDP)
-    print("START GILLESPIE BATCH")
     gillRes = myGillespie.SimulateBatch(SDP)
     
     dataY_Gill.append(gillRes.avgFixTime)

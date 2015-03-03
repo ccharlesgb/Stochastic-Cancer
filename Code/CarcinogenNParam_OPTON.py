@@ -85,7 +85,7 @@ class CarcinogenNParam:
             return 0.0
         top = 0.0
         u_j = self.u[j] * (self.d - j + 1)
-        u_jm1 = self.u[j] * (self.d - (j-1) + 1)
+        u_jm1 = self.u[j-1] * (self.d - (j-1) + 1)
         if j == 0:
             top = self.n[i] * (self.r[j] * (1 - u_j) * self.n[j])
         elif j == self.typeCount - 1:

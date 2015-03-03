@@ -143,7 +143,7 @@ class Gillespie:
                 self.BAD_FRAME_COUNT += 1
                 for i in range(0,self.rateCallbackCount):
                     for pop in range(0,len(self.params.n)):
-           st             self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
+                        self.params.n[pop] -= self.eventCallbacks[i][pop]*self.eventCount[i]
                         
                 self.tau /= 2.0
   

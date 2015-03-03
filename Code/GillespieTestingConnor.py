@@ -8,6 +8,8 @@ Created on Tue Feb 03 13:13:05 2015
 import matplotlib.pyplot as plt
 import GillespieTauLeap
 import CarcinogenParam
+import MatTools
+import numpy as np
 
 myParam = CarcinogenParam.CarcinogenParam()
 
@@ -17,13 +19,13 @@ myGillespie.Hook(myParam) #VERY IMPORTANT
 
 #Set History
 myHist = CarcinogenParam.CarcinogenHist()
-#myGillespie.history = myHist
+myGillespie.history = myHist
 
 minr1 = 0.3
 maxr1 = 3.0
 
 DPC = 10
-SDP = 500
+SDP = 100
 
 dataX = []
 dataY = []
@@ -45,10 +47,9 @@ myParam.c2 = 0.001
 myParam.u1 = 0.1
 myParam.u2 = 0.1
 
-myGillespie.epsilon = 0.1
+myGillespie.epsilon = 1.0
 
-myGillespie.Simulate()
-
+'''
 for i in range(0, DPC):
     myParam.r1 = ((float(i) / (DPC - 1)) * (maxr1 - minr1)) + minr1
     dataX.append(myParam.r1)
@@ -61,12 +62,32 @@ for i in range(0, DPC):
     dataY.append(res.avgFixProb)
 
 plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
-
 '''
+
+avgBadFrame = 0
+TAU_HIST_TOTAL = []
+
+for i in range(0,SDP):
+    myGillespie.Simulate()
+    print("AVERAGE BAD FRAMES: ", float(myGillespie.BAD_FRAME_COUNT))
+    avgBadFrame += myGillespie.BAD_FRAME_COUNT
+    TAU_HIST_TOTAL.extend(myGillespie.TAU_HIST)
+    
+plt.figure()
 plt.plot(myHist.tHist, myHist.n0Hist)
 plt.plot(myHist.tHist, myHist.n1Hist)
 plt.plot(myHist.tHist, myHist.n2Hist)
-'''
+
 if myGillespie.RECORD_TAU_INFO:
     plt.figure()
-    plt.hist(myGillespie.TAU_HIST)
+    weights = np.ones_like(TAU_HIST_TOTAL)/len(TAU_HIST_TOTAL)
+    plt.hist(TAU_HIST_TOTAL)
+    plt.yscale('log', nonposy='clip')
+    
+file_name = "tauHistory_epsilon_{0}".format(myGillespie.epsilon)
+data = dict()
+data["tau"] = TAU_HIST_TOTAL
+data["bad_frame"] = avgBadFrame
+data["epsilon"] = myGillespie.epsilon
+
+MatTools.SaveDict(file_name,data)

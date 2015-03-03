@@ -74,6 +74,29 @@ class wright_fisher_params:
         for i in range(0,self.cellTypes):
             self.r[i] = math.pow(1.0 + s, i)
 
+    def GetXJ(self,j):
+        return self.N[i] / self.popSize            
+    
+    def GetXJDot(self,j, xj):
+        s = self.r[1] - 1.00
+        avgJ = 0.0
+        for i in range(0, self.cellTypes):
+            avgJ += i * xj[i]
+        deriv = 0.0
+        if j == 0:
+            deriv = self.u[0] * (self.d - j)*xj[j]
+        else:
+            deriv = self.u[0] * ((self.d - j + 1) * xj[j-1] - (self.d - j)*xj[j])
+        deriv += s * xj[j]*(j - avgJ)
+        return deriv
+
+    def AnalyticalWaitingTime(self):
+        s = self.r[1] - 1.00
+        print("S IS", s)
+        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
+        denom = 2.0 * s * math.log(self.popSize)
+        return float(numer)/denom
+
 class BatchResult:
     def __init__(self):
         self.simCount = 0
@@ -83,13 +106,7 @@ class BatchResult:
     def Reset(self):
         self.simCount = 0
         self.avgFixTime = 0.0
-        
-    def AnalyticalWaitingTime(self):
-        s = self.r[1] - 1.00
-        print("S IS", s)
-        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
-        denom = 2.0 * s * math.log(self.popSize)
-        return float(numer)/denom
+    
 
 class wright_fisher:
     def __init__(self):
