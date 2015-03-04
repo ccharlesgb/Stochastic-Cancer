@@ -53,19 +53,21 @@ class Gillespie:
         self.tau = -1.0
         self.tauCache = []
         
-        self.printProgress = 0
+        self.printProgress = 0 #Set to 1 to print batch progress. 2 prints batch and sim progress
         #Tau Debug Info
         self.RECORD_TAU_INFO = 0
         self.TAU_HIST = []
         self.BAD_FRAME_COUNT = 0
         self.BAD_FRAME_WARN = 0.05 #Fraction of frames that need to be bad to give a warning
+        self.nextBatchProgressFrac = 0.1
+        self.Reset()
         
     def Reset(self):
         self.simSteps = 0
-        self.curTime = 0.0      
+        self.curTime = 0.0
         self.TAU_HIST = []
         self.BAD_FRAME_COUNT = 0
-        self.nextProgressFrac = 0.0
+        self.nextProgressFrac = 0.1
         
     def AddCallback(self, rateFunc, stateChange):
         self.rateCallbacks.append(rateFunc)
@@ -178,18 +180,18 @@ class Gillespie:
         
         if self.history != 0:
             self.history.RecordFrame(self.curTime, self.params)
-      
+        
         while self.curTime < self.timeLimit:
-            if (self.printProgress and float(self.curTime) / self.timeLimit > self.nextProgressFrac):
+            if (self.printProgress >= 2 and float(self.curTime) / self.timeLimit >= self.nextSimProgressFrac):
                 print(int(float(self.curTime) / self.timeLimit * 100.0)),
-                self.nextProgressFrac += 0.1
+                self.nextSimProgressFrac += 0.25
                 
             self.params.PreSim(self)
             if self.preSim != 0:
                 self.preSim(self.curTime, self.params)
             self.UpdateRates()
             if self.lambd == 0 or (self.stopAtAppear == 1 and (self.params.n[self.params.typeCount - 1] >= 1)): #We have fixated at an absorbing state
-                return
+                break
             self.tau = self.GetTimeStep() #How much time until the next event?
             self.ChooseEvent() #Choose what kind of event and update cell counts
             
@@ -205,8 +207,8 @@ class Gillespie:
             if self.history != 0:
                 self.history.RecordFrame(self.curTime, self.params)
                 
-        if self.printProgress:
-            print(' ')                
+        if self.printProgress >= 2:
+            print(' ')
                 
         if float(self.BAD_FRAME_COUNT) / self.simSteps > self.BAD_FRAME_WARN:
             print("WARNING: {0}% Bad Frames. Consider lower epsilon!".format(int(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0)))
@@ -216,7 +218,15 @@ class Gillespie:
     def SimulateBatch(self, simCount):
         res = BatchResult()
         res.simCount = simCount
+        
+        if simCount <= 0:
+            return res        
+        
+        print("Batch %: 0"),
         for i in range(0, simCount):
+            if (self.printProgress >= 1 and float(i) / simCount > self.nextBatchProgressFrac):
+                print(int(float(i) / simCount * 100.0)),
+                self.nextBatchProgressFrac += 0.1
             self.Simulate()
             if self.curTime < self.timeLimit: #we finished early
                 res.avgFixProb += 1.0
@@ -224,6 +234,10 @@ class Gillespie:
             res.avgFixTime += self.curTime
             res.avgBadFrames += self.BAD_FRAME_COUNT
             res.avgFrames += self.simSteps
+
+        if self.printProgress >= 1:
+            self.nextBatchProgressFrac = 0.1
+            print('100')
         
         res.avgFixProb = float(res.avgFixProb) / simCount
         res.avgFixTime = float(res.avgFixTime) / simCount

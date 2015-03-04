@@ -116,15 +116,19 @@ class wright_fisher:
         self.history = 0
         self.params = 0
         self.prob_vector = []
+        self.nextBatchProgressFrac = 0.1
+        self.reset()
         
     def reset(self):
-        self.params.Reset()
+        if self.params != 0:
+            self.params.Reset()
         
-        for i in range(0,self.params.cellTypes):
-            self.prob_vector.append(0.0)
+            for i in range(0,self.params.cellTypes):
+                self.prob_vector.append(0.0)
+                
         self.curStep = 0 
         self.isFixated = 0       
-        self.nextProgressFrac = 0.0
+        self.nextProgressFrac = 0.1
     
     def GetXi(self, i):     
         result = float(self.N[i])/float(self.popSize)       
@@ -150,39 +154,51 @@ class wright_fisher:
     def SetHistory(self, hist):
         self.history = hist
     
-    
-    def Simulate(self):  
+    def Simulate(self):
         self.reset()
-        if(self.history != 0):        
+        if(self.history != 0):
             self.history.RecordFrame(self)
         
         while(self.curStep < self.stepLimit and self.isFixated != 1):
-            if (self.printProgress and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
+            if (self.printProgress >= 2 and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
                 print(int(float(self.curStep) / self.stepLimit * 100.0)),
                 self.nextProgressFrac += 0.1
             self.UpdateProbVector()
-            self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)           
+            self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)
             self.curStep += 1
             
             if self.params.N[self.params.cellTypes-1] >= 1:
                 self.isFixated = 1
             
-            if(self.history != 0):        
+            if(self.history != 0):
                 self.history.RecordFrame(self)
         
-        if self.printProgress:
-            print(' ')   
-            
+        if self.printProgress >= 2:
+            print('100')
+
     def SimulateBatch(self, simCount):
         res = BatchResult()
         res.simCount = simCount
+        if simCount <= 0:
+            return res
+        
+        print("Batch %: 0"),
         for i in range(0, simCount):
+            #Print Batch progress
+            if (self.printProgress >= 1 and float(i) / simCount > self.nextBatchProgressFrac):
+                print(int(float(i) / simCount * 100.0)),
+                self.nextBatchProgressFrac += 0.1
+                
             self.Simulate()
             res.avgFixTime += self.curStep
-            
+        
+        if self.printProgress >= 1:
+            print('100')      
+            self.nextBatchProgressFrac = 0.1
+        
         res.avgFixTime = float(res.avgFixTime) / simCount
         return res
-    
+
 class wf_hist:
     def __init__(self, cellTypes):
         self.cellTypes = cellTypes

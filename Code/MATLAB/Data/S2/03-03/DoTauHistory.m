@@ -11,7 +11,6 @@ function [] = DoTauHistory()
     subplot(1,3,3)
     dat_1 = load('tauHistory_epsilon_1.0.mat');
     PlotIt(dat_1)
-    
 end
 
 function [] = PlotIt(dat)

@@ -8,7 +8,8 @@ Created on Thu Feb 26 13:35:50 2015
 import math
 
 def SweepParameter(curPoint, pointCount, minParam, maxParam):
-    return float(maxParam - minParam) * float(curPoint) / (pointCount - 1.0) + minParam
+    progress = float(curPoint) / (pointCount - 1.0)
+    return float(maxParam - minParam) * progress + minParam
     
 def SweepParameterLog(curPoint,pointCount,minParam,maxParam):
     progress = float(curPoint) / (pointCount - 1.0)

@@ -24,7 +24,7 @@ myGillespie.Hook(myParam) #VERY IMPORTANT
 myHist = CarcinogenNParam_OPTON.CarcinogenNHist(TYPE_COUNT)
 myGillespie.history = myHist
 
-myGillespie.timeLimit = 3000
+myGillespie.timeLimit = 20000
 myGillespie.RECORD_TAU_INFO = 0
 myGillespie.printProgress = 1
 myGillespie.stopAtAppear = 1
@@ -36,12 +36,11 @@ myWF = wright_fisher.wright_fisher()
 myHistWF = wright_fisher.wf_hist(TYPE_COUNT)
 myParamWF = wright_fisher.wright_fisher_params(TYPE_COUNT)
 
-myParamWF.u = [1e-9] * TYPE_COUNT
 myParamWF.d = 100
 
 myParamWF.iN[0] = int(population) / math.sqrt(2.0)
 myWF.history = myHistWF
-myWF.stepLimit = 3000
+myWF.stepLimit = 20000
 myWF.useApproxTheta = 0
 myWF.params = myParamWF
 myWF.printProgress =  1
@@ -56,24 +55,24 @@ for i in range(0,TYPE_COUNT):
     
 myGillespie.epsilon = 0.05
 
-SDP = 2
-pointCount = 7
+SDP = 100
+pointCount = 6
 
 dataX = []
 dataY_Gill = []
 dataY_WF = []
 
-minN = 1e3
-maxN = 1e9
+minN = 1e9
+maxN = 1e4
 
 for i in range(0, pointCount):
     myParam.n0[0] = int(SimUtil.SweepParameterLog(i,pointCount, minN, maxN))
     myParamWF.iN[0] = int(myParam.n0[0] / math.sqrt(2.0))
     dataX.append(myParam.n0[0])
     print("N = {0}".format(myParam.n0[0]))
-    print("WF")
+    print("WF"),
     wfRes = myWF.SimulateBatch(SDP)
-    print("Gillespie")
+    print("Gillespie"),
     gillRes = myGillespie.SimulateBatch(SDP)
     
     dataY_Gill.append(gillRes.avgFixTime)
@@ -83,14 +82,11 @@ plt.plot(dataX, dataY_Gill)
 plt.plot(dataX, dataY_WF)
 plt.xscale("log")
 
+file_name = "MethodComparison_SweepN_DPC={0}_SDP_{1}_CT_{2}".format(pointCount, SDP, TYPE_COUNT)
 
-'''
-plt.figure()
-for i in range(0, TYPE_COUNT):
-   plt.plot(myHist.tHist, myHist.histArray[i])
-   plt.yscale("log")
+data = dict()
+data["N"] = dataX
+data["Nt_{0}_GI".format(TYPE_COUNT)]  = dataY_Gill
+data["Nt_{0}_WF".format(TYPE_COUNT)] = dataY_WF
 
-plt.show()'''
-
-print("Appearance Time WF: {0}".format(wfRes.avgFixTime))
-print("Appearance Time Gill: {0}".format(gillRes.avgFixTime))
+MatTools.SaveDict(file_name, data)
