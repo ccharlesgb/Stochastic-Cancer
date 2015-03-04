@@ -69,7 +69,6 @@ class CarcinogenNParam:
         for i in range(0,self.typeCount):
             for j in range(0, self.typeCount):
                 if i != j:
-                    print("ADDING",i,j)
                     gillespie.AddCallback(0, self.EventTIJ(i,j))
 
     #Todo calculate this once

@@ -45,9 +45,27 @@ for step in range(0, int(timeLimit / deltaT)):
         xj[i] = xj[i] + deriv * deltaT
         curTime = step * deltaT 
         xjHist[i].append(round(xj[i] * population))
-    #if xj[CELL_TYPES - 1] >= 1.0 / population:
-       # break
+    if xj[CELL_TYPES - 1] >= 5e8 / population:
+        break
+
+plt.figure()
+plt.subplot(211)
+for t in range(0, step, step / 8):
+    dataX = []
+    dataY = []
+    for i in range(0, CELL_TYPES):
+        dataX.append(i)
+        dataY.append(xjHist[i][t])
+    plt.plot(dataX,dataY, 'o-')
     
+plt.yscale("log")
+plt.xlabel("Number of Mutations")
+plt.ylabel("Cell count")
+
+plt.subplot(212)
 for i in range(0, CELL_TYPES):
    plt.plot(xjHist[i])
+   plt.yscale("log")
+
 plt.yscale("log")
+plt.show()

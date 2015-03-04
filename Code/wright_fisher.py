@@ -75,7 +75,7 @@ class wright_fisher_params:
             self.r[i] = math.pow(1.0 + s, i)
 
     def GetXJ(self,j):
-        return self.N[i] / self.popSize            
+        return self.N[j] / self.popSize            
     
     def GetXJDot(self,j, xj):
         s = self.r[1] - 1.00
@@ -92,7 +92,6 @@ class wright_fisher_params:
 
     def AnalyticalWaitingTime(self):
         s = self.r[1] - 1.00
-        print("S IS", s)
         numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
         denom = 2.0 * s * math.log(self.popSize)
         return float(numer)/denom
@@ -159,7 +158,7 @@ class wright_fisher:
         
         while(self.curStep < self.stepLimit and self.isFixated != 1):
             if (self.printProgress and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
-                print(float(self.curStep) / self.stepLimit * 100.0)
+                print(int(float(self.curStep) / self.stepLimit * 100.0)),
                 self.nextProgressFrac += 0.1
             self.UpdateProbVector()
             self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)           
@@ -170,6 +169,9 @@ class wright_fisher:
             
             if(self.history != 0):        
                 self.history.RecordFrame(self)
+        
+        if self.printProgress:
+            print(' ')   
             
     def SimulateBatch(self, simCount):
         res = BatchResult()

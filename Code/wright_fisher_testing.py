@@ -16,7 +16,7 @@ myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
 myParam = wright_fisher.wright_fisher_params(cellTypes)
 
-myParam.u = [1e-12] * 10
+myParam.u = [1e-7] * 10
 myParam.d = 100
 
 myParam.iN[0] = population

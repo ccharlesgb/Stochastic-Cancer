@@ -48,7 +48,6 @@ myWF.printProgress =  1
 
 #Set mutation and fitness
 s = 0.01
-print("U", myParamWF.u)
 for i in range(0,TYPE_COUNT):
     myParam.r[i] = math.pow(1.0 + s, i)
     myParam.u[i] = 1e-7
@@ -57,7 +56,7 @@ for i in range(0,TYPE_COUNT):
     
 myGillespie.epsilon = 0.05
 
-SDP = 10
+SDP = 2
 pointCount = 7
 
 dataX = []
@@ -71,8 +70,10 @@ for i in range(0, pointCount):
     myParam.n0[0] = int(SimUtil.SweepParameterLog(i,pointCount, minN, maxN))
     myParamWF.iN[0] = int(myParam.n0[0] / math.sqrt(2.0))
     dataX.append(myParam.n0[0])
-    print("N IS",myParam.n0[0])
+    print("N = {0}".format(myParam.n0[0]))
+    print("WF")
     wfRes = myWF.SimulateBatch(SDP)
+    print("Gillespie")
     gillRes = myGillespie.SimulateBatch(SDP)
     
     dataY_Gill.append(gillRes.avgFixTime)

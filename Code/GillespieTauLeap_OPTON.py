@@ -181,7 +181,7 @@ class Gillespie:
       
         while self.curTime < self.timeLimit:
             if (self.printProgress and float(self.curTime) / self.timeLimit > self.nextProgressFrac):
-                print("{:.{s}f}".format(float(self.curTime) / self.timeLimit * 100.0, s=1))
+                print(int(float(self.curTime) / self.timeLimit * 100.0)),
                 self.nextProgressFrac += 0.1
                 
             self.params.PreSim(self)
@@ -205,9 +205,12 @@ class Gillespie:
             if self.history != 0:
                 self.history.RecordFrame(self.curTime, self.params)
                 
+        if self.printProgress:
+            print(' ')                
+                
         if float(self.BAD_FRAME_COUNT) / self.simSteps > self.BAD_FRAME_WARN:
-            print("WARNING: Bad Frames percentage was {0}. Consider lower epsilon!".format(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0))
-            
+            print("WARNING: {0}% Bad Frames. Consider lower epsilon!".format(int(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0)))
+        
         gc.enable()
                 
     def SimulateBatch(self, simCount):
