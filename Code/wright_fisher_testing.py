@@ -21,13 +21,14 @@ myParam.d = 100
 
 myParam.iN[0] = population
 myWF.history = myHist
-myWF.stepLimit = 100000
+myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
 s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
+    #myParam.r[i] = 1.0 + (i*i)*s
 
 myWF.Simulate()
 
@@ -48,7 +49,7 @@ plt.show()
 
 plt.subplot(212)
 for i in range(0, cellTypes):
-   plt.plot(myHist.stepHist, myHist.histArray[i])
+   plt.plot(myHist.stepHist[0::1], myHist.histArray[i][0::1])
    plt.yscale("log")
 
 plt.yscale("log")

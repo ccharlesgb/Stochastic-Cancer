@@ -24,6 +24,7 @@ myParam.iN[0] = population
 xj = []
 
 xjHist = []
+avgJHist = []
 
 s = 0.01
 for i in range(0,CELL_TYPES):
@@ -40,12 +41,15 @@ timeLimit = 6000
 
 curTime = 0.0
 for step in range(0, int(timeLimit / deltaT)):
+    avgJ = 0.0
     for i in range(0, CELL_TYPES):
         deriv = myParam.GetXJDot(i, xj)
         xj[i] = xj[i] + deriv * deltaT
         curTime = step * deltaT 
         xjHist[i].append(round(xj[i] * population))
-    if xj[CELL_TYPES - 1] >= 5e8 / population:
+        avgJ += i * xj[i]
+    avgJHist.append(avgJ)
+    if xj[CELL_TYPES - 1] >= 1.0 / population:
         break
 
 plt.figure()
@@ -69,3 +73,6 @@ for i in range(0, CELL_TYPES):
 
 plt.yscale("log")
 plt.show()
+
+plt.figure()
+plt.plot(avgJHist)
