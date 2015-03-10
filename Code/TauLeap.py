@@ -133,7 +133,10 @@ class Sim:
         self.lambd = 0.0
         for i in self.rateRange:
             i_j = self.eventIDs[i]
-            self.rateCache[i] = self.params.GetTIJ(i_j[0],i_j[1], self.n)
+            if self.n[i_j[0]] == 0:
+                self.rateCache[i] = 0.0
+            else:
+                self.rateCache[i] = self.params.GetTIJ(i_j[0],i_j[1], self.n)
             if self.rateCache[i] < 0.0:
                 print("RATE IS NEGATIVE i,j = {0} {1}".format(*i_j))
             #print("Getting rate ", i_j, self.rateCache[i])

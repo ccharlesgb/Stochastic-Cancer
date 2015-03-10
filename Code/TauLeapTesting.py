@@ -29,7 +29,7 @@ minr1 = 0.3
 maxr1 = 3.0
 
 DPC = 10
-SDP = 3
+SDP = 1
 
 dataX = []
 dataY = []
@@ -50,7 +50,7 @@ myParam.d = 100
 
 myGillespie.n_c = 10
 myGillespie.stopAtAppear = 1
-myGillespie.epsilon = 0.1
+myGillespie.epsilon = 0.2
 
 '''
 for i in range(0, DPC):
