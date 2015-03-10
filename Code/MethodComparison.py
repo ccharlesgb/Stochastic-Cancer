@@ -67,6 +67,9 @@ dataY_WF = []
 minN = 1e4
 maxN = 1e1
 
+minU = 1e-4
+maxU = 1e-2
+
 for i in range(0, pointCount):
     myParam.n0[0] = int(SimUtil.SweepParameterLog(i,pointCount, minN, maxN))
     myParamWF.iN[0] = int(myParam.n0[0] / math.sqrt(2.0))

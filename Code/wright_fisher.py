@@ -117,6 +117,7 @@ class wright_fisher:
         self.params = 0
         self.prob_vector = []
         self.nextBatchProgressFrac = 0.1
+        self.stopAtAppear = 1
         self.reset()
         
     def reset(self):
@@ -167,7 +168,7 @@ class wright_fisher:
             self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)
             self.curStep += 1
             
-            if self.params.N[self.params.cellTypes-1] >= 1:
+            if self.stopAtAppear == 1 and self.params.N[self.params.cellTypes-1] >= 1:
                 self.isFixated = 1
             
             if(self.history != 0):

@@ -19,6 +19,8 @@ myParam = wright_fisher.wright_fisher_params(cellTypes)
 myParam.u = [1e-7] * 10
 myParam.d = 100
 
+myWF.stopAtAppear = 1
+
 myParam.iN[0] = population
 myWF.history = myHist
 myWF.stepLimit = 1000000
@@ -34,7 +36,7 @@ myWF.Simulate()
 
 plt.figure()
 plt.subplot(211)
-for t in range(0, myWF.curStep, myWF.curStep / 8):
+for t in range(0, myWF.curStep, max(myWF.curStep / 8, 1)):
     dataX = []
     dataY = []
     for i in range(0, cellTypes):
