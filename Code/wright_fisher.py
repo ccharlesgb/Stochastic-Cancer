@@ -19,6 +19,7 @@ class wright_fisher_params:
         self.N = []
         self.iN = []
         self.d = 100
+        self.uNotConst = 0
         
         for i in range(0,self.cellTypes):
             self.N.append(0)            
@@ -47,6 +48,12 @@ class wright_fisher_params:
                 theta_j += float(self.u * (self.cellTypes - j + 1) * self.r[j-1]*self.N[j-1] )/ avgFit
                 
             return theta_j
+        elif self.uNotConst == 1:
+            summation = 0.0
+            avgFit = self.GetAvgFitness()
+            for i in range(0, j+1):
+                summation += self.combinations[i][j]*math.pow(self.u[i], j-i)*math.pow(1-self.u[i], self.d-j)*(self.r[i] * self.N[i])/avgFit
+            return summation
         else:
             summation = 0.0
             avgFit = self.GetAvgFitness()
@@ -54,6 +61,7 @@ class wright_fisher_params:
                 #summation += scimisc.comb(self.cellTypes - i , j - i )*math.pow(self.u, j-i)*math.pow(1-self.u, self.cellTypes-j)*self.GetFitnessRatio(i)
                 summation += self.combinations[i][j]*math.pow(self.u[0], j-i)*math.pow(1-self.u[0], self.d-j)*(self.r[i] * self.N[i])/avgFit
             return summation
+            
         
     def CacheCombinations(self):
         self.combinations = [[]]
@@ -130,6 +138,8 @@ class wright_fisher:
         self.curStep = 0 
         self.isFixated = 0       
         self.nextProgressFrac = 0.1
+        if self.history != 0:
+            self.history.ClearFrames()
     
     def GetXi(self, i):     
         result = float(self.N[i])/float(self.popSize)       
@@ -208,6 +218,7 @@ class wf_hist:
     def ClearFrames(self):
         self.histArray = dict()
         self.stepHist = []
+        self.yearHist = []
         self.thetajHist = dict()
         self.avgJHist = []
         for i in range(0, self.cellTypes):
@@ -215,14 +226,14 @@ class wf_hist:
             self.thetajHist[i] = []
             
     def RecordFrame(self, sim):
-        if random.random() < 1.1:
-            self.stepHist.append(sim.curStep)
-            totalJ = 0.0
-            for i in range(0, self.cellTypes):
-                self.histArray[i].append(sim.params.N[i])
-                self.thetajHist[i].append(sim.prob_vector[i])
-                totalJ += i * float(sim.params.N[i]/sim.params.popSize)
-            self.avgJHist.append(totalJ)
+        self.stepHist.append(sim.curStep)
+        self.yearHist.append(float(sim.curStep) / 365.0)
+        totalJ = 0.0
+        for i in range(0, self.cellTypes):
+            self.histArray[i].append(sim.params.N[i])
+            self.thetajHist[i].append(sim.prob_vector[i])
+            totalJ += i * float(sim.params.N[i]/sim.params.popSize)
+        self.avgJHist.append(totalJ)
          
     def GetDictionary(self):
         runDict = dict()

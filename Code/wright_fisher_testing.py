@@ -9,6 +9,16 @@ import wright_fisher
 import matplotlib.pyplot as plt
 import math
 
+def GetTauJ(param):
+    summation = 0.0
+    s = param.r[1] - param.r[0]
+    for i in range(0, param.cellTypes):
+        top = math.log(s / (param.u[i] * param.d))
+        bottom = 2.0 * s * math.log(param.N)
+        summation += (top / bottom)
+    return summation;
+
+
 cellTypes = 21
 population = 1e9
 
@@ -16,7 +26,6 @@ myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
 myParam = wright_fisher.wright_fisher_params(cellTypes)
 
-myParam.u = [1e-7] * 10
 myParam.d = 100
 
 myWF.stopAtAppear = 1
@@ -27,10 +36,16 @@ myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
+myParam.uNotConst = 1
+
 s = 0.01
+d = 1.8
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     #myParam.r[i] = 1.0 + (i*i)*s
+    myParam.u[i] = 1e-10 * math.pow(d,i)
+
+print(myParam.u)
 
 myWF.Simulate()
 
@@ -58,12 +73,18 @@ plt.yscale("log")
 plt.show()
 
 plt.figure()
-plt.subplot(211)
+plt.subplot(311)
 for i in range(0, cellTypes):
    plt.plot(myHist.stepHist, myHist.thetajHist[i])
 
-plt.subplot(212)
+plt.subplot(312)
 plt.plot(myHist.avgJHist)
+
+gradJ = []
+for i in range(500, len(myHist.avgJHist)):
+    gradJ.append(myHist.avgJHist[i] - myHist.avgJHist[i-500])
+plt.subplot(313)
+plt.plot(gradJ)
 
 print("Appearance Time: {0}".format(myWF.curStep))
 
