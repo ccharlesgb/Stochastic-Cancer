@@ -210,6 +210,7 @@ class wf_hist:
         self.stepHist = []
         self.thetajHist = dict()
         self.avgJHist = []
+        self.avgSJHist = []
         for i in range(0, self.cellTypes):
             self.histArray[i] = []
             self.thetajHist[i] = []
@@ -218,12 +219,15 @@ class wf_hist:
         if random.random() < 1.1:
             self.stepHist.append(sim.curStep)
             totalJ = 0.0
+            totalSJ = 0.0            
             for i in range(0, self.cellTypes):
                 self.histArray[i].append(sim.params.N[i])
                 self.thetajHist[i].append(sim.prob_vector[i])
                 totalJ += i * float(sim.params.N[i]/sim.params.popSize)
+                totalSJ += sim.params.r[i] * float(sim.params.N[i]/sim.params.popSize)
             self.avgJHist.append(totalJ)
-         
+            self.avgSJHist.append(totalSJ)
+            
     def GetDictionary(self):
         runDict = dict()
         return runDict
