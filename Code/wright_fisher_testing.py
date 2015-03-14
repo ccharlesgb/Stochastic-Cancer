@@ -36,14 +36,14 @@ myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.uNotConst = 1
+myParam.uNotConst = 0
 
 s = 0.01
 d = 1.8
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     #myParam.r[i] = 1.0 + (i*i)*s
-    myParam.u[i] = 1e-10 * math.pow(d,i)
+    myParam.u[i] = 1e-7 * math.pow(d,i)
 
 print(myParam.u)
 
@@ -51,7 +51,8 @@ myWF.Simulate()
 
 plt.figure()
 plt.subplot(211)
-for t in range(0, myWF.curStep, max(myWF.curStep / 8, 1)):
+#for t in range(0, myWF.curStep / 4, max(myWF.curStep / 16, 1)):
+for t in range(0, 10, 2):
     dataX = []
     dataY = []
     for i in range(0, cellTypes):

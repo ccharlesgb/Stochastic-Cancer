@@ -49,8 +49,8 @@ s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     
-minN = 1e6
-maxN = 1e9
+minS = 1e-4
+maxS = 1e-1
 
 SDP = 50
 PointCount = 8
@@ -67,10 +67,12 @@ for p in range(0,PointCount):
     startTime = time.clock()
     print("Current Data Point = {0}/{1} ({2}%)".format(p + 1, PointCount, 100.0 * float(p)/(PointCount-1)))
     
-    myParam.iN[0] = int(SimUtil.SweepParameterLog(p,PointCount, minN, maxN))
-    print("N", myParam.iN[0])
+    s = SimUtil.SweepParameterLog(p,PointCount, minS, maxS)
+    for i in range(0,cellTypes):
+        myParam.r[i] = math.pow(1.0 + s, i)
+    print("S", s)
     res = myWF.SimulateBatch(SDP)
-    dataX.append(myParam.iN[0])
+    dataX.append(s)
     dataY.append(res.avgFixTime)
     
     theory = 0.0
@@ -93,26 +95,31 @@ plt.plot(dataX,dataY, 'o')
 plt.plot(dataX,dataY_anal, ':')
 plt.plot(dataX,dataY_anal2, '--')
 plt.xscale("log")
-plt.xlabel("N")
+plt.xlabel("S")
 plt.ylabel("t_{0}".format(cellTypes - 1))
-plt.xlim(minN, maxN)
+plt.xlim(minS, maxS)
 
 plt.subplot(212)
 plt.plot(dataX, dataY_anal_err)
 plt.plot(dataX, dataY_anal2_err)
 plt.xscale("log")
-plt.xlabel("N")
+plt.xlabel("U")
 plt.ylabel("Error")
-plt.xlim(minN, maxN)
+plt.xlim(minS, maxS)
 
 plt.show()
 
-file_name = "WrightFisherSweepN_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myParam.u[0])
+plt.figure()
+for i in range(0, cellTypes):
+   plt.plot(myHist.stepHist[0::1], myHist.histArray[i][0::1])
+   plt.yscale("log")
+
+file_name = "WrightFisherSweepS_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myParam.u[0])
 
 data = dict()
-data["N"] = dataX
-data["Nt_20"] = dataY
-data["Nt_20_anal"] = dataY_anal
-data["Nt_20_anal_new"] = dataY_anal2
+data["S"] = dataX
+data["St_20"] = dataY
+data["St_20_anal"] = dataY_anal
+data["St_20_anal_new"] = dataY_anal2
 
 MatTools.SaveDict(file_name, data)

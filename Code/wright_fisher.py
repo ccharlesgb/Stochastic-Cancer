@@ -100,7 +100,7 @@ class wright_fisher_params:
 
     def AnalyticalWaitingTime(self):
         s = self.r[1] - 1.00
-        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u*self.d)),2.0)
+        numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u[0]*self.d)),2.0)
         denom = 2.0 * s * math.log(self.popSize)
         return float(numer)/denom
 
