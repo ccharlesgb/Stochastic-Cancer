@@ -41,18 +41,19 @@ class gaussian_fitter:
         self.p = []
         #hook for the fitter, so that the self argument doesnt confuse it (bless it)        
         self.func = gauss        
-        
+        self.errorcount = 0
+
     def reset(self):
         self.fitted_y_data = []
         self.GetGuess()        
-        self.p0 = [self.g_amp, self.g_mean, self.g_sdev]        
-        print("p0 is {0}".format(self.p0))
+        self.p0 = [self.g_amp, self.g_mean, self.g_sdev]  
+        self.errorcount = 0
+
     
     def GetGuess(self):    
         self.g_amp = max(self.in_y_data)
         index = self.in_y_data.index(self.g_amp)        
         self.g_mean=self.in_x_data[index]        
-        print("self.amp: {0}, max(data): {1}".format(self.g_amp, max(self.in_y_data)) )
     
     def SetData(self, input_x, input_y):
         self.in_x_data = [0]*len(input_x)
@@ -63,8 +64,13 @@ class gaussian_fitter:
 
     def FitData(self):         
         self.reset()        
-        self.p, self.var_matrix = curve_fit(self.func, self.in_x_data, self.in_y_data, p0=self.p0)
-        self.amp,self.mean, self.amp = self.p        
+        try:
+            self.p, self.var_matrix = curve_fit(self.func, self.in_x_data, self.in_y_data, p0=self.p0)
+        except RuntimeError:
+            print("Error - curve_fit failed")        
+            self.errorcount += 1
+
+        self.amp, self.mean, self.sdev = self.p        
         print(self.p)        
         #if set to return the fitted data, output to array        
         

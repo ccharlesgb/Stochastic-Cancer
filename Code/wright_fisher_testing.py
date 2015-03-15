@@ -26,9 +26,17 @@ myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
 myParam = wright_fisher.wright_fisher_params(cellTypes)
 
+<<<<<<< HEAD
+myParam.u = [1e-7] * 10
+<<<<<<< Updated upstream
+=======
+>>>>>>> origin/master
 myParam.d = 100
 
 myWF.stopAtAppear = 1
+=======
+myParam.d = 200
+>>>>>>> Stashed changes
 
 myParam.iN[0] = population
 myWF.history = myHist
@@ -36,32 +44,50 @@ myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.uNotConst = 0
+<<<<<<< HEAD
+<<<<<<< Updated upstream
+=======
+myParam.uNotConst = 1
 
+>>>>>>> origin/master
 s = 0.01
 d = 1.8
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     #myParam.r[i] = 1.0 + (i*i)*s
-    myParam.u[i] = 1e-7 * math.pow(d,i)
+<<<<<<< HEAD
+=======
+s = 0.05
+>>>>>>> Stashed changes
+=======
+    myParam.u[i] = 1e-10 * math.pow(d,i)
 
 print(myParam.u)
+>>>>>>> origin/master
 
+for i in range(0,cellTypes):
+    #myParam.r[i] = math.pow(1.0 + s, i)
+    myParam.r[i] = 1.0 + s*(i**(3))    
+    #myParam.r[i] = 1.0 + math.log(1.0 + s)
 myWF.Simulate()
 
 plt.figure()
 plt.subplot(211)
-#for t in range(0, myWF.curStep / 4, max(myWF.curStep / 16, 1)):
-for t in range(0, 10, 2):
+<<<<<<< Updated upstream
+for t in range(0, myWF.curStep, max(myWF.curStep / 8, 1)):
+=======
+for t in range(0, myWF.curStep, myWF.curStep / 16):
+>>>>>>> Stashed changes
     dataX = []
     dataY = []
     for i in range(0, cellTypes):
-        dataX.append(i)
+        #dataX.append(myParam.r[i]-1.0)
+        dataX.append(i)        
         dataY.append(myHist.histArray[i][t])
     plt.plot(dataX,dataY, 'o-')
     
 plt.yscale("log")
-plt.xlabel("Number of Mutations")
+plt.xlabel("S_j")
 plt.ylabel("Cell count")
 plt.show()
 
@@ -69,7 +95,8 @@ plt.subplot(212)
 for i in range(0, cellTypes):
    plt.plot(myHist.stepHist[0::1], myHist.histArray[i][0::1])
    plt.yscale("log")
-
+plt.xlabel("Time")
+plt.ylabel("Cell Count")
 plt.yscale("log")
 plt.show()
 
@@ -77,9 +104,13 @@ plt.figure()
 plt.subplot(311)
 for i in range(0, cellTypes):
    plt.plot(myHist.stepHist, myHist.thetajHist[i])
+plt.xlabel("Time")
+plt.ylabel("Theta J")
 
 plt.subplot(312)
 plt.plot(myHist.avgJHist)
+plt.xlabel("Time")
+plt.ylabel("Average S_j")
 
 gradJ = []
 for i in range(500, len(myHist.avgJHist)):
