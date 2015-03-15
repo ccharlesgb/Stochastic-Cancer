@@ -26,17 +26,12 @@ myWF = wright_fisher.wright_fisher()
 myHist = wright_fisher.wf_hist(cellTypes)
 myParam = wright_fisher.wright_fisher_params(cellTypes)
 
-<<<<<<< HEAD
 myParam.u = [1e-7] * 10
-<<<<<<< Updated upstream
-=======
->>>>>>> origin/master
+
 myParam.d = 100
 
 myWF.stopAtAppear = 1
-=======
-myParam.d = 200
->>>>>>> Stashed changes
+
 
 myParam.iN[0] = population
 myWF.history = myHist
@@ -44,40 +39,23 @@ myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
+
 myParam.uNotConst = 1
 
->>>>>>> origin/master
 s = 0.01
 d = 1.8
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     #myParam.r[i] = 1.0 + (i*i)*s
-<<<<<<< HEAD
-=======
-s = 0.05
->>>>>>> Stashed changes
-=======
-    myParam.u[i] = 1e-10 * math.pow(d,i)
+
 
 print(myParam.u)
->>>>>>> origin/master
 
-for i in range(0,cellTypes):
-    #myParam.r[i] = math.pow(1.0 + s, i)
-    myParam.r[i] = 1.0 + s*(i**(3))    
-    #myParam.r[i] = 1.0 + math.log(1.0 + s)
 myWF.Simulate()
 
 plt.figure()
 plt.subplot(211)
-<<<<<<< Updated upstream
 for t in range(0, myWF.curStep, max(myWF.curStep / 8, 1)):
-=======
-for t in range(0, myWF.curStep, myWF.curStep / 16):
->>>>>>> Stashed changes
     dataX = []
     dataY = []
     for i in range(0, cellTypes):
