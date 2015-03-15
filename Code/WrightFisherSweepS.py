@@ -103,7 +103,7 @@ plt.subplot(212)
 plt.plot(dataX, dataY_anal_err)
 plt.plot(dataX, dataY_anal2_err)
 plt.xscale("log")
-plt.xlabel("U")
+plt.xlabel("S")
 plt.ylabel("Error")
 plt.xlim(minS, maxS)
 
