@@ -9,6 +9,7 @@ import SimUtil
 import time
 import MatTools
 import TauSolver
+import random
 
 
 cellTypes = 21
@@ -32,15 +33,15 @@ for i in range(0,cellTypes):
 
 mySolver = TauSolver.Solver(myParam)
 
-mapSize = 8
+mapSize = 16
 
-minS = 1e-3
+minS = 1e-4
 maxS = 1e-1
 
-minU = 1e-7
+minU = 1e-8
 maxU = 1e-5
 
-SDP = 0
+SDP = 10
 
 avgFixTime = np.zeros((mapSize, mapSize))
 
@@ -70,7 +71,7 @@ for iS in range(0, mapSize):
         mySolver.CacheX0()
         
         res = myWF.SimulateBatch(SDP)
-        res.avgFixTime = 1.0
+        #res.avgFixTime = random.random()
         avgFixTime[iU, iS] = res.avgFixTime
         
         theory1 = myParam.AnalyticalWaitingTime()
@@ -80,18 +81,19 @@ for iS in range(0, mapSize):
         errFixTime2[iS, iU] = (theory2 - res.avgFixTime)/res.avgFixTime        
         
 
-minSHist = min(sHist)
-maxSHist = max(sHist)
+minSHist = round(min(sHist))
+maxSHist = round(max(sHist))
 
-minUHist = min(uHist)
-maxUHist = max(uHist)
+minUHist = round(min(uHist))
+maxUHist = round(max(uHist))
 print(minUHist, maxUHist)
 print(minSHist, maxSHist)
 
 dy = abs(maxUHist - minUHist) / mapSize
-dx = abs(maxUHist - minSHist) / mapSize
+dx = abs(maxSHist - minSHist) / mapSize
 
-y, x = np.mgrid[slice(minUHist, maxUHist + dy, dy), slice(minSHist, maxSHist + dx, dx)]
+print("DX IS", dx)
+y, x = np.mgrid[slice(minUHist, maxUHist + dy, dy), slice(minSHist, maxSHist, dx)]
 
 print(y)
 print(x)

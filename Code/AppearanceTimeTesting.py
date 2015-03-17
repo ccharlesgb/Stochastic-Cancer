@@ -46,7 +46,7 @@ myParam.u[0] = 1e-7
 SPD = 1
 DPC = 5
 
-s = 1e-4
+s = 1e-2
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
 
