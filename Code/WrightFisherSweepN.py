@@ -10,7 +10,7 @@ import math
 import SimUtil
 import time
 import MatTools
-import NumericalTau_TEST
+import TauSolver
 
 def GetTau(param):
     s = param.r[1] - param.r[0]
@@ -47,12 +47,14 @@ myParam.u[0] = 1e-7
 s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
-    
+
+mySolver = TauSolver.Solver(myParam)    
+
 minN = 1e6
 maxN = 1e9
 
-SDP = 50
-PointCount = 8
+SDP = 5
+PointCount = 4
 
 dataX = []
 dataY = []
@@ -72,12 +74,14 @@ for p in range(0,PointCount):
     dataX.append(myParam.iN[0])
     dataY.append(res.avgFixTime)
     
+    mySolver.CacheX0()    
+    
     theory = 0.0
     theory2 = 0.0
     
-    theory = myParam.AnalyticalWaitingTime()
-    for i in range(0, cellTypes + 1):
-        theory2 += NumericalTau_TEST.SolveTauIntegral(i, myParam)
+    theory = mySolver.GetWaitingTime(cellTypes)
+    theory2 = mySolver.GetWaitingTimeNeglect(cellTypes)
+    
     dataY_anal.append(theory)
     dataY_anal2.append(theory2)
     

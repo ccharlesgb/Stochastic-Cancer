@@ -11,7 +11,7 @@ import math
 import SimUtil
 import time
 import MatTools
-import NumericalTau_TEST
+import TauSolver
 
 def GetTau(param):
     s = param.r[1] - param.r[0]
@@ -52,8 +52,10 @@ for i in range(0,cellTypes):
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 50
-PointCount = 8
+mySolver = TauSolver.Solver(myParam)
+
+SDP = 5
+PointCount = 4
 
 dataX = []
 dataY = []
@@ -73,12 +75,13 @@ for p in range(0,PointCount):
     dataX.append(myParam.u[0])
     dataY.append(res.avgFixTime)
     
+    mySolver.CacheX0()
+    
     theory = 0.0
     theory2 = 0.0
     
-    theory = myParam.AnalyticalWaitingTime()
-    for i in range(0, cellTypes + 1):
-        theory2 += NumericalTau_TEST.SolveTauIntegral(i, myParam)
+    theory = mySolver.GetWaitingTime(cellTypes)
+    theory2 = mySolver.GetWaitingTimeNeglect(cellTypes)
     dataY_anal.append(theory)
     dataY_anal2.append(theory2)
     
@@ -106,11 +109,6 @@ plt.ylabel("Error")
 plt.xlim(minU, maxU)
 
 plt.show()
-
-plt.figure()
-for i in range(0, cellTypes):
-   plt.plot(myHist.stepHist[0::1], myHist.histArray[i][0::1])
-   plt.yscale("log")
 
 file_name = "WrightFisherSweepU_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myParam.u[0])
 

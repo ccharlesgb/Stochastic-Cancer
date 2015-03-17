@@ -33,15 +33,15 @@ for i in range(0,cellTypes):
 
 mySolver = TauSolver.Solver(myParam)
 
-mapSize = 16
+mapSize = 8
 
-minS = 1e-4
+minS = 1e-3
 maxS = 1e-1
 
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 10
+SDP = 1
 
 avgFixTime = np.zeros((mapSize, mapSize))
 

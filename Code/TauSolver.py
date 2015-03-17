@@ -32,45 +32,48 @@ class Solver:
             self.X0_Cache.append(self.GetXj0(i))
         
     def GetXj0(self, j):
-        return max(self.params.u[0] * self.params.d * self.Xj_Integral(j-1, 1.0), 1.0/self.params.popSize)
-
-    def Xj_Integral(self, j, tau):
+        return max(self.params.u[0] * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.popSize)
+    
+    def GetGammaTau(self, tau):
+        tau = max(tau, 1e-99)
+        s = self.params.r[1] - self.params.r[0]
+        N = self.params.popSize         
+        return math.sqrt(2.0/(s*tau) * math.log(N)) 
+    
+    def IntegralOfXj(self,j, tau):
         s = self.params.r[1] - self.params.r[0]
         u = self.params.u[0]
         d = self.params.d
-        N = self.params.popSize        
-        u = 0.0
+        
         if j < 0:
             return 0.0
         if j == 0:
-            return tau
-        x_j_0 = self.X0_Cache[j]
-        x_j_1 = self.X0_Cache[j-1]
-        
-        gamma = math.sqrt(2.0 / (s * tau) * math.log(1.0 / (x_j_1)))
-        #a = s * gamma - u * d
-        b = u * d * x_j_1
-        c = x_j_0
-        
-        a = s * gamma
-        
-        #top = (a*c + b)*math.exp(a * tau) - a * b * tau - a *c - b
-        top = (a*c + b)*math.exp(a * tau) - a * b * tau - a * c
-        top = top / (a*a)
-        top = top
-        
-        return top 
+            return tau        
 
+        gamma = self.GetGammaTau(tau)      
+        
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = self.X0_Cache[j-1]        
+        
+        fac = 1.0/(s*gamma)
+        selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
+        mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)        
+        
+        return fac * (selection + mutation)
+
+    #Newton Raphson to Solve tau
     def GetTau(self, j):
         foundSol = False
         
         delta = 0.01
         x0 = 10.0
-        c = 1.0 / (self.params.popSize * self.params.u[0] * self.params.d)
+        s = self.params.r[1] - self.params.r[0]
         for i in range(0, self.maxIter):
-            y = self.Xj_Integral(j, x0) - c
-            y_prime = ((self.Xj_Integral(j, x0 + delta) - c) - y) / delta
-            #print("x0 = {0} y' = {1}".format(x0, y_prime))
+            c = (1.0) / (self.params.u[0] * self.params.d * self.params.popSize)
+            print(c)
+            y = self.IntegralOfXj(j, x0) - c
+            y_prime = ((self.IntegralOfXj(j, x0 + delta) - c) - y) / delta
+            print("j ={0} x0 = {1} y' = {2}".format(j, x0, y_prime))
             if abs(y_prime) < self.epsilon:
                 break #Denominator too small
             x1 = min(x0 - y / y_prime, self.maxTau)
@@ -91,35 +94,29 @@ class Solver:
         return total
             
     def GetXJ(self, t,j):
+        if j < 0:
+            return 0.0
+        if j == 0:
+            return 1.0           
+        
         s = self.params.r[1] - self.params.r[0]
         u = self.params.u[0]
         d = self.params.d
         N = self.params.popSize    
         
-        x_j_0 = 1.0 / N
-        x_j_1 = 1.0 / N     
-        if j == 0:
-            x_j_0 = 1.0 - 1.0/N
-            x_j_1 = 0.0
-        if j == 1:
-            x_j_0 = 1e4 / N
-            x_j_1 = 1.0 - 1.0/N
-        if j == 2:
-            x_j_1 = 1e4 / N 
-        t = float(t)
-        tau_epsilon = 1e-10
-        gamma = math.sqrt((2.0 / (s * (t+tau_epsilon))) * math.log(1.0 / (x_j_1)))
-        #gamma = math.sqrt(2 * math.log(1.0 / (x_j_0)))
-        a = s * gamma
-        b = u * d * x_j_1
-        c = x_j_0
-        a = s * gamma
+        gamma = self.GetGammaTau(max(t,1e-10))        
         
-        res = (b + c*a)*math.exp(a*t) - b
-        return 1.0/a * res
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = self.X0_Cache[j-1]             
+        
+        fac = 1.0/(s*gamma)
+        expFactor = u*d*x_j_1 + x_j_0*s*gamma
+        xj = fac * (expFactor * math.exp(s*gamma*t) - u*d*x_j_1)
+        return xj
         
     def GetWaitingTimeNeglect(self, k):
-        j_i = math.log(self.params.popSize)/math.log(self.params.u[0]*self.params.d)
+        j_i = -math.log(self.params.popSize)/math.log(self.params.u[0]*self.params.d)
+        print("J_I", j_i)
         return (k-j_i) * self.GetTauNeglect()
         
     def GetTauNeglect(self):
