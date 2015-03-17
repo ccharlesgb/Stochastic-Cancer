@@ -70,7 +70,7 @@ def TauInt(j, tau, param):
 def SolveTauIntegral(j, param):
     foundSol = False
     epsilon = 1e-14 #Min value f prime
-    tolerance = 1e-3 # accuracy required
+    tolerance = 1e-5 # accuracy required
     maxIter = 200
     
     delta = 0.01
@@ -124,7 +124,8 @@ def GetXJ(t,j, param):
     if j == 2:
         x_j_1 = 1e4 / N 
     t = float(t)
-    gamma = math.sqrt((2.0 / (s * (t+0.0001))) * math.log(1.0 / (x_j_1)))
+    tau_epsilon = 1e-10
+    gamma = math.sqrt((2.0 / (s * (t+tau_epsilon))) * math.log(1.0 / (x_j_1)))
     #gamma = math.sqrt(2 * math.log(1.0 / (x_j_0)))
     a = s * gamma
     b = u * d * x_j_1

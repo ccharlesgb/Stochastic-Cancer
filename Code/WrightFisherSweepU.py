@@ -52,7 +52,7 @@ for i in range(0,cellTypes):
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 1
+SDP = 50
 PointCount = 8
 
 dataX = []

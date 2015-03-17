@@ -41,19 +41,12 @@ myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.u[0] = 1e-5
-
-s = 0.01
-for i in range(0,cellTypes):
-    myParam.r[i] = math.pow(1.0 + s, i)
-
-uPowMin = 1.8
-uPowMax = 2.2
+myParam.u[0] = 1e-7
 
 SPD = 1
 DPC = 5
 
-s = 0.01
+s = 1e-4
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
 
