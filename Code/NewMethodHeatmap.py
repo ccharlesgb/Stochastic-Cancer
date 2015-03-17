@@ -35,13 +35,13 @@ mySolver = TauSolver.Solver(myParam)
 
 mapSize = 8
 
-minS = 1e-3
+minS = 1e-4
 maxS = 1e-1
 
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 1
+SDP = 10
 
 avgFixTime = np.zeros((mapSize, mapSize))
 
@@ -74,7 +74,7 @@ for iS in range(0, mapSize):
         #res.avgFixTime = random.random()
         avgFixTime[iU, iS] = res.avgFixTime
         
-        theory1 = myParam.AnalyticalWaitingTime()
+        theory1 = mySolver.GetWaitingTimeOriginal(cellTypes)
         theory2 = mySolver.GetWaitingTime(cellTypes)
         
         errFixTime1[iS, iU] = (theory1 - res.avgFixTime)/res.avgFixTime

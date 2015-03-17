@@ -92,6 +92,17 @@ class Solver:
         for i in range(0, k + 1):
             total += self.GetTau(i)
         return total
+        
+    def GetWaitingTimeOriginal(self, k):
+        s = self.params.r[1] - 1.00
+        numer = k * math.pow(math.log(s/(self.params.u[0]*self.params.d)),2.0)
+        denom = 2.0 * s * math.log(self.params.popSize)
+        return float(numer)/denom
+    
+    def GetWaitingTimeNeglect(self, k):
+        j_i = -math.log(self.params.popSize)/math.log(self.params.u[0]*self.params.d)
+        print("J_I", j_i)
+        return (k-j_i) * self.GetTauNeglect()
             
     def GetXJ(self, t,j):
         if j < 0:
@@ -114,10 +125,6 @@ class Solver:
         xj = fac * (expFactor * math.exp(s*gamma*t) - u*d*x_j_1)
         return xj
         
-    def GetWaitingTimeNeglect(self, k):
-        j_i = -math.log(self.params.popSize)/math.log(self.params.u[0]*self.params.d)
-        print("J_I", j_i)
-        return (k-j_i) * self.GetTauNeglect()
         
     def GetTauNeglect(self):
         s = self.params.r[1] - self.params.r[0]
