@@ -119,10 +119,10 @@ plt.show()
 file_name = "WrightFisherSweepU_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myParam.u[0])
 
 data = dict()
-data["N"] = dataX
-data["Nt_20"] = dataY
-data["Nt_20_anal1"] = dataY_anal1
-data["Nt_20_anal2_transient"] = dataY_anal2
-data["Nt_20_anal3_neglect"] = dataY_anal3
+data["U"] = dataX
+data["Ut_20"] = dataY
+data["Ut_20_anal1"] = dataY_anal1
+data["Ut_20_anal2_transient"] = dataY_anal2
+data["Ut_20_anal3_neglect"] = dataY_anal3
 
 MatTools.SaveDict(file_name, data)

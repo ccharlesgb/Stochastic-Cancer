@@ -41,8 +41,8 @@ mySolver = TauSolver.Solver(myParam)
 minS = 1e-4
 maxS = 1e-1
 
-SDP = 20
-PointCount = 4
+SDP = 25
+PointCount = 8
 
 dataX = []
 dataY = []
@@ -110,10 +110,10 @@ plt.show()
 file_name = "WrightFisherSweepS_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myParam.u[0])
 
 data = dict()
-data["N"] = dataX
-data["Nt_20"] = dataY
-data["Nt_20_anal1"] = dataY_anal1
-data["Nt_20_anal2_transient"] = dataY_anal2
-data["Nt_20_anal3_neglect"] = dataY_anal3
+data["S"] = dataX
+data["St_20"] = dataY
+data["St_20_anal1"] = dataY_anal1
+data["St_20_anal2_transient"] = dataY_anal2
+data["St_20_anal3_neglect"] = dataY_anal3
 
 MatTools.SaveDict(file_name, data)

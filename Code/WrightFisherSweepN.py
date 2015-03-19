@@ -53,8 +53,8 @@ mySolver = TauSolver.Solver(myParam)
 minN = 1e6
 maxN = 1e9
 
-SDP = 20
-PointCount = 4
+SDP = 25
+PointCount = 8
 
 dataX = []
 dataY = []
