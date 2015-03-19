@@ -21,6 +21,11 @@ class wright_fisher_params:
         self.d = 100
         self.uNotConst = 0
         
+        #growing populations
+        self.a = 0
+        self.b = 0
+                
+        
         for i in range(0,self.cellTypes):
             self.N.append(0)            
             self.iN.append(0)
@@ -30,6 +35,12 @@ class wright_fisher_params:
         
         self.iN[0] = 100
         self.popSize = 100
+    
+    def GetPopSize(self, t):
+        popSize = round(self.iN[0]* math.exp(self.b * t))
+        self.popSize = popSize
+        return popSize
+                
         
     def GetAvgFitness(self):
         bottom = 0.0       
@@ -104,6 +115,8 @@ class wright_fisher_params:
         denom = 2.0 * s * math.log(self.popSize)
         return float(numer)/denom
 
+
+
 class BatchResult:
     def __init__(self):
         self.simCount = 0
@@ -175,7 +188,7 @@ class wright_fisher:
                 print(int(float(self.curStep) / self.stepLimit * 100.0)),
                 self.nextProgressFrac += 0.1
             self.UpdateProbVector()
-            self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)
+            self.params.N = np.random.multinomial(self.params.GetPopSize(self.curStep), self.prob_vector)
             self.curStep += 1
             
             if self.stopAtAppear == 1 and self.params.N[self.params.cellTypes-1] >= 1:
@@ -235,7 +248,7 @@ class wf_hist:
             self.histArray[i].append(sim.params.N[i])
             self.thetajHist[i].append(sim.prob_vector[i])
             totalJ += i * float(sim.params.N[i]/sim.params.popSize)
-            totalSJ += sim.params.r[i] * float(sim.params.N[i]/sim.params.popSize)
+            totalSJ += (sim.params.r[i] - 1.0 )* float(sim.params.N[i]/sim.params.popSize)
         self.avgJHist.append(totalJ)
         self.avgSJHist.append(totalSJ)
          
