@@ -36,12 +36,13 @@ class wright_fisher_params:
         self.iN[0] = 100
         self.popSize = 100
     
-    def UpdatePopSize(self, t):
+    def GetPopSize(self, t):
         popSize = round(self.iN[0]* math.exp(self.b * t))
         self.popSize = popSize
              
     def PreSim(self):
         self.UpdatePopSize()
+
         
     def GetAvgFitness(self):
         bottom = 0.0       
@@ -188,8 +189,7 @@ class wright_fisher:
             if (self.printProgress >= 2 and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
                 print(int(float(self.curStep) / self.stepLimit * 100.0)),
                 self.nextProgressFrac += 0.1
-            if (self.params != 0):
-                self.params.PreSim()
+
             self.UpdateProbVector()
             self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)
             self.curStep += 1
