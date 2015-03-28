@@ -39,10 +39,6 @@ class wright_fisher_params:
     def GetPopSize(self, t):
         popSize = round(self.iN[0]* math.exp(self.b * t))
         self.popSize = popSize
-             
-    def PreSim(self):
-        self.UpdatePopSize()
-
         
     def GetAvgFitness(self):
         bottom = 0.0       
