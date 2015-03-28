@@ -41,7 +41,7 @@ maxS = 1e-1
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 10
+SDP = 1
 
 avgFixTime = np.zeros((mapSize, mapSize))
 

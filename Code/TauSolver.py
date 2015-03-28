@@ -128,7 +128,7 @@ class Solver:
         
     def GetTauNeglect(self):
         s = self.params.r[1] - self.params.r[0]
-        logs = math.log(1.0 + s 2/ (self.params.u[0] * self.params.d)*math.sqrt(2.0*math.log(self.params.popSize)))
+        logs = math.log(1.0 + s / (self.params.u[0] * self.params.d)*math.sqrt(2.0*math.log(self.params.popSize)))
         top = math.pow(logs,2.0)
         bottom = 2.0 * s * math.log(self.params.popSize)
         return top/bottom
