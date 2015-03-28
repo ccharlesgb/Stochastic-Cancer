@@ -75,10 +75,10 @@ for iS in range(0, mapSize):
         avgFixTime[iU, iS] = res.avgFixTime
         
         theory1 = mySolver.GetWaitingTimeOriginal(cellTypes)
-        theory2 = mySolver.GetWaitingTime(cellTypes)
+        theory2 = mySolver.GetWaitingTimeNeglect(cellTypes)
         
-        errFixTime1[iS, iU] = (theory1 - res.avgFixTime)/res.avgFixTime
-        errFixTime2[iS, iU] = (theory2 - res.avgFixTime)/res.avgFixTime        
+        errFixTime1[iS, iU] = (theory1 - res.avgFixTime) / res.avgFixTime
+        errFixTime2[iS, iU] = (theory2 - res.avgFixTime) / res.avgFixTime        
         
 
 minSHist = round(min(sHist))
