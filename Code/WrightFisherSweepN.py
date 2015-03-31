@@ -53,7 +53,6 @@ dataY_anal1_err = []
 dataY_anal2_err = []
 dataY_anal3_err= []
 
-myWF.reset()
 
 for p in range(0,PointCount):
     startTime = time.clock()

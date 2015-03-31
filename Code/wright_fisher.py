@@ -159,7 +159,7 @@ class wright_fisher:
         
     def UpdateProbVector(self):    
         probSum = 0.0
-        for i in range(0,self.typeCount):
+        for i in range(0,self.typeCount - 1):
             self.prob_vector[i] = (self.params.GetThetaj(i, self.n))
             probSum += self.prob_vector[i]
         self.prob_vector[self.typeCount - 1] = 1.0 - probSum
@@ -176,10 +176,12 @@ class wright_fisher:
         self.reset()
         if(self.history != 0):
             self.history.RecordFrame(self)
-        
+        print("INITIL CURTIME", self.curTime)
+        print("INITIAL n", self.n)
+        print("INITIAL popsize",self.params.N)
         while(self.curTime < self.timeLimit and self.isFixated != 1):
-            if (self.printProgress >= 2 and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
-                print(int(float(self.curStep) / self.stepLimit * 100.0)),
+            if (self.printProgress >= 2 and float(self.curTime) / self.timeLimit > self.nextProgressFrac):
+                print(int(float(self.curTime) / self.timeLimit * 100.0)),
                 self.nextProgressFrac += 0.1
             
             if self.params != 0:

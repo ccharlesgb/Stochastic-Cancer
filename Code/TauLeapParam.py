@@ -45,7 +45,7 @@ class Hist:
 class Params:
     def __init__(self, typeCount):
         self.SetTypeCount(typeCount)
-        self.d = 2
+        self.d = 100
         self.USE_D = True
         self.avgFit = 0.0
         self.uNotConst = 0
