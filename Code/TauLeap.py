@@ -59,6 +59,7 @@ class Sim:
         
         self.epsilon = 0.05 #Error parameter
         self.n_c = 10 #How close a reaction is to depleting its resource before its considered critical
+        self.EnableTauLeap = True #If tau leaping is disabled all reactions are critical (Gillespie)
         self.w = 10 #If our dynamic tau < w / self.lambd then abondon tau leaping (its bogged down in critical reactions)
         
         
@@ -79,6 +80,8 @@ class Sim:
         self.tau = -1.0
         self.tauCache = []
         
+        self.MAX_POISSION = 2.1e9 #Max poission number        
+        
         self.printProgress = 0 #Set to 1 to print batch progress. 2 prints batch and sim progress
         #Tau Debug Info
         self.RECORD_TAU_INFO = 0
@@ -97,6 +100,9 @@ class Sim:
         self.nextProgressFrac = 0.1
         
         self.rateRange = range(0,self.rateCount)        
+        
+        if self.history != 0:
+            self.history.ClearFrames()
         
         if self.params != 0:
             for i in self.typeRange:
@@ -122,7 +128,7 @@ class Sim:
             self.criticalRateIndices[i] = False #Assume it isnt critical
             if self.rateCache[i] > 0.0: #Can this rate even happen?
                 i_j = self.eventIDs[i] #Get the i->j this corresponds to
-                if self.n[i_j[0]] < self.n_c: #Is the cell type that this event depletes (ie 'i') less than the critical number?
+                if self.EnableTauLeap == False or self.n[i_j[0]] < self.n_c: #Is the cell type that this event depletes (ie 'i') less than the critical number?
                     self.criticalRateIndices[i] = True
                     self.criticalCount += 1
                     self.criticalTypeIndices[i_j[0]] = True
@@ -139,6 +145,7 @@ class Sim:
                 self.rateCache[i] = self.params.GetTIJ(i_j[0],i_j[1], self.n)
             if self.rateCache[i] < 0.0:
                 print("RATE IS NEGATIVE i,j = {0} {1}".format(*i_j))
+                self.curTime = self.timeLimit
             #print("Getting rate ", i_j, self.rateCache[i])
             self.lambd += self.rateCache[i]
 
@@ -211,7 +218,8 @@ class Sim:
             for i in self.rateRange:
                 if self.criticalRateIndices[i] == False:
                     if self.rateCache[i] > 1e-10:
-                        self.eventCount[i] = self.Poission(self.rateCache[i] * self.tau)
+                        mean = self.rateCache[i] * self.tau
+                        self.eventCount[i] = self.Poission(mean)
                     else:
                         self.eventCount[i] = 0
                         continue
@@ -258,8 +266,6 @@ class Sim:
             
             #Quick check for fixation or appearance of the mutant we want
             if self.lambd == 0 or (self.stopAtAppear == 1 and (self.n[self.typeCount - 1] >= 1)):
-                print("STOPPED ", self.lambd)
-                print(self.n)
                 break
             
             self.UpdateTauPrime()
@@ -288,7 +294,7 @@ class Sim:
                 
         if self.printProgress >= 2:
             print(' ')
-        print("Crit percent = {0}".format(float(self.critFrames) / self.simSteps))  
+        #print("Crit Frames: {0}%".format(round(float(self.critFrames) / self.simSteps * 100.0)))  
         if self.simSteps != 0 and float(self.BAD_FRAME_COUNT) / self.simSteps > self.BAD_FRAME_WARN:
             print("WARNING: {0}% Bad Frames. Consider lower epsilon!".format(int(float(self.BAD_FRAME_COUNT) / self.simSteps  * 100.0)))
         
@@ -301,7 +307,8 @@ class Sim:
         if simCount <= 0:
             return res        
         
-        print("Batch %: 0"),
+        if self.printProgress >= 1:
+            print("Batch %: 0"),
         for i in range(0, simCount):
             if (self.printProgress >= 1 and float(i) / simCount > self.nextBatchProgressFrac):
                 print(int(float(i) / simCount * 100.0)),

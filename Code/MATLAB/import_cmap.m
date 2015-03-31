@@ -1,4 +1,5 @@
-function [] = import_cmap(x,y,z)
-    z_flip = flipud(z);
-    imagesc(x,y,z_flip);
+function [ax] = import_cmap(x,y,z)
+    %z = flipud(z);
+    ax = imagesc(x,y,z);
+    ax = gca
     

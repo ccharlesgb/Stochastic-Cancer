@@ -28,7 +28,7 @@ myParam = wright_fisher.wright_fisher_params(cellTypes)
 
 myWF.stopAtAppear = 1
 myWF.history = myHist
-myWF.stepLimit = 1000000
+myWF.stepLimit = 10000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
@@ -37,7 +37,7 @@ myParam.u = [1e-7] * 10
 myParam.d = 100
 myParam.uNotConst = 0
 
-s = 0.05
+s = 1e-2
 d = 1.8
 
 start = 0.1
@@ -49,7 +49,7 @@ for i in range(0,cellTypes):
     s_j = 0.1 - ((start - end)/((cellTypes-1)**2))*(i**2)
     sum_s_j += s_j
     myParam.r[i] = 1.0 + sum_s_j
-    #myParam.r[i] = math.pow(1.0 + s, i)
+    myParam.r[i] = math.pow(1.0 + s, i)
     print(s_j)
 
 myWF.Simulate()

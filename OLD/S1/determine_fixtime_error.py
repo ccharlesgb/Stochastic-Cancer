@@ -19,13 +19,13 @@ maxr2 = 1.5
 minr1 = 0.5
 maxr1 = 1.5
 
-mapSize = 20
+mapSize = 8
 
 sim3 = SimTools.Gillespie(10)
 sim3.timeLimit = 100000
 sim3.u1 = 0.1
 sim3.u2 = 0.1
-sim3.in0 = 100
+sim3.in0 = 10
 
 sim3.r0 = 1.0
 sim3.r1 = 1.0
@@ -33,7 +33,7 @@ sim3.r2 = 1.0
 
 deterSim = DetermenisticModel.Determenistic()
 
-simsPerDataPoint = 100
+simsPerDataPoint = 1
 fixTimeError = np.zeros((mapSize, mapSize))
 
 xticks = np.arange(0, mapSize, 5.0/(mapSize-1.0))

@@ -104,11 +104,11 @@ class Params:
                 u_j = self.u[j]
                 u_jm1 = self.u[j-1]
             if j == 0:
-                top = (self.r[j] * (1 - u_j) * n[j])
+                top = (self.r[j] * (1.0 - u_j) * n[j])
             elif j == self.typeCount - 1:
                 top = (self.r[j]*n[j] + self.r[j-1] * u_jm1 * n[j-1])
             else:
-                top = (self.r[j]*(1 - u_j)*n[j] + self.r[j-1]*u_jm1*n[j-1])
+                top = (self.r[j]*(1.0 - u_j)*n[j] + self.r[j-1]*u_jm1*n[j-1])
             rate = top / self.avgFit
             self.thetaJCache[j] = rate
     
