@@ -80,6 +80,8 @@ class Sim:
         self.tau = -1.0
         self.tauCache = []
         
+        self.prob_vector = 0 #Compatibility
+        
         self.MAX_POISSION = 2.1e9 #Max poission number        
         
         self.printProgress = 0 #Set to 1 to print batch progress. 2 prints batch and sim progress
@@ -247,7 +249,7 @@ class Sim:
         self.Reset()
         
         if self.history != 0:
-            self.history.RecordFrame(self, self.params)
+            self.history.RecordFrame(self)
         
         while self.curTime < self.timeLimit:
             #Print Progress
@@ -290,7 +292,7 @@ class Sim:
                 self.postSim(self.curTime, self.params)
             
             if self.history != 0:
-                self.history.RecordFrame(self, self.params)
+                self.history.RecordFrame(self)
                 
         if self.printProgress >= 2:
             print(' ')

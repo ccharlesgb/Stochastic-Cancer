@@ -28,16 +28,16 @@ class Solver:
         
     def CacheX0(self):
         self.X0_Cache = []
-        for i in range(0, self.params.cellTypes + 1):
+        for i in range(0, self.params.typeCount + 1):
             self.X0_Cache.append(self.GetXj0(i))
         
     def GetXj0(self, j):
-        return max(self.params.u[0] * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.popSize)
+        return max(self.params.u[0] * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.N)
     
     def GetGammaTau(self, tau):
         tau = max(tau, 1e-99)
         s = self.params.r[1] - self.params.r[0]
-        N = self.params.popSize         
+        N = self.params.N         
         return math.sqrt(2.0/(s*tau) * math.log(N)) 
     
     def IntegralOfXj(self,j, tau):
@@ -69,11 +69,11 @@ class Solver:
         x0 = 10.0
         s = self.params.r[1] - self.params.r[0]
         for i in range(0, self.maxIter):
-            c = (1.0) / (self.params.u[0] * self.params.d * self.params.popSize)
-            print(c)
+            c = (1.0) / (self.params.u[0] * self.params.d * self.params.N)
+            #print(c)
             y = self.IntegralOfXj(j, x0) - c
             y_prime = ((self.IntegralOfXj(j, x0 + delta) - c) - y) / delta
-            print("j ={0} x0 = {1} y' = {2}".format(j, x0, y_prime))
+            #print("j ={0} x0 = {1} y' = {2}".format(j, x0, y_prime))
             if abs(y_prime) < self.epsilon:
                 break #Denominator too small
             x1 = min(x0 - y / y_prime, self.maxTau)
@@ -96,11 +96,11 @@ class Solver:
     def GetWaitingTimeOriginal(self, k):
         s = self.params.r[1] - 1.00
         numer = k * math.pow(math.log(s/(self.params.u[0]*self.params.d)),2.0)
-        denom = 2.0 * s * math.log(self.params.popSize)
+        denom = 2.0 * s * math.log(self.params.N)
         return float(numer)/denom
     
     def GetWaitingTimeNeglect(self, k):
-        j_i = -math.log(self.params.popSize)/math.log(self.params.u[0]*self.params.d)
+        j_i = -math.log(self.params.N)/math.log(self.params.u[0]*self.params.d)
         print("J_I", j_i)
         return (k-j_i) * self.GetTauNeglect()
             
@@ -113,7 +113,7 @@ class Solver:
         s = self.params.r[1] - self.params.r[0]
         u = self.params.u[0]
         d = self.params.d
-        N = self.params.popSize    
+        N = self.params.N   
         
         gamma = self.GetGammaTau(max(t,1e-10))        
         
@@ -128,9 +128,9 @@ class Solver:
         
     def GetTauNeglect(self):
         s = self.params.r[1] - self.params.r[0]
-        logs = math.log(1.0 + s / (self.params.u[0] * self.params.d)*math.sqrt(2.0*math.log(self.params.popSize)))
+        logs = math.log(1.0 + s / (self.params.u[0] * self.params.d)*math.sqrt(2.0*math.log(self.params.N)))
         top = math.pow(logs,2.0)
-        bottom = 2.0 * s * math.log(self.params.popSize)
+        bottom = 2.0 * s * math.log(self.params.N)
         return top/bottom
         
     

@@ -9,7 +9,7 @@ import numpy as np
 import random
 import scipy.misc as scimisc
 
-
+'''
 class wright_fisher_params:
     def __init__(self, cellTypes):
         self.r = []
@@ -67,7 +67,6 @@ class wright_fisher_params:
             summation = 0.0
             avgFit = self.GetAvgFitness()
             for i in range(0, j+1):
-                #summation += scimisc.comb(self.cellTypes - i , j - i )*math.pow(self.u, j-i)*math.pow(1-self.u, self.cellTypes-j)*self.GetFitnessRatio(i)
                 summation += self.combinations[i][j]*math.pow(self.u[0], j-i)*math.pow(1-self.u[0], self.d-j)*(self.r[i] * self.N[i])/avgFit
             return summation
             
@@ -112,8 +111,7 @@ class wright_fisher_params:
         numer = (self.cellTypes-1.0) * math.pow(math.log(s/(self.u[0]*self.d)),2.0)
         denom = 2.0 * s * math.log(self.popSize)
         return float(numer)/denom
-
-
+'''
 
 class BatchResult:
     def __init__(self):
@@ -125,53 +123,51 @@ class BatchResult:
         self.simCount = 0
         self.avgFixTime = 0.0
     
-
 class wright_fisher:
-    def __init__(self):
+    def __init__(self, typeCount):
+        self.typeCount = typeCount
         self.printProgress = 0
-        self.curStep = 0        
+        self.curTime = 0     
         self.isFixated = 0
-        self.stepLimit = 2000
+        self.timeLimit= 1e4
         self.history = 0
         self.params = 0
         self.prob_vector = []
         self.nextBatchProgressFrac = 0.1
         self.stopAtAppear = 1
+        self.n = [] #Our state vector
+        for i in range(0,self.typeCount):
+            self.n.append(0)
+            
         self.reset()
         
     def reset(self):
         if self.params != 0:
             self.params.Reset()
         
-            for i in range(0,self.params.cellTypes):
+            for i in range(0,self.typeCount):
                 self.prob_vector.append(0.0)
-                
-        self.curStep = 0 
+    
+            for i in range(0,self.typeCount):
+                self.n[i] = self.params.n0[i]        
+        
+        self.curTime = 0
         self.isFixated = 0       
         self.nextProgressFrac = 0.1
         if self.history != 0:
             self.history.ClearFrames()
-    
-    def GetXi(self, i):     
-        result = float(self.N[i])/float(self.popSize)       
-        return result
         
     def UpdateProbVector(self):    
         probSum = 0.0
-        for i in range(0,self.params.cellTypes - 1):
-            self.prob_vector[i] = (self.params.GetThetaj(i))
+        for i in range(0,self.typeCount):
+            self.prob_vector[i] = (self.params.GetThetaj(i, self.n))
             probSum += self.prob_vector[i]
-        self.prob_vector[self.params.cellTypes - 1] = 1.0 - probSum
-        
-        #print(self.prob_vector)
-        #normalisation = sum(self.prob_vector)
-        #for i in range(0,self.cellTypes):
-            #self.prob_vector[i] /= normalisation
+        self.prob_vector[self.typeCount - 1] = 1.0 - probSum
          
-        for i in range(0,self.params.cellTypes):        
+        for i in range(0,self.typeCount):        
             if(self.prob_vector[i] == 1.0):
                     self.isFixated = 1      
-                    print("The system is fixed. Took {0} steps".format(self.curStep))
+                    print("The system is fixed. Took {0} steps".format(self.curTime))
     
     def SetHistory(self, hist):
         self.history = hist
@@ -181,16 +177,19 @@ class wright_fisher:
         if(self.history != 0):
             self.history.RecordFrame(self)
         
-        while(self.curStep < self.stepLimit and self.isFixated != 1):
+        while(self.curTime < self.timeLimit and self.isFixated != 1):
             if (self.printProgress >= 2 and float(self.curStep) / self.stepLimit > self.nextProgressFrac):
                 print(int(float(self.curStep) / self.stepLimit * 100.0)),
                 self.nextProgressFrac += 0.1
-
-            self.UpdateProbVector()
-            self.params.N = np.random.multinomial(self.params.popSize, self.prob_vector)
-            self.curStep += 1
             
-            if self.stopAtAppear == 1 and self.params.N[self.params.cellTypes-1] >= 1:
+            if self.params != 0:
+                self.params.PreSim(self)
+            
+            self.UpdateProbVector()
+            self.n = np.random.multinomial(self.params.N, self.prob_vector)
+            self.curTime += 1
+            
+            if self.stopAtAppear == 1 and self.n[self.params.typeCount-1] >= 1:
                 self.isFixated = 1
             
             if(self.history != 0):
@@ -205,7 +204,8 @@ class wright_fisher:
         if simCount <= 0:
             return res
         
-        print("Batch %: 0"),
+        if self.printProgress >= 1:
+            print("Batch %: 0"),
         for i in range(0, simCount):
             #Print Batch progress
             if (self.printProgress >= 1 and float(i) / simCount > self.nextBatchProgressFrac):
@@ -213,7 +213,8 @@ class wright_fisher:
                 self.nextBatchProgressFrac += 0.1
                 
             self.Simulate()
-            res.avgFixTime += self.curStep
+            print(self.curTime)
+            res.avgFixTime += self.curTime
         
         if self.printProgress >= 1:
             print('100')      
@@ -222,38 +223,8 @@ class wright_fisher:
         res.avgFixTime = float(res.avgFixTime) / simCount
         return res
 
-class wf_hist:
-    def __init__(self, cellTypes):
-        self.cellTypes = cellTypes
-        self.ClearFrames()
-       
-    def ClearFrames(self):
-        self.histArray = dict()
-        self.stepHist = []
-        self.yearHist = []
-        self.thetajHist = dict()
-        self.avgJHist = []
-        self.avgSJHist = []
-        for i in range(0, self.cellTypes):
-            self.histArray[i] = []
-            self.thetajHist[i] = []
-            
-    def RecordFrame(self, sim):
-        self.stepHist.append(sim.curStep)
-        self.yearHist.append(float(sim.curStep) / 365.0)
-        totalJ = 0.0
-        totalSJ = 0.0            
-        for i in range(0, self.cellTypes):
-            self.histArray[i].append(sim.params.N[i])
-            self.thetajHist[i].append(sim.prob_vector[i])
-            totalJ += i * float(sim.params.N[i]/sim.params.popSize)
-            totalSJ += (sim.params.r[i] - 1.0 )* float(sim.params.N[i]/sim.params.popSize)
-        self.avgJHist.append(totalJ)
-        self.avgSJHist.append(totalSJ)
+
          
-    def GetDictionary(self):
-        runDict = dict()
-        return runDict
         
         
         

@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 import wright_fisher
+import TauLeapParam
 import matplotlib.pyplot as plt
 import math
 
@@ -22,9 +23,9 @@ def GetTauJ(param):
 cellTypes = 21
 population = 1e9
 
-myWF = wright_fisher.wright_fisher()
-myHist = wright_fisher.wf_hist(cellTypes)
-myParam = wright_fisher.wright_fisher_params(cellTypes)
+myWF = wright_fisher.wright_fisher(cellTypes)
+myHist = TauLeapParam.Hist(cellTypes)
+myParam = TauLeapParam.Params(cellTypes)
 
 myWF.stopAtAppear = 1
 myWF.history = myHist
@@ -32,7 +33,7 @@ myWF.stepLimit = 10000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.iN[0] = population
+myParam.n0[0] = population
 myParam.u = [1e-7] * 10
 myParam.d = 100
 myParam.uNotConst = 0
@@ -50,7 +51,6 @@ for i in range(0,cellTypes):
     sum_s_j += s_j
     myParam.r[i] = 1.0 + sum_s_j
     myParam.r[i] = math.pow(1.0 + s, i)
-    print(s_j)
 
 myWF.Simulate()
 
@@ -98,6 +98,6 @@ def init():
     return line,line2,
 
 
-ani = animation.FuncAnimation(fig, animate, np.arange(0, myWF.curStep,5), init_func=init,
+ani = animation.FuncAnimation(fig, animate, np.arange(0, myWF.curTime,10), init_func=init,
     interval=50, blit=True)
 plt.show()

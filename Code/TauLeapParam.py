@@ -13,15 +13,29 @@ class Hist:
         self.ClearFrames()
        
     def ClearFrames(self):
-        self.tHist = []
         self.histArray = dict()
+        self.tHist = []
+        self.yearHist = []
+        self.thetajHist = dict()
+        self.avgJHist = []
+        self.avgSJHist = []
         for i in range(0, self.typeCount):
             self.histArray[i] = []
+            self.thetajHist[i] = []
 
-    def RecordFrame(self, sim, param):
-            self.tHist.append(sim.curTime)
-            for i in range(0, param.typeCount):
-                self.histArray[i].append(sim.n[i])
+    def RecordFrame(self, sim):
+        self.tHist.append(sim.curTime)
+        self.yearHist.append(float(sim.curTime) / 365.0)
+        totalJ = 0.0
+        totalSJ = 0.0            
+        for i in range(0, self.typeCount):
+            self.histArray[i].append(sim.n[i])
+            if sim.prob_vector != 0:
+                self.thetajHist[i].append(sim.prob_vector[i])
+            totalJ += i * float(sim.n[i]/sim.params.N)
+            totalSJ += (sim.params.r[i] - 1.0 )* float(sim.n[i]/sim.params.N)
+        self.avgJHist.append(totalJ)
+        self.avgSJHist.append(totalSJ)
          
     def GetDictionary(self):
         runDict = dict()
@@ -34,6 +48,8 @@ class Params:
         self.d = 2
         self.USE_D = True
         self.avgFit = 0.0
+        self.uNotConst = 0
+        self.Reset()
         
     def SetTypeCount(self, typeCount):
         self.typeCount = typeCount
@@ -41,12 +57,14 @@ class Params:
         self.r = []
         self.u = []
         self.thetaJCache = []
+
         
         for i in range(0, typeCount):
             self.n0.append(0)
             self.r.append(1.0)
             self.u.append(0.1)
             self.thetaJCache.append(0.0)
+        self.n0[0] = 1e2
         
     def Reset(self):
         self.N = 0        
@@ -78,14 +96,6 @@ class Params:
                     sim.AddStateChange(i, j, self.EventTIJ(i,j))
                     #print("Adding rate {0},{1}".format(i,j))
     
-    def CacheCombinations(self):
-        self.combinations = [[]]
-        for i in range(0,self.typeCount):
-            self.combinations.append([])
-            for j in range(0,self.typeCount):
-                comb = scimisc.comb(self.d-i, j-i)
-                self.combinations[i].append(comb)      
-    
     #Reaction probability for cell from 1->0
     def GetTIJ(self, i, j, n):
         #if rate > 1e6:
@@ -111,6 +121,33 @@ class Params:
                 top = (self.r[j]*(1.0 - u_j)*n[j] + self.r[j-1]*u_jm1*n[j-1])
             rate = top / self.avgFit
             self.thetaJCache[j] = rate
+    
+    def SetCompoundFitness(self,s):
+        for i in range(0,self.typeCount):
+            self.r[i] = math.pow(1.0 + s, i)    
+    
+    def CacheCombinations(self):
+        self.combinations = [[]]
+        for i in range(0,self.typeCount):
+            self.combinations.append([])
+            for j in range(0,self.typeCount):
+                comb = scimisc.comb(self.d-i, j-i)
+                self.combinations[i].append(comb)        
+    
+    def GetThetaj(self,j, n):
+        if self.uNotConst == 1:
+            summation = 0.0
+            avgFit = self.avgFit
+            for i in range(0, j+1):
+                summation += self.combinations[i][j]*math.pow(self.u[i], j-i)*math.pow(1.0-self.u[i], self.d-j)*(self.r[i] * n[i])/avgFit
+            print("UNO")
+            return summation
+        else:
+            summation = 0.0
+            avgFit = self.avgFit
+            for i in range(0, j+1):
+                summation += self.combinations[i][j]*math.pow(self.u[0], j-i)*math.pow(1.0-self.u[0], self.d-j)*(self.r[i] * n[i])/avgFit
+            return summation
     
     def PreSim(self, gillespie):
         self.avgFit = self.GetAvgFit(gillespie.n)

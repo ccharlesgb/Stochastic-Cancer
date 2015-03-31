@@ -9,25 +9,26 @@ import wright_fisher
 import matplotlib.pyplot as plt
 import math
 import gaussian_fitter
+import TauLeapParam
 
 #set up simulation
 cellTypes = 21
 population = 1e9
 
-myWF = wright_fisher.wright_fisher()
-myWF_params = wright_fisher.wright_fisher_params(cellTypes)
+myWF = wright_fisher.wright_fisher(cellTypes)
+myWF_params = TauLeapParam.Params(cellTypes)
 myWF.params = myWF_params
 
-myHist = wright_fisher.wf_hist(cellTypes)
+myHist = TauLeapParam.Hist(cellTypes)
 
 myWF_params.u = [1e-9]*cellTypes
 #myWF.u = 1e-2 / population
 
-myWF_params.iN[0] = population
+myWF_params.n0[0] = population
 myWF.history = myHist
 myWF.popSize = population
 
-myWF.stepLimit = 10000
+myWF.timeLimit = 1e4
 myWF.useApproxTheta = 0
 myWF.d = 200
 
@@ -54,9 +55,9 @@ min_u = 1e-10
 max_u = 1e-5
 
 
-step = myWF.curStep / fits_per_sim
+step = myWF.curTime / fits_per_sim
 first = int(step)
-end = int(myWF.curStep) 
+end = int(myWF.curTime) 
 
 for curPoint in range(0,len(mut_rate)):
     print("Datapoint {0} of {1}".format(curPoint + 1, DPC))        
@@ -66,7 +67,7 @@ for curPoint in range(0,len(mut_rate)):
     errorcount = 0
     for sim in range(0,SPD):
         myWF.Simulate()
-        t = int(myWF.curStep / 2)
+        t = int(myWF.curTime / 2)
         '''        
         for t in range(int(myWF.curStep / fits_per_sim), int(myWF.curStep), int(myWF.curStep / fits_per_sim)):
             dataX = []

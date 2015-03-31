@@ -11,38 +11,26 @@ import SimUtil
 import time
 import MatTools
 import TauSolver
-
-def GetTau(param):
-    s = param.r[1] - param.r[0]
-    top = math.pow(math.log(s / (param.u[0] * param.d)),2.0)
-    bottom = 2.0 * s * math.log(param.popSize)
-    return top/bottom
-
-def GetTau2(param):
-    s = param.r[1] - param.r[0]
-    logs = math.log(s / (param.u[0] * param.d)*math.sqrt(2.0*math.log(param.popSize)))
-    top = math.pow(logs,2.0)
-    bottom = 2.0 * s * math.log(param.popSize)
-    return top/bottom
+import TauLeapParam
 
 cellTypes = 21
 population = 1e9
 
-myWF = wright_fisher.wright_fisher()
-myHist = wright_fisher.wf_hist(cellTypes)
-myParam = wright_fisher.wright_fisher_params(cellTypes)
+myWF = wright_fisher.wright_fisher(cellTypes)
+myHist = TauLeapParam.Hist(cellTypes)
+myParam = TauLeapParam.Params(cellTypes)
 
 myParam.d = 100
 
 myWF.stopAtAppear = 1
 
-myParam.iN[0] = population
+myParam.n0[0] = population
 myWF.history = myHist
-myWF.stepLimit = 1000000
+myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.u[0] = 1e-7
+myParam.u = [1e-7] * cellTypes
 
 s = 0.01
 for i in range(0,cellTypes):
@@ -66,21 +54,21 @@ dataY_anal2_err = []
 dataY_anal3_err= []
 
 myWF.reset()
+
 for p in range(0,PointCount):
     startTime = time.clock()
     print("Current Data Point = {0}/{1} ({2}%)".format(p + 1, PointCount, 100.0 * float(p)/(PointCount-1)))
     
-    myParam.iN[0] = int(SimUtil.SweepParameterLog(p,PointCount, minN, maxN))
-    print("N", myParam.iN[0])
+    myParam.n0[0] = int(SimUtil.SweepParameterLog(p,PointCount, minN, maxN))
+    print("N", myParam.n0[0])
     res = myWF.SimulateBatch(SDP)
-    dataX.append(myParam.iN[0])
+    dataX.append(myParam.n0[0])
     dataY.append(res.avgFixTime)
     
     mySolver.CacheX0()    
     
     theory = 0.0
     theory2 = 0.0
-    
     theory1 = mySolver.GetWaitingTimeOriginal(cellTypes)
     theory2 = mySolver.GetWaitingTime(cellTypes)
     theory3 = mySolver.GetWaitingTimeNeglect(cellTypes)

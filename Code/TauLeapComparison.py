@@ -60,7 +60,7 @@ deterSim.history = myHist2
 deterSim.timeStep = 0.01
 deterSim.timeLimit = timeLimit
 
-myWF = wright_fisher.wright_fisher()
+myWF = wright_fisher.wright_fisher(cellTypes)
 
 myGillespie.Simulate()  
 deterSim.Integrate()

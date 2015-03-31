@@ -6,6 +6,7 @@ Created on Thu Feb 19 18:53:15 2015
 """
 
 import wright_fisher
+import TauLeapParam
 import matplotlib.pyplot as plt
 import math
 
@@ -20,27 +21,27 @@ def GetTauJ(param):
 
 
 cellTypes = 21
-population = 1e9
+population = 1e6
 
-myWF = wright_fisher.wright_fisher()
-myHist = wright_fisher.wf_hist(cellTypes)
-myParam = wright_fisher.wright_fisher_params(cellTypes)
+myWF = wright_fisher.wright_fisher(cellTypes)
+myHist = TauLeapParam.Hist(cellTypes)
+myParam = TauLeapParam.Params(cellTypes)
 
-myParam.u = [1e-7] * 10
+myParam.u = [1e-7] * cellTypes
 
 myParam.d = 100
 
 myWF.stopAtAppear = 1
 
 
-myParam.iN[0] = population
+myParam.n0[0] = population
 myWF.history = myHist
 myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
 
-myParam.uNotConst = 1
+myParam.uNotConst = 0
 
 s = 0.01
 d = 1.8
@@ -55,7 +56,7 @@ myWF.Simulate()
 
 plt.figure()
 plt.subplot(211)
-for t in range(0, myWF.curStep, max(myWF.curStep / 8, 1)):
+for t in range(0, myWF.curTime, max(myWF.curTime / 8, 1)):
     dataX = []
     dataY = []
     for i in range(0, cellTypes):
@@ -71,7 +72,7 @@ plt.show()
 
 plt.subplot(212)
 for i in range(0, cellTypes):
-   plt.plot(myHist.stepHist[0::1], myHist.histArray[i][0::1])
+   plt.plot(myHist.tHist[0::1], myHist.histArray[i][0::1])
    plt.yscale("log")
 plt.xlabel("Time")
 plt.ylabel("Cell Count")
@@ -81,7 +82,7 @@ plt.show()
 plt.figure()
 plt.subplot(311)
 for i in range(0, cellTypes):
-   plt.plot(myHist.stepHist, myHist.thetajHist[i])
+   plt.plot(myHist.tHist, myHist.thetajHist[i])
 plt.xlabel("Time")
 plt.ylabel("Theta J")
 
@@ -96,7 +97,7 @@ for i in range(500, len(myHist.avgJHist)):
 plt.subplot(313)
 plt.plot(gradJ)
 
-print("Appearance Time: {0}".format(myWF.curStep))
+print("Appearance Time: {0}".format(myWF.curTime))
 
 '''
 

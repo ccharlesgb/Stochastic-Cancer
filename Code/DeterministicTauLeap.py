@@ -24,6 +24,8 @@ class Sim:
         self.timeLimit = 1e4
         self.timeStep = 1e-1
         self.Reset()
+        
+        self.prob_vector = 0
    
         
     def Reset(self):
@@ -55,7 +57,7 @@ class Sim:
         
         repo_term = s * self.x[i] * (i - self.avgJ)
         
-        return mut_term + repo_term
+        return (mut_term + repo_term) / avgFit
     
     def UpdateAvgJ(self):
         self.avgJ = 0.0
@@ -82,7 +84,7 @@ class Sim:
             
             self.curTime = float(st)/steps * self.timeLimit
             if self.history != 0:
-                self.history.RecordFrame(self, self.params)
+                self.history.RecordFrame(self)
             
             if self.stopAtAppear == 1:
                 if self.n[self.typeCount - 1] >= 1.0:
