@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Mar 31 16:23:16 2015
+Created on Wed Apr 01 19:10:01 2015
 
 @author: Connor
 """
 
 # -*- coding: utf-8 -*-
 """
-Created on Mon Mar 09 15:09:08 2015
+Created on Tue Mar 31 16:23:16 2015
 
 @author: Connor
 """
@@ -17,7 +17,6 @@ import MatTools
 import numpy as np
 import math
 import time
-import DeterministicTauLeap
 
 import TauLeap
 import TauLeapParam
@@ -60,52 +59,48 @@ myParam.u[0] = 0.1
 myParam.u[1] = 0.1
 myParam.u[2] = 0.1
 
-#Deter Stuff
-deterSim = DeterministicTauLeap.Sim(cellTypes)
-deterSim.params = myParam
-myHist2 = TauLeapParam.Hist(cellTypes)
-deterSim.history = myHist2
-
-deterSim.timeStep = 0.01
-deterSim.timeLimit = timeLimit
-deterSim.stopAtAppear = 0
 '''
-deterSim.Integrate()
 myGillespie.Simulate()
 
 for i in range(0, cellTypes):
-    plt.plot(myHist2.tHist, myHist2.histArray[i])
     plt.plot(myHist.tHist, myHist.histArray[i])
 '''
-SDP = 1000
-PointCount = 8
+
+SDP = 5000
+PointCount = 4
 
 dataX = []
 dataY = []
-dataY_deter = []
-dataY_deter = []
+
+epsilons = 4
+for i in range(0, epsilons):
+    dataX.append([])
+    dataY.append([])
+    
 
 minN = 1e1
 maxN = 1e2
 
-for p in range(0,PointCount):
-    startTime = time.clock()
-    print("Current Data Point = {0}/{1} ({2}%)".format(p + 1, PointCount, 100.0 * float(p)/(PointCount-1)))
-    
-    #myParam.n0[0] = int(SimUtil.SweepParameterLog(p,PointCount, minN, maxN))
-    myParam.n0[0] = int(SimUtil.SweepParameter(p,PointCount, minN, maxN))
-    myParam.u = [0.1] * cellTypes
-    print(myParam.u)
-    print("N", myParam.n0[0])
-    res = myGillespie.SimulateBatch(SDP)
-    dataX.append(myParam.n0[0])
-    dataY.append(res.avgFixTime)
-    
-    deterSim.Integrate()  
-    dataY_deter.append(deterSim.curTime)
+minEp = 0.01
+maxEp = 0.5
 
-plt.plot(dataX, dataY, 'o')
-plt.plot(dataX, dataY_deter)
+for ep in range(0, epsilons):
+    myGillespie.epsilon = SimUtil.SweepParameter(ep,epsilons,minEp,maxEp)
+    for p in range(0,PointCount):
+        startTime = time.clock()
+        print("Current Data Point = {0}/{1} ({2}%)".format(p + 1, PointCount, 100.0 * float(p)/(PointCount-1)))
+        
+        #myParam.n0[0] = int(SimUtil.SweepParameterLog(p,PointCount, minN, maxN))
+        myParam.n0[0] = int(SimUtil.SweepParameter(p,PointCount, minN, maxN))
+        myParam.u = [0.1] * cellTypes
+        print("N", myParam.n0[0])
+        res = myGillespie.SimulateBatch(SDP)
+        dataX[ep].append(myParam.n0[0])
+        dataY[ep].append(res.avgFixTime)
+
+for i in range(0, epsilons):
+    plt.plot(dataX[i], dataY[i], 'o-', label = i)
+plt.legend()
 #plt.xscale("log")
 
 file_name = "TauLeapSweepN_SDP_{0}_DPC_{1}".format(SDP, PointCount)

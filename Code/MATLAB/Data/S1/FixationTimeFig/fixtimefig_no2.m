@@ -1,8 +1,8 @@
 function [] = fixtimefig_no2()    
     %Deterministic Limit
-    data_r1 = load('D:\Work\MPhys\Stochastic-Cancer\Code\MATLAB\Data\FixationTimeFig\ThreeSpeciesDeterm_sweepr1_N_10_SDP_5000.mat')
-    data_u1 = load('D:\Work\MPhys\Stochastic-Cancer\Code\MATLAB\Data\FixationTimeFig\ThreeSpeciesDeterm_sweepu1_N_10_SDP_5000.mat')
-    data_N = load('D:\Work\MPhys\Stochastic-Cancer\Code\MATLAB\Data\FixationTimeFig\ThreeSpeciesDeterm_sweepN_N_10_SDP_5000.mat')
+    data_r1 = load('D:\Work\MPhys\Stochastic-Cancer\Code\MATLAB\Data\S1\FixationTimeFig\ThreeSpeciesDeterm_sweepr1_N_10_SDP_5000.mat')
+    data_u1 = load('D:\Work\MPhys\Stochastic-Cancer\Code\MATLAB\Data\S1\FixationTimeFig\ThreeSpeciesDeterm_sweepu1_N_10_SDP_5000.mat')
+    data_N = load('D:\Work\MPhys\Stochastic-Cancer\Code\MATLAB\Data\S1\FixationTimeFig\ThreeSpeciesDeterm_sweepN_N_10_SDP_5000.mat')
     
     %Do r1 plot
     subplot(3,3,1);

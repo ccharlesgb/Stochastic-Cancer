@@ -98,8 +98,6 @@ class Params:
     
     #Reaction probability for cell from 1->0
     def GetTIJ(self, i, j, n):
-        #if rate > 1e6:
-            #print("Large Rate T{0}>{1}: {2} Avg Fit: {3} n_{4} = {5} n_{6} = {7}".format(i,j,rate, self.avgFit, i, self.n[i],j,self.n[j]))
         return self.thetaJCache[j] * n[i]
 
     def CacheThetaJ(self, n):
@@ -140,7 +138,6 @@ class Params:
             avgFit = self.avgFit
             for i in range(0, j+1):
                 summation += self.combinations[i][j]*math.pow(self.u[i], j-i)*math.pow(1.0-self.u[i], self.d-j)*(self.r[i] * n[i])/avgFit
-            print("UNO")
             return summation
         else:
             summation = 0.0
