@@ -36,7 +36,8 @@ class Sim:
         if self.history != 0:
             self.history.ClearFrames()
             
-        if self.params  != 0:
+        if self.params != 0:
+            self.params.Reset()
             for i in range(0,self.typeCount):
                 self.n[i] = self.params.n0[i]
                 self.x[i] = float(self.n[i]) / self.params.N
@@ -53,11 +54,20 @@ class Sim:
         u = self.params.u[i]
         if (i+1) >= self.typeCount:
             u = 0.0
-        mut_term = u_minus * ((d-i+1)*x_minus) - u * (d-i)*self.x[i]
+        if self.params.USE_D == 1:
+            mut_term = u_minus * ((d-i+1)*x_minus) - u * (d-i)*self.x[i]
+        else:
+            mut_term = u_minus*x_minus - u*self.x[i]
         
-        repo_term = s * self.x[i] * (i - self.avgJ)
+        #repo_term = s * self.x[i] * (i - self.avgJ)
+        repo_term = self.x[i] * (self.params.r[i] - self.avgR)
         
-        return (mut_term + repo_term) / avgFit
+        return (mut_term + repo_term)
+    
+    def UpdateAvgR(self):
+        self.avgR = 0.0
+        for i in range(0, self.typeCount):
+            self.avgR = self.avgR + (self.x[i] * self.params.r[i])
     
     def UpdateAvgJ(self):
         self.avgJ = 0.0
@@ -71,9 +81,9 @@ class Sim:
     def Integrate(self):
         self.Reset()
         steps = int(self.timeLimit / self.timeStep)
-        
         for st in range(0, steps):
             self.UpdateAvgJ()
+            self.UpdateAvgR()
             #Update derivatives
             for i in range(0, self.typeCount):
                 self.x_dot[i] = self.GetXDot(i)
