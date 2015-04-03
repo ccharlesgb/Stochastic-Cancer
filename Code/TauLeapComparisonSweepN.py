@@ -5,13 +5,6 @@ Created on Tue Mar 31 16:23:16 2015
 @author: Connor
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 09 15:09:08 2015
-
-@author: Connor
-"""
-
 import matplotlib.pyplot as plt
 import MatTools
 import numpy as np

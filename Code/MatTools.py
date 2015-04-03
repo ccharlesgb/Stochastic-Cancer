@@ -5,23 +5,39 @@ import scipy.io as io
 import os
 import time
 import matplotlib.pyplot as plt
+import inspect
+
+def SaveDict2(data, **kwargs):
+    dir_name = inspect.stack()[1][1]; #Which file called us?
+    k = dir_name.rfind("/") #Find last appearance of /
+    dir_name = dir_name[k+1:-3] #Remove .py and the directory
+        
+    direct = "MATLAB/Data/S2/" + dir_name
+    if not os.path.exists(direct):
+        os.makedirs(direct)
+    
+    file_name = dir_name
+    for key in kwargs:       
+        file_name = file_name + "_{0}_{1}".format(key, kwargs[key])
+    
+    file_name = "{0}/{1}".format(direct,file_name)
+    print("Saving File: {0}".format(file_name))
+    
+    isFile = os.path.isfile("{0}.mat".format(file_name))
+    if isFile == 1:
+        print("File already exists overwriting.")
+    
+    io.savemat(file_name, data)
 
 def SaveDict(file_name, data):
+    print("SaveDict is old, use SaveDict2")
     date = time.strftime("%d-%m")
     direct = "MATLAB/Data/S2/" + date
     if not os.path.exists(direct):
         os.makedirs(direct)    
     
-    file_name = direct + "/" + file_name    
-    '''
-    root = Tkinter.Tk()
-    root.withdraw()
-    root.focus_force()
-    
-    #tkFileDialog.Directory(master=direct)
-    file_path = tkFileDialog.asksaveasfilename()  
-    print("FILE PATH IS {0}".format(file_path))
-    '''
+    file_name = direct + "/" + file_name   
+    print("Saving File: {0}".format(file_name))
     io.savemat(file_name, data)
 
 def ExportFigure(file_name, fig_handle):

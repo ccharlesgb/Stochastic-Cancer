@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 01 19:10:01 2015
-
-@author: Connor
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Tue Mar 31 16:23:16 2015
 
 @author: Connor

@@ -6,6 +6,7 @@ Created on Mon Mar 09 14:41:29 2015
 """
 import math
 import scipy.misc as scimisc
+import hashlib
 
 class Hist:
     def __init__(self, typeCount):
@@ -51,6 +52,8 @@ class Params:
         self.uNotConst = 0
         self.Reset()
         
+        self.hash = hashlib.md5()
+        
     def SetTypeCount(self, typeCount):
         self.typeCount = typeCount
         self.n0 = []
@@ -58,13 +61,34 @@ class Params:
         self.u = []
         self.thetaJCache = []
 
-        
         for i in range(0, typeCount):
             self.n0.append(0)
             self.r.append(1.0)
             self.u.append(0.1)
             self.thetaJCache.append(0.0)
         self.n0[0] = 1e2
+        
+    #Returns a hash of all the parameters so you can tell if theyre the same
+    def GetHash(self):
+        for i in range(0,self.typeCount):
+            self.hash.update(str(self.typeCount))
+            self.hash.update(str(self.n0[i]))
+            self.hash.update(str(self.r[i]))
+            self.hash.update(str(self.u[i]))
+        self.hash.update(str(self.d))
+        self.hash.update(str(self.uNotConst))
+        self.hash.update(str(self.USE_D))
+        return self.hash.hexdigest()
+        
+    #Returns a nice file string to summarise parameters
+    def GetFileString(self):
+        N_format = str(self.N)
+        if self.N >= 1e3:
+            power = math.log(self.N, 10)
+            val = round(self.N / (10.0**power),1) #Round to 1 DP
+            N_format = "{0}e{1}".format(val,power)
+        myFileStr = "K_{0}_N_{1}_d_{2}_u_{3}_s_{4}".format(self.typeCount, N_format, self.d, self.u[0], self.r[1] - self.r[0])
+        return myFileStr
         
     def Reset(self):
         self.N = 0        

@@ -34,7 +34,7 @@ myWF.useApproxTheta = 0
 myWF.params = myParam
 
 myParam.n0[0] = population
-myParam.u = [1e-7] * 10
+myParam.u = [1e-7] * cellTypes
 myParam.d = 100
 myParam.uNotConst = 0
 
