@@ -92,7 +92,7 @@ class Params:
         
     def Reset(self):
         self.N = 0        
-        for pop in range(self.typeCount):
+        for pop in range(0,self.typeCount):
             self.N += self.n0[pop]
         self.CacheCombinations()
             

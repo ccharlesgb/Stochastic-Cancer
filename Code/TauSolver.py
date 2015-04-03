@@ -20,6 +20,7 @@ class Solver:
         self.maxTau = 1e4
         
     def CacheX0(self):
+        self.params.Reset()
         self.X0_Cache = []
         for i in range(0, self.params.typeCount + 1):
             self.X0_Cache.append(self.GetXj0(i))
@@ -30,7 +31,7 @@ class Solver:
     def GetGammaTau(self, tau):
         tau = max(tau, 1e-99)
         s = self.params.r[1] - self.params.r[0]
-        N = self.params.N         
+        N = self.params.N
         return math.sqrt(2.0/(s*tau) * math.log(N)) 
     
     def IntegralOfXj(self,j, tau):
@@ -41,9 +42,9 @@ class Solver:
         if j < 0:
             return 0.0
         if j == 0:
-            return tau        
+            return tau
 
-        gamma = self.GetGammaTau(tau)      
+        gamma = self.GetGammaTau(tau)
         
         x_j_0 = self.X0_Cache[j]
         x_j_1 = self.X0_Cache[j-1]        

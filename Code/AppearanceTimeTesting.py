@@ -41,7 +41,6 @@ myParam.u = [1e-7] * cellTypes
 
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()
-myWF.reset()
 
 avgAppear = [0.0] * cellTypes
 theoreticalAppear = [0.0] * cellTypes
@@ -83,10 +82,10 @@ for curPoint in range(0,SPD):
                 found = True
          
 theory_NEW_total = 0.0
+
 for i in range(0, cellTypes):
     theoreticalAppear[i] = i * (mySolver.GetWaitingTimeOriginal(cellTypes-1)/(cellTypes-1))
     theoreticalAppear_NEW[i] = theory_NEW_total + mySolver.GetTau(i)
-    print(mySolver.GetTau(i))
     theory_NEW_total = theoreticalAppear_NEW[i]
     avgAppear[i] /= SPD
 
@@ -103,9 +102,6 @@ plt.plot(theoreticalAppear_NEW, '^')
 plt.xlabel("i")
 plt.ylabel("Appearance Time")
 
-print(len(range(int(avgAppear[0]),int(avgAppear[0]) + 300)))
-print(len(Eq12[0]))
-
 plt.subplot(212)
 for i in range(0, cellTypes):
    plt.plot(myHist.tHist[0::1], myHist.histArray[i][0::1])
@@ -117,8 +113,25 @@ plt.yscale("log")
 plt.show()
 
 data = dict()
+data["appear_sim"] = avgAppear
+data["appear_orig"] = theoreticalAppear
+data["appear_transient"] = theoreticalAppear_NEW
+data["appear_neglect"] = theoreticalAppear2
 
 MatTools.SaveDict2(data, spd = SPD, dpc = DPC, params = myParam.GetFileString())
+
+plt.figure()
+c = (1.0) / (myParam.u[0] * myParam.d * myParam.N)
+
+x = []
+y = []
+
+for i in range(0, 100):
+    new_x = float(i)/100
+    x.append(new_x)
+    y.append(mySolver.IntegralOfXj(4, new_x) - c)
+    
+plt.plot(x,y)
 
 
 

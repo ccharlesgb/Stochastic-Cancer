@@ -41,6 +41,7 @@ class wright_fisher:
         
     def reset(self):
         if self.params != 0:
+            print("CALLING PARAM RESET")
             self.params.Reset()
             for i in range(0,self.typeCount):
                 self.prob_vector[i] = 0.0
