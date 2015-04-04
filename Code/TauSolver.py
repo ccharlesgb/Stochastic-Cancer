@@ -15,7 +15,7 @@ class Solver:
         self.CacheX0()
         #Newton-Raphson Params
         self.epsilon = 1e-14 #Min value f prime
-        self.tolerance = 1e-5 # accuracy required
+        self.tolerance = 1e-6 # accuracy required
         self.maxIter = 200
         self.maxTau = 1e4
         
@@ -26,13 +26,15 @@ class Solver:
             self.X0_Cache.append(self.GetXj0(i))
         
     def GetXj0(self, j):
+        if j == 0:
+            return 1.0
         return max(self.params.u[0] * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.N)
     
-    def GetGammaTau(self, tau):
+    def GetGammaTau(self, tau, j):
         tau = max(tau, 1e-99)
         s = self.params.r[1] - self.params.r[0]
-        N = self.params.N
-        return math.sqrt(2.0/(s*tau) * math.log(N)) 
+        x_j_0 = self.X0_Cache[j]
+        return math.sqrt(2.0/(s*tau) * math.log(1.0 / x_j_0))
     
     def IntegralOfXj(self,j, tau):
         s = self.params.r[1] - self.params.r[0]
@@ -44,35 +46,54 @@ class Solver:
         if j == 0:
             return tau
 
-        gamma = self.GetGammaTau(tau)
+        gamma = self.GetGammaTau(tau, j)
         
         x_j_0 = self.X0_Cache[j]
-        x_j_1 = self.X0_Cache[j-1]        
+        x_j_1 = self.X0_Cache[j-1]
         
         fac = 1.0/(s*gamma)
         selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
         mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)        
         
         return fac * (selection + mutation)
+        
+    def RootFunc(self, j,tau):   #Find the roots of this function
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.u[0]
+        d = self.params.d
+        N = self.params.N
 
+        if j < 0:
+            return 0.0
+        if j == 0:
+            return tau
+
+        gamma = self.GetGammaTau(tau, j)
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = self.X0_Cache[j-1]
+        
+        selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
+        mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)
+        offset = (s * gamma)/(N*u*d)
+        return (selection + mutation) - offset
+        
     #Newton Raphson to Solve tau
     def GetTau(self, j):
+        if j <= 2:
+            return 0.0
         foundSol = False
         
         delta = 0.01
         x0 = 10.0
         s = self.params.r[1] - self.params.r[0]
         for i in range(0, self.maxIter):
-            c = (1.0) / (self.params.u[0] * self.params.d * self.params.N)
-            #print(c)
-            y = self.IntegralOfXj(j, x0) - c
-            y_prime = ((self.IntegralOfXj(j, x0 + delta) - c) - y) / delta
-            #print("j ={0} x0 = {1} y' = {2}".format(j, x0, y_prime))
+            y = self.RootFunc(j, x0)
+            y_prime = (self.RootFunc(j, x0 + delta) - y) / delta
             if abs(y_prime) < self.epsilon:
                 break #Denominator too small
             x1 = min(x0 - y / y_prime, self.maxTau)
             
-            if abs(x1 - x0)/abs(x1) < self.tolerance:
+            if x1 == 0  or abs(x1 - x0)/abs(x1) < self.tolerance:
                 foundSol = True
                 break
             x0 = x1
@@ -109,7 +130,7 @@ class Solver:
         d = self.params.d
         N = self.params.N   
         
-        gamma = self.GetGammaTau(max(t,1e-10))        
+        gamma = self.GetGammaTau(max(t,1e-10),j)        
         
         x_j_0 = self.X0_Cache[j]
         x_j_1 = self.X0_Cache[j-1]             
@@ -122,7 +143,7 @@ class Solver:
         
     def GetTauNeglect(self):
         s = self.params.r[1] - self.params.r[0]
-        logs = math.log(1.0 + s / (self.params.u[0] * self.params.d)*math.sqrt(2.0*math.log(self.params.N)))
+        fac = (s/(self.params.u[0] * self.params.d))
         top = math.pow(logs,2.0)
         bottom = 2.0 * s * math.log(self.params.N)
         return top/bottom

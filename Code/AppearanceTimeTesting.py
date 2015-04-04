@@ -30,7 +30,7 @@ myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 1
+SPD = 10
 DPC = 5
 
 s = 1e-2
@@ -54,7 +54,7 @@ for i in range(0, cellTypes):
     Eq12_Old.append([])
 
 for curPoint in range(0,SPD):
-    myWF.Simulate()       
+    myWF.Simulate()
    
     #Loop through each step
     for i in range(0, cellTypes):
@@ -119,19 +119,6 @@ data["appear_transient"] = theoreticalAppear_NEW
 data["appear_neglect"] = theoreticalAppear2
 
 MatTools.SaveDict2(data, spd = SPD, dpc = DPC, params = myParam.GetFileString())
-
-plt.figure()
-c = (1.0) / (myParam.u[0] * myParam.d * myParam.N)
-
-x = []
-y = []
-
-for i in range(0, 100):
-    new_x = float(i)/100
-    x.append(new_x)
-    y.append(mySolver.IntegralOfXj(4, new_x) - c)
-    
-plt.plot(x,y)
 
 
 
