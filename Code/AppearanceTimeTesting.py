@@ -33,11 +33,11 @@ myWF.params = myParam
 SPD = 5
 DPC = 1
 
-s = 1e-2
+s = 1e-1
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     
-myParam.u = [1e-5] * cellTypes
+myParam.u = [1e-8] * cellTypes
 
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()

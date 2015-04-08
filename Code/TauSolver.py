@@ -15,7 +15,7 @@ class Solver:
         self.CacheX0()
         #Newton-Raphson Params
         self.epsilon = 1e-14 #Min value f prime
-        self.tolerance = 1e-6 # accuracy required
+        self.tolerance = 1e-9 # accuracy required
         self.maxIter = 200
         self.maxTau = 1e4
         
@@ -82,6 +82,27 @@ class Solver:
         offset = (s * gamma)/(N*u*d)
         return (selection + mutation) - offset
         
+    def GetXJ(self, t,j):
+        if j < 0:
+            return 0.0
+        if j == 0:
+            return 1.0           
+        
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.u[0]
+        d = self.params.d
+        N = self.params.N   
+        
+        gamma = self.GetGammaTau(max(t,1e-10),j)        
+        
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = self.X0_Cache[j-1]             
+        
+        fac = 1.0/(s*gamma)
+        expFactor = u*d*x_j_1 + x_j_0*s*gamma
+        xj = fac * (expFactor * math.exp(s*gamma*t) - u*d*x_j_1)
+        return xj    
+    
     #Newton Raphson to Solve tau
     def GetTau(self, j):
         self.ValidateJ(j)
@@ -113,27 +134,6 @@ class Solver:
         for i in range(0, k):
             total += self.GetTau(i)
         return total
-            
-    def GetXJ(self, t,j):
-        if j < 0:
-            return 0.0
-        if j == 0:
-            return 1.0           
-        
-        s = self.params.r[1] - self.params.r[0]
-        u = self.params.u[0]
-        d = self.params.d
-        N = self.params.N   
-        
-        gamma = self.GetGammaTau(max(t,1e-10),j)        
-        
-        x_j_0 = self.X0_Cache[j]
-        x_j_1 = self.X0_Cache[j-1]             
-        
-        fac = 1.0/(s*gamma)
-        expFactor = u*d*x_j_1 + x_j_0*s*gamma
-        xj = fac * (expFactor * math.exp(s*gamma*t) - u*d*x_j_1)
-        return xj
             
     #Original Model
     def GetTauOriginal(self):

@@ -11,6 +11,16 @@ import MatTools
 import TauSolver
 import random
 import TauLeapParam
+import matplotlib.colors as colors
+import matplotlib.cm as cm
+        
+errormap = colors.ListedColormap([[0.1, 0.2, 1.0],
+                       [0.4, 0.8, 1.0],
+                       [0.5, 1.0, 0.3],
+                       [1.0, 0.5, 0.1],
+                       [1.0, 0.18, 0.15]])
+
+cm.register_cmap('Errors', cmap = errormap)
 
 
 cellTypes = 21
@@ -20,7 +30,7 @@ myWF = wright_fisher.wright_fisher(cellTypes)
 myParam = TauLeapParam.Params(cellTypes)
 
 myWF.stopAtAppear = 1
-myWF.timeLimit = 10000000
+myWF.timeLimit = 100000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
@@ -42,29 +52,26 @@ maxS = 1e-1
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 2
+SDP = 1
 
+sHist = []
+uHist = []
+
+SU_CUTOFF = 4 #Set to 0 to disable cutoff
+DONT_SIM = False
+
+#Set up our arrays
 avgFixTime = np.zeros((mapSize, mapSize))
-
 fixTime1 = np.zeros((mapSize, mapSize))
 fixTime2 = np.zeros((mapSize, mapSize))
 fixTime3 = np.zeros((mapSize, mapSize))
 fixTime4 = np.zeros((mapSize, mapSize))
-
 errFixTime1 = np.zeros((mapSize, mapSize))
 errFixTime2 = np.zeros((mapSize, mapSize))
 errFixTime3 = np.zeros((mapSize, mapSize))
 errFixTime4 = np.zeros((mapSize, mapSize))
 
-#xticks = np.arange(0, mapSize, 5.0/(mapSize-1.0))
-#xlabels = np.arange(minS, maxS, 1.0/(mapSize-1.0))
-
-#yticks = np.arange(0, mapSize, 5.0/(mapSize-1.0))
-#ylabels = np.arange(minU, maxU, 1.0/(mapSize-1.0))
-
-sHist = []
-uHist = []
-
+#Create the map
 for iS in range(0, mapSize):
     for iU in range(0, mapSize):
         s = SimUtil.SweepParameterLog(iS, mapSize, minS,maxS)
@@ -78,7 +85,7 @@ for iS in range(0, mapSize):
             myParam.r[i] = math.pow(1.0 + s, i)
         mySolver.CacheX0()
         
-        if iS < 3 and iU < 3:
+        if DONT_SIM == True  or (iS < SU_CUTOFF and iU < SU_CUTOFF):
             res = myWF.SimulateBatch(0)
             res.avgFixTime = 1e9
         else:
@@ -124,31 +131,36 @@ y, x = np.mgrid[slice(minUHist, maxUHist + dy, dy), slice(minSHist, maxSHist + d
 
 plt.figure()
 plt.subplot(221)
-plt.pcolormesh(x,y,errFixTime1)
+plt.pcolormesh(x,y,errFixTime1, cmap = errormap)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
+plt.clim(-1.0,1.0)
+plt.title("Original")
 
 plt.subplot(222)
-plt.pcolormesh(x,y,errFixTime2)
+plt.pcolormesh(x,y,errFixTime2, cmap = errormap)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
+plt.title("Neglect")
 
 plt.subplot(223)
-plt.pcolormesh(x,y,errFixTime3)
+plt.pcolormesh(x,y,errFixTime3, cmap = errormap)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
+plt.title("Model Numererical")
 
 plt.subplot(224)
-plt.pcolormesh(x,y,errFixTime4)
+plt.pcolormesh(x,y,errFixTime4, cmap = errormap)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
+plt.title("Model Analytical")
 
 data1 = dict()
 data1["xCoords"] = x
@@ -157,7 +169,6 @@ data1["time"] = avgFixTime
 
 data2 = dict()
 data2["xCoords"] = x
-data2["yCoords"] = y
 data2["yCoords"] = y
 data2["fixTimeOrig"] = fixTime1
 data2["fixTimeNegl"] = fixTime2
@@ -168,5 +179,6 @@ data2["errFixTimeNegl"] = errFixTime2
 data2["errFixTimeModN"] = errFixTime3
 data2["errFixTimeModA"] = errFixTime4
     
-MatTools.SaveDict2(data1, TIMES = "", SDP = SDP, SIZE = mapSize, N = population)
-MatTools.SaveDict2(data2, PREDICT = "", SDP = SDP, SIZE = mapSize, N = population)
+if DONT_SIM == False:
+    MatTools.SaveDict2(data1, TIMES = "", SDP = SDP, SIZE = mapSize, N = population)
+MatTools.SaveDict2(data2, PREDICT = "", SDP = SDP, SIZE = mapSize, N = population, DONT_SIM = DONT_SIM)

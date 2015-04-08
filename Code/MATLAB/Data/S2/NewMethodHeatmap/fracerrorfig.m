@@ -1,7 +1,7 @@
 function [] = fracerrorfig()
     figure('Units','points','Position',[100 100 900 300])
-    err_naive = load('NewMethodErrorMap2_SDP=30_Size=8_N=1000000000.0.mat');
-    err_naive.errFixTime1;
+    simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_8_SDP_1_TIMES_.mat');
+    predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_1_SIZE_8.mat');
     
     xlab = 'log_{10}(s)';
     ylab = 'log_{10}(u)';
@@ -11,10 +11,23 @@ function [] = fracerrorfig()
                 0.5, 1.0, 0.3
                 1.0, 0.5, 0.1
                 1.0, 0.18, 0.15];
-
+     
+    calculate_own = 0
+    if calculate_own == 1
+        fracErrorOrig =     (predictTimes.fixTimeOrig - simTime.time)./simTime.time;
+        fracErrorNeglect =  (predictTimes.fixTimeNegl - simTime.time)./simTime.time;
+        fracErrorModelNum = (predictTimes.fixTimeModN - simTime.time)./simTime.time;
+        fracErrorModelAna=  (predictTimes.fixTimeModA - simTime.time)./simTime.time;
+        disp(fracErrorOrig);
+    else
+        fracErrorOrig = predictTimes.errFixTimeOrig;
+        fracErrorNeglect = predictTimes.errFixTimeNegl;
+        fracErrorModelNum = predictTimes.errFixTimeModN;
+        fracErrorModelAna = predictTimes.errFixTimeModA;
+    end
     
     subplot(131)
-    ax1 = import_cmap(-4.0:-1.0,-8.0:-5.0, err_naive.errFixTime1)
+    ax1 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorOrig);
     %colormap(jet(5));
     xlabel(xlab)
     ylabel(ylab)
@@ -23,7 +36,7 @@ function [] = fracerrorfig()
     
     
     subplot(132);
-    ax2 = import_cmap(-4.0:-1.0,-8.0:-5.0, err_naive.errFixTime2);
+    ax2 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorNeglect);
     %colormap(jet(5));
     
     xlabel(xlab)
@@ -32,7 +45,7 @@ function [] = fracerrorfig()
     caxis([-1.0 1.0]);
     
     subplot(133);
-    ax3 = import_cmap(-4.0:-1.0,-8.0:-5.0, err_naive.errFixTime3);
+    ax3 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorModelNum);
     colormap(frac_map);
     xlabel(xlab);
     ylabel(ylab);
