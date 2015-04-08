@@ -65,15 +65,15 @@ class Solver:
 
         if j < 0:
             return 0.0
-        if j == 0:
-            return tau
 
         gamma = self.GetGammaTau(tau, j)
         x_j_0 = self.X0_Cache[j]
         x_j_1 = self.X0_Cache[j-1]
         
         selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
-        mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)
+        mutation = 0.0
+        if j > 0: #Avoid divide by zero this term is not valid for this case
+            mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)
         offset = (s * gamma)/(N*u*d)
         return (selection + mutation) - offset
         
@@ -107,17 +107,6 @@ class Solver:
         for i in range(0, k + 1):
             total += self.GetTau(i)
         return total
-        
-    def GetWaitingTimeOriginal(self, k):
-        s = self.params.r[1] - 1.00
-        numer = k * math.pow(math.log(s/(self.params.u[0]*self.params.d)),2.0)
-        denom = 2.0 * s * math.log(self.params.N)
-        return float(numer)/denom
-    
-    def GetWaitingTimeNeglect(self, k):
-        j_i = -math.log(self.params.N)/math.log(self.params.u[0]*self.params.d)
-        print("J_I", j_i)
-        return (k-j_i) * self.GetTauNeglect()
             
     def GetXJ(self, t,j):
         if j < 0:
@@ -139,14 +128,60 @@ class Solver:
         expFactor = u*d*x_j_1 + x_j_0*s*gamma
         xj = fac * (expFactor * math.exp(s*gamma*t) - u*d*x_j_1)
         return xj
+            
+    #Original Model
+    def GetTauOriginal(self):
+        s = self.params.r[1] - self.params.r[0]
+        numer = math.pow(math.log(s/(self.params.u[0]*self.params.d)),2.0)
+        denom = 2.0 * s * math.log(self.params.N)
+        return float(numer)/denom
+    
+    def GetWaitingTimeOriginal(self, k):
+        return k * self.GetTauOriginal()
         
-        
+    #Neglecting the transient phase
     def GetTauNeglect(self):
         s = self.params.r[1] - self.params.r[0]
         fac = (s/(self.params.u[0] * self.params.d))
+        logs = math.log(1.0 + fac*math.sqrt(2.0*math.log(self.params.N)))
         top = math.pow(logs,2.0)
         bottom = 2.0 * s * math.log(self.params.N)
         return top/bottom
+        
+    def GetWaitingTimeNeglect(self, k):
+        j_i = -math.log(self.params.N)/math.log(self.params.u[0]*self.params.d)
+        return (k-j_i) * self.GetTauNeglect()
+    
+    
+    #Modelling the transient phase with analytical
+    def GetTauModel(self, j):
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.u[0]
+        d = self.params.d
+        N = self.params.N   
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = 0.0
+        if j == 0:
+            return 0.0 #Justified in maths
+        if j > 0:
+            x_j_1 = self.X0_Cache[j-1]
+        twoLogx0 = math.sqrt(-2.0 * math.log(x_j_0))
+        fac = 1.0 / (-2.0 * s * math.log(x_j_0))
+        bracket = s/(N*u*d) * twoLogx0 - (u * d * x_j_1)/(s * twoLogx0)
+        bracket = max(bracket, 0.0)
+        print("x0 = {0} bracket = {1}".format(x_j_0, bracket))        
+        
+        log = math.log(1.0 + bracket/x_j_0)
+        
+        return fac * math.pow(log,2.0)
+    
+    def GetWaitingTimeModel(self,k):
+        total = 0.0
+        for i in range(0,k + 1):
+            total += self.GetTauModel(i)
+        return total
+            
+
         
     
     

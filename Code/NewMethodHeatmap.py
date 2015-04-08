@@ -10,22 +10,23 @@ import time
 import MatTools
 import TauSolver
 import random
+import TauLeapParam
 
 
 cellTypes = 21
 population = 1e9
 
-myWF = wright_fisher.wright_fisher()
-myParam = wright_fisher.wright_fisher_params(cellTypes)
+myWF = wright_fisher.wright_fisher(cellTypes)
+myParam = TauLeapParam.Params(cellTypes)
 
 myWF.stopAtAppear = 1
-myWF.stepLimit = 10000000
+myWF.timeLimit = 10000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
 myParam.d = 100
-myParam.iN[0] = population
-myParam.u[0] = 1e-7
+myParam.n0[0] = population
+myParam.u = [1e-7] * cellTypes
 
 s = 0.01
 for i in range(0,cellTypes):
@@ -44,6 +45,10 @@ maxU = 1e-5
 SDP = 30
 
 avgFixTime = np.zeros((mapSize, mapSize))
+
+fixTime1 = np.zeros((mapSize, mapSize))
+fixTime2 = np.zeros((mapSize, mapSize))
+fixTime3 = np.zeros((mapSize, mapSize))
 
 errFixTime1 = np.zeros((mapSize, mapSize))
 errFixTime2 = np.zeros((mapSize, mapSize))
@@ -78,6 +83,10 @@ for iS in range(0, mapSize):
         theory1 = mySolver.GetWaitingTimeOriginal(cellTypes)
         theory2 = mySolver.GetWaitingTimeNeglect(cellTypes)
         theory3 = mySolver.GetWaitingTime(cellTypes)
+        
+        fixTime1[iS,iU] = theory1
+        fixTime2[iS,iU] = theory2
+        fixTime3[iS,iU] = theory3
         
         errFixTime1[iS, iU] = (theory1 - res.avgFixTime) / res.avgFixTime
         errFixTime2[iS, iU] = (theory2 - res.avgFixTime) / res.avgFixTime 
@@ -132,14 +141,21 @@ plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
 
-file_name = "NewMethodErrorMap_SDP={0}_Size={1}_N={2}".format(SDP, mapSize, population)
+data1 = dict()
+data1["xCoords"] = x
+data1["yCoords"] = y
+data1["time"] = avgFixTime
 
-data = dict()
-data["xCoords"] = x
-data["yCoords"] = y
-data["time"] = avgFixTime
-data["errFixTime1"] = errFixTime1
-data["errFixTime2"] = errFixTime2
-data["errFixTime3"] = errFixTime3
+data2 = dict()
+data2["xCoords"] = x
+data2["yCoords"] = y
+data2["yCoords"] = y
+data2["fixTime1"] = fixTime1
+data2["fixTime2"] = fixTime2
+data2["fixTime3"] = fixTime3
+data2["errFixTime1"] = errFixTime1
+data2["errFixTime2"] = errFixTime2
+data2["errFixTime3"] = errFixTime3
     
-MatTools.SaveDict(file_name, data)
+MatTools.SaveDict2(data1, TIMES = "", SDP = SDP, SIZE = mapSize, N = population)
+MatTools.SaveDict2(data2, PREDICT = "", SDP = SDP, SIZE = mapSize, N = population)

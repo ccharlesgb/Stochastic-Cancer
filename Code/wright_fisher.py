@@ -112,7 +112,6 @@ class wright_fisher:
                 self.nextBatchProgressFrac += 0.1
                 
             self.Simulate()
-            print(self.curTime)
             res.avgFixTime += self.curTime
         
         if self.printProgress >= 1:

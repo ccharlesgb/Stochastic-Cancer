@@ -61,6 +61,7 @@ def GetDistribution(t):
     return dataY
 
 fig, ax = plt.subplots(nrows = 2)
+plt.xscale("log")
 
 #x = np.arange(0.0, cellTypes, 1.0)
 x = []

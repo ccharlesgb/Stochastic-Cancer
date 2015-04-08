@@ -230,7 +230,7 @@ class Sim:
                         
             for pop in self.typeRange:
                 if self.n[pop] < 0:
-                    print("BAD FRAME TRUE BECAUSE n[{0}] = {1}".format(pop, self.n[pop]))
+                    #print("BAD FRAME TRUE BECAUSE n[{0}] = {1}".format(pop, self.n[pop]))
                     goodFrame = 0
                                 
             if goodFrame == 0:

@@ -26,12 +26,12 @@ myWF.stopAtAppear = 1
 
 myParam.n0[0] = population
 myWF.history = myHist
-myWF.stepLimit = 1000000
+myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 10
-DPC = 5
+SPD = 1
+DPC = 1
 
 s = 1e-2
 for i in range(0,cellTypes):
@@ -44,8 +44,9 @@ mySolver.CacheX0()
 
 avgAppear = [0.0] * cellTypes
 theoreticalAppear = [0.0] * cellTypes
-theoreticalAppear2 = [0.0] * cellTypes
 theoreticalAppear_NEW = [0.0] * cellTypes
+theoreticalAppear2 = [0.0] * cellTypes
+theoreticalAppear_MODEL = [0.0] * cellTypes
 
 Eq12 = []
 Eq12_Old = []
@@ -55,6 +56,7 @@ for i in range(0, cellTypes):
 
 for curPoint in range(0,SPD):
     myWF.Simulate()
+    print("Sim Done")
    
     #Loop through each step
     for i in range(0, cellTypes):
@@ -80,18 +82,25 @@ for curPoint in range(0,SPD):
                             Eq12[i][len(Eq12[i])-1] = 0.0
                 avgAppear[i] += t
                 found = True
-         
-theory_NEW_total = 0.0
 
+theory_NEW_total = 0.0
+theory_model_total = 0.0
+for i in range(0, cellTypes - 1): #From 1 to 20
+    theoreticalAppear[i+1] = i * mySolver.GetTauOriginal()
+    theoreticalAppear_NEW[i+1] = theory_NEW_total + mySolver.GetTau(i)
+    theory_NEW_total = theoreticalAppear_NEW[i+1]
+    
+    theoreticalAppear_MODEL[i+1] = theory_model_total + mySolver.GetTauModel(i)
+    theory_model_total = theoreticalAppear_MODEL[i+1]
+    
 for i in range(0, cellTypes):
-    theoreticalAppear[i] = i * (mySolver.GetWaitingTimeOriginal(cellTypes-1)/(cellTypes-1))
-    theoreticalAppear_NEW[i] = theory_NEW_total + mySolver.GetTau(i)
-    theory_NEW_total = theoreticalAppear_NEW[i]
     avgAppear[i] /= SPD
 
+print("ORIG", mySolver.GetWaitingTimeOriginal(cellTypes-1))
 
-for i in range(2, cellTypes):
-    theoreticalAppear2[i] = (i-2) * mySolver.GetTauNeglect()
+j_i = int(round(-math.log(myParam.N)/math.log(myParam.u[0]*myParam.d)))
+for i in range(j_i, cellTypes):
+    theoreticalAppear2[i] = (i-j_i) * mySolver.GetTauNeglect()
 
 plt.figure()
 plt.subplot(211)
@@ -99,6 +108,7 @@ plt.plot(avgAppear, 'o')
 plt.plot(theoreticalAppear)
 plt.plot(theoreticalAppear2, '--')
 plt.plot(theoreticalAppear_NEW, '^')
+plt.plot(theoreticalAppear_MODEL, '*')
 plt.xlabel("i")
 plt.ylabel("Appearance Time")
 
