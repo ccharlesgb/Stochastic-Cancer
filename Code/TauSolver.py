@@ -19,6 +19,11 @@ class Solver:
         self.maxIter = 200
         self.maxTau = 1e4
         
+    def ValidateJ(self, j):
+        k = (self.params.typeCount - 1)
+        if k == j:
+            print("Getting out of bounds tau j = {0}".format(j))
+        
     def CacheX0(self):
         self.params.Reset()
         self.X0_Cache = []
@@ -79,6 +84,7 @@ class Solver:
         
     #Newton Raphson to Solve tau
     def GetTau(self, j):
+        self.ValidateJ(j)
         if j <= 2:
             return 0.0
         foundSol = False
@@ -104,7 +110,7 @@ class Solver:
             
     def GetWaitingTime(self, k):
         total = 0.0
-        for i in range(0, k + 1):
+        for i in range(0, k):
             total += self.GetTau(i)
         return total
             
@@ -137,6 +143,8 @@ class Solver:
         return float(numer)/denom
     
     def GetWaitingTimeOriginal(self, k):
+        if k == 21:
+            print("off by one error! (probably did you mean celltypes - 1)")
         return k * self.GetTauOriginal()
         
     #Neglecting the transient phase
@@ -149,12 +157,16 @@ class Solver:
         return top/bottom
         
     def GetWaitingTimeNeglect(self, k):
+        if k == 21:
+            print("off by one error! (probably did you mean celltypes - 1)")
         j_i = -math.log(self.params.N)/math.log(self.params.u[0]*self.params.d)
         return (k-j_i) * self.GetTauNeglect()
     
     
     #Modelling the transient phase with analytical
     def GetTauModel(self, j):
+        self.ValidateJ(j)
+        
         s = self.params.r[1] - self.params.r[0]
         u = self.params.u[0]
         d = self.params.d
@@ -168,16 +180,17 @@ class Solver:
         twoLogx0 = math.sqrt(-2.0 * math.log(x_j_0))
         fac = 1.0 / (-2.0 * s * math.log(x_j_0))
         bracket = s/(N*u*d) * twoLogx0 - (u * d * x_j_1)/(s * twoLogx0)
-        bracket = max(bracket, 0.0)
-        print("x0 = {0} bracket = {1}".format(x_j_0, bracket))        
+        bracket = max(bracket, 0.0)    
         
         log = math.log(1.0 + bracket/x_j_0)
         
         return fac * math.pow(log,2.0)
     
     def GetWaitingTimeModel(self,k):
+        if k == 21:
+            print("off by one error! (probably did you mean celltypes - 1)")
         total = 0.0
-        for i in range(0,k + 1):
+        for i in range(0,k):
             total += self.GetTauModel(i)
         return total
             

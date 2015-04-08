@@ -42,17 +42,19 @@ maxS = 1e-1
 minU = 1e-8
 maxU = 1e-5
 
-SDP = 30
+SDP = 2
 
 avgFixTime = np.zeros((mapSize, mapSize))
 
 fixTime1 = np.zeros((mapSize, mapSize))
 fixTime2 = np.zeros((mapSize, mapSize))
 fixTime3 = np.zeros((mapSize, mapSize))
+fixTime4 = np.zeros((mapSize, mapSize))
 
 errFixTime1 = np.zeros((mapSize, mapSize))
 errFixTime2 = np.zeros((mapSize, mapSize))
 errFixTime3 = np.zeros((mapSize, mapSize))
+errFixTime4 = np.zeros((mapSize, mapSize))
 
 #xticks = np.arange(0, mapSize, 5.0/(mapSize-1.0))
 #xlabels = np.arange(minS, maxS, 1.0/(mapSize-1.0))
@@ -76,21 +78,28 @@ for iS in range(0, mapSize):
             myParam.r[i] = math.pow(1.0 + s, i)
         mySolver.CacheX0()
         
-        res = myWF.SimulateBatch(SDP)
+        if iS < 3 and iU < 3:
+            res = myWF.SimulateBatch(0)
+            res.avgFixTime = 1e9
+        else:
+            res = myWF.SimulateBatch(SDP)
         #res.avgFixTime = random.randrange(800, 5000)
         avgFixTime[iU, iS] = res.avgFixTime
         
-        theory1 = mySolver.GetWaitingTimeOriginal(cellTypes)
-        theory2 = mySolver.GetWaitingTimeNeglect(cellTypes)
-        theory3 = mySolver.GetWaitingTime(cellTypes)
+        theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
+        theory2 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
+        theory3 = mySolver.GetWaitingTime(cellTypes - 1)
+        theory4 = mySolver.GetWaitingTimeModel(cellTypes - 1)
         
         fixTime1[iS,iU] = theory1
         fixTime2[iS,iU] = theory2
         fixTime3[iS,iU] = theory3
+        fixTime4[iS,iU] = theory4
         
         errFixTime1[iS, iU] = (theory1 - res.avgFixTime) / res.avgFixTime
         errFixTime2[iS, iU] = (theory2 - res.avgFixTime) / res.avgFixTime 
         errFixTime3[iS, iU] = (theory3 - res.avgFixTime) / res.avgFixTime   
+        errFixTime4[iS, iU] = (theory4 - res.avgFixTime) / res.avgFixTime   
         
 
 minSHist = round(min(sHist))
@@ -115,27 +124,27 @@ y, x = np.mgrid[slice(minUHist, maxUHist + dy, dy), slice(minSHist, maxSHist + d
 
 plt.figure()
 plt.subplot(221)
-plt.pcolormesh(x,y,avgFixTime)
+plt.pcolormesh(x,y,errFixTime1)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 
 plt.subplot(222)
-plt.pcolormesh(x,y,errFixTime1)
-plt.colorbar()
-plt.xlabel("S")
-plt.ylabel("U")
-plt.clim(-1.0,1.0)
-
-plt.subplot(223)
 plt.pcolormesh(x,y,errFixTime2)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
 
-plt.subplot(224)
+plt.subplot(223)
 plt.pcolormesh(x,y,errFixTime3)
+plt.colorbar()
+plt.xlabel("S")
+plt.ylabel("U")
+plt.clim(-1.0,1.0)
+
+plt.subplot(224)
+plt.pcolormesh(x,y,errFixTime4)
 plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
@@ -150,12 +159,14 @@ data2 = dict()
 data2["xCoords"] = x
 data2["yCoords"] = y
 data2["yCoords"] = y
-data2["fixTime1"] = fixTime1
-data2["fixTime2"] = fixTime2
-data2["fixTime3"] = fixTime3
-data2["errFixTime1"] = errFixTime1
-data2["errFixTime2"] = errFixTime2
-data2["errFixTime3"] = errFixTime3
+data2["fixTimeOrig"] = fixTime1
+data2["fixTimeNegl"] = fixTime2
+data2["fixTimeModN"] = fixTime3
+data2["fixTimeModA"] = fixTime4
+data2["errFixTimeOrig"] = errFixTime1
+data2["errFixTimeNegl"] = errFixTime2
+data2["errFixTimeModN"] = errFixTime3
+data2["errFixTimeModA"] = errFixTime4
     
 MatTools.SaveDict2(data1, TIMES = "", SDP = SDP, SIZE = mapSize, N = population)
 MatTools.SaveDict2(data2, PREDICT = "", SDP = SDP, SIZE = mapSize, N = population)

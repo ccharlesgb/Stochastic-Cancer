@@ -30,14 +30,14 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 1
+SPD = 5
 DPC = 1
 
 s = 1e-2
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     
-myParam.u = [1e-7] * cellTypes
+myParam.u = [1e-5] * cellTypes
 
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()
@@ -85,8 +85,9 @@ for curPoint in range(0,SPD):
 
 theory_NEW_total = 0.0
 theory_model_total = 0.0
+#VERY IMPORTANT THESE ARE CHECKED
 for i in range(0, cellTypes - 1): #From 1 to 20
-    theoreticalAppear[i+1] = i * mySolver.GetTauOriginal()
+    theoreticalAppear[i+1] = (i+1) * mySolver.GetTauOriginal()
     theoreticalAppear_NEW[i+1] = theory_NEW_total + mySolver.GetTau(i)
     theory_NEW_total = theoreticalAppear_NEW[i+1]
     
