@@ -37,7 +37,7 @@ s = 1e-2
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
     
-myParam.SetUAll(1e-7)
+myParam.SetUAll(1e-4)
 
 '''
 #Sinusoidal mutation rate
@@ -56,7 +56,7 @@ for i in range(1, cellTypes):
     print(u_log),
     myParam.SetU(i,u)
 '''
-
+'''
 #Switch
 u_before = 1e-9
 u_after = 1e-5
@@ -66,7 +66,7 @@ for i in range(1, cellTypes):
         myParam.SetU(i, u_before)
     else:
         myParam.SetU(i, u_after)
-        
+'''
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()
 
