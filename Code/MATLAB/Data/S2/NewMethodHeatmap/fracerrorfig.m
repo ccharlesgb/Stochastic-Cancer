@@ -1,7 +1,7 @@
 function [] = fracerrorfig()
-    figure('Units','points','Position',[100 100 900 300])
-    simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_8_SDP_1_TIMES_.mat');
-    predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_1_SIZE_8.mat');
+    figure('Units','points','Position',[50 50 1000 300])
+    simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_8_SDP_10_TIMES_.mat');
+    predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_10_SIZE_8.mat');
     
     xlab = 'log_{10}(s)';
     ylab = 'log_{10}(u)';
@@ -12,7 +12,7 @@ function [] = fracerrorfig()
                 1.0, 0.5, 0.1
                 1.0, 0.18, 0.15];
      
-    calculate_own = 0
+    calculate_own = 0 %Doesn't work oddly enough
     if calculate_own == 1
         fracErrorOrig =     (predictTimes.fixTimeOrig - simTime.time)./simTime.time;
         fracErrorNeglect =  (predictTimes.fixTimeNegl - simTime.time)./simTime.time;
@@ -26,7 +26,7 @@ function [] = fracerrorfig()
         fracErrorModelAna = predictTimes.errFixTimeModA;
     end
     
-    subplot(131)
+    subplot(141)
     ax1 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorOrig);
     %colormap(jet(5));
     xlabel(xlab)
@@ -35,7 +35,7 @@ function [] = fracerrorfig()
     caxis([-1.0 1.0]);
     
     
-    subplot(132);
+    subplot(142);
     ax2 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorNeglect);
     %colormap(jet(5));
     
@@ -44,29 +44,38 @@ function [] = fracerrorfig()
     title('(b) Neglecting Transients');
     caxis([-1.0 1.0]);
     
-    subplot(133);
+    subplot(143);
     ax3 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorModelNum);
     colormap(frac_map);
     xlabel(xlab);
     ylabel(ylab);
     title('(c) Modelling Transients');
     
+    subplot(144);
+    ax4 = import_cmap(-4.0:-1.0,-8.0:-5.0, fracErrorModelAna);
+    colormap(frac_map);
+    xlabel(xlab);
+    ylabel(ylab);
+    title('(c) Analytical Transients');
+    
     cbar = colorbar();
     caxis([-1.0 1.0]);
     ylabel(cbar, 'Fractional error');
+    set(cbar,'YTick',linspace(-1,1,11));
     
-    sizex = 0.25;
-    sizey = sizex * 3.0;
+    sizex = 0.18;
+    sizey = sizex * 3.4;
     padding = 0.05;
     posy = 0.15;
     set(ax1, 'Position',[padding posy sizex sizey]);
     set(ax2, 'Position',[sizex + padding * 2.0 posy sizex sizey]);
     set(ax3, 'Position',[sizex * 2.0 + padding * 3.0 posy sizex sizey]);
+    set(ax4, 'Position',[sizex * 3.0 + padding * 4.0 posy sizex sizey]);
     set(ax1,'YDir','normal');
     set(ax2,'YDir','normal');
     set(ax3,'YDir','normal');
+    set(ax4,'YDir','normal');
    
-    
     
 end
 

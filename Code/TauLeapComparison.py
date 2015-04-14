@@ -47,7 +47,8 @@ myParam.n0[0] = 1e4
 s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
-    myParam.u[i] = 1e-7
+
+myParam.SetUAll(1e-7)
 myParam.USE_D = True
 myParam.d = 100
 

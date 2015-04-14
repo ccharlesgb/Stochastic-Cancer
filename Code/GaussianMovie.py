@@ -10,16 +10,6 @@ import TauLeapParam
 import matplotlib.pyplot as plt
 import math
 
-def GetTauJ(param):
-    summation = 0.0
-    s = param.r[1] - param.r[0]
-    for i in range(0, param.cellTypes):
-        top = math.log(s / (param.u[i] * param.d))
-        bottom = 2.0 * s * math.log(param.N)
-        summation += (top / bottom)
-    return summation;
-
-
 cellTypes = 21
 population = 1e9
 
@@ -29,15 +19,38 @@ myParam = TauLeapParam.Params(cellTypes)
 
 myWF.stopAtAppear = 1
 myWF.history = myHist
-myWF.stepLimit = 10000
+myWF.stepLimit = 20000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
 myParam.n0[0] = population
-myParam.u = [1e-7] * cellTypes
 myParam.d = 100
 myParam.uNotConst = 0
 
+#Sinusoidal mutation rate
+f = 0.25
+for i in range(1, cellTypes):
+    u_log = -7.0 + 3.0*math.cos(i*f * 2.0 * math.pi)
+    u = math.pow(10.0, u_log)
+    myParam.SetU(i,u)
+
+'''
+#Exponential mutation rate
+for i in range(1, cellTypes):
+    u_log = min(-8.0 + math.exp(i/20.0), -4.0)
+    u = math.pow(10.0, u_log)
+    myParam.SetU(i,u)
+    
+#Switch
+u_before = 1e-9
+u_after = 1e-5
+switch = 5
+for i in range(1, cellTypes):
+    if (switch + 1) > i:
+        myParam.SetU(i, u_before)
+    else:
+        myParam.SetU(i, u_after)
+'''
 s = 1e-2
 d = 1.8
 
@@ -47,10 +60,12 @@ end = 1e-2
 sum_s_j = 0.0
 for i in range(0,cellTypes):
     myParam.r[i] = 1.0 + s * (float(i) / math.sqrt(cellTypes))*(float(i) / math.sqrt(cellTypes))
-    s_j = 0.1 - ((start - end)/((cellTypes-1)**2))*(i**2)
-    sum_s_j += s_j
-    myParam.r[i] = 1.0 + sum_s_j
+    #s_j = 0.1 - ((start - end)/((cellTypes-1)**2))*(i**2)
+    #sum_s_j += s_j
+    #myParam.r[i] = 1.0 + sum_s_j
     myParam.r[i] = math.pow(1.0 + s, i)
+
+#myParam.SetUAll(1e-9)
 
 myWF.Simulate()
 
@@ -98,7 +113,6 @@ def init():
     line2.set_ydata(np.ma.array(sj_x, mask=True))
     return line,line2,
 
-
 ani = animation.FuncAnimation(fig, animate, np.arange(0, myWF.curTime,10), init_func=init,
-    interval=50, blit=True)
+    interval=20, blit=True)
 plt.show()

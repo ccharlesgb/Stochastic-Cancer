@@ -64,8 +64,9 @@ class Params:
         for i in range(0, typeCount):
             self.n0.append(0)
             self.r.append(1.0)
-            self.u.append(0.1)
             self.thetaJCache.append(0.0)
+        for i in range(0, typeCount-1):
+            self.u.append(0.1)
         self.n0[0] = 1e2
         
     #Returns a hash of all the parameters so you can tell if theyre the same
@@ -124,17 +125,50 @@ class Params:
     def GetTIJ(self, i, j, n):
         return self.thetaJCache[j] * n[i]
 
+    def SetUAll(self,u):
+        for i in range(1,self.typeCount):
+            self.SetU(i,u)
+
+    def SetU(self, j, u):
+        if j <= 0:
+            print("Invalid u_{0} too small".format(j))
+        if j > self.typeCount - 1:
+            print("Invalid u_{0} index too large".format(j))
+        self.u[j-1] = u
+        
+    def GetU(self, j):
+        if j <= 0:
+            print("Invalid j < 1")
+        if j > self.typeCount - 1:
+            print("Invalid j > k")
+        
+        u = self.u[j-1]
+        return u
+            
+
+    #Because T_i_j is just n_i * theta_j can just do this once
+    #Much faster, not sure if this is identical to the other theta j?
+    #Only used for tau leap not wright fisher need to merge them
     def CacheThetaJ(self, n):
         for j in range(0, self.typeCount):
-            if n[j] == 0 and (j > 0 and n[j-1] == 0):
+            if n[j] == 0 and (j > 0 and n[j-1] == 0): #If we dont have any cells we cant divide, if we dont have any previous cells we cant get mutated to
                 self.thetaJCache[j] = 0.0
                 continue
             top = 0.0
-            u_j = self.u[j] * (self.d - j)
-            u_jm1 = self.u[j-1] * (self.d - (j-1))
-            if self.USE_D == False:
-                u_j = self.u[j]
-                u_jm1 = self.u[j-1]
+            #u_j = self.u[j] * (self.d - j)
+            #u_jm1 = self.u[j-1] * (self.d - (j-1))
+            u_j = 0.0
+            if j < self.typeCount - 1:
+                u_j = self.GetU(j+1) #Mutation rate from type j to j+1
+            u_jm1 = 0.0
+            
+            if self.USE_D == True: #Use the susceptible loci model?
+                u_j  = u_j * (self.d - j)
+                u_jm1 = u_jm1 * (self.d - j + 1)
+                
+            if j > 0: #No such thing as u_0
+                u_jm1 = self.GetU(j) #Mutation rate from type j-1 to j
+            
             if j == 0:
                 top = (self.r[j] * (1.0 - u_j) * n[j])
             elif j == self.typeCount - 1:
@@ -156,20 +190,26 @@ class Params:
                 comb = scimisc.comb(self.d-i, j-i)
                 self.combinations[i].append(comb)        
     
+    #Mutation?
+    #u_0 = is invalid surely?
+    #u_j = mutation rate from type j-1 to type j
+    #There is a u_20 if celltypes = 21
+    #But this is indexed as u[19]
     def GetThetaj(self,j, n):
-        if self.uNotConst == 1:
+        #if self.uNotConst == 0:
+        summation = 0.0
+        avgFit = self.avgFit
+        for i in range(0, j+1):
+            summation += self.combinations[i][j]*math.pow(self.GetU(i+1), j-i)*math.pow(1.0-self.GetU(i+1), self.d-j)*(self.r[i] * n[i])/avgFit
+        return summation
+        '''else:
+            #Probably should get rid of this and have it general
             summation = 0.0
             avgFit = self.avgFit
             for i in range(0, j+1):
-                summation += self.combinations[i][j]*math.pow(self.u[i], j-i)*math.pow(1.0-self.u[i], self.d-j)*(self.r[i] * n[i])/avgFit
+                summation += self.combinations[i][j]*math.pow(self.u[1], j-i)*math.pow(1.0-self.u[1], self.d-j)*(self.r[i] * n[i])/avgFit
             return summation
-        else:
-            summation = 0.0
-            avgFit = self.avgFit
-            for i in range(0, j+1):
-                summation += self.combinations[i][j]*math.pow(self.u[0], j-i)*math.pow(1.0-self.u[0], self.d-j)*(self.r[i] * n[i])/avgFit
-            return summation
-    
+    '''
     def PreSim(self, gillespie):
         self.avgFit = self.GetAvgFit(gillespie.n)
         self.CacheThetaJ(gillespie.n)

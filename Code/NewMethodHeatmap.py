@@ -36,7 +36,7 @@ myWF.params = myParam
 
 myParam.d = 100
 myParam.n0[0] = population
-myParam.u = [1e-7] * cellTypes
+myParam.SetUAll(1e-7)
 
 s = 0.01
 for i in range(0,cellTypes):
@@ -49,15 +49,15 @@ mapSize = 8
 minS = 1e-4
 maxS = 1e-1
 
-minU = 1e-8
-maxU = 1e-5
+minU = 1e-7
+maxU = 1e-4
 
-SDP = 1
+SDP = 30
 
 sHist = []
 uHist = []
 
-SU_CUTOFF = 4 #Set to 0 to disable cutoff
+SU_CUTOFF = 0 #Set to 0 to disable cutoff
 DONT_SIM = False
 
 #Set up our arrays
@@ -80,7 +80,7 @@ for iS in range(0, mapSize):
         uHist.append(math.log(u, 10.0))
         print("s = {0} u = {1}".format(s,u))        
         
-        myParam.u[0] = u
+        myParam.SetUAll(u)
         for i in range(0,cellTypes):
             myParam.r[i] = math.pow(1.0 + s, i)
         mySolver.CacheX0()
@@ -95,7 +95,8 @@ for iS in range(0, mapSize):
         
         theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
         theory2 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
-        theory3 = mySolver.GetWaitingTime(cellTypes - 1)
+        #theory3 = mySolver.GetWaitingTime(cellTypes - 1)
+        theory3 = 0.0
         theory4 = mySolver.GetWaitingTimeModel(cellTypes - 1)
         
         fixTime1[iS,iU] = theory1

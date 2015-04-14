@@ -30,7 +30,7 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.u = [1e-7] * cellTypes
+myParam.SetUAll(1e-7)
 
 s = 0.01
 for i in range(0,cellTypes):
@@ -41,7 +41,7 @@ mySolver = TauSolver.Solver(myParam)
 minN = 1e6
 maxN = 1e9
 
-SDP = 1
+SDP = 25
 PointCount = 4
 
 dataX = []
@@ -49,9 +49,11 @@ dataY = []
 dataY_anal1 = []
 dataY_anal2 = []
 dataY_anal3 = []
+dataY_anal4 = []
 dataY_anal1_err = []
 dataY_anal2_err = []
-dataY_anal3_err= []
+dataY_anal3_err = []
+dataY_anal4_err = []
 
 
 for p in range(0,PointCount):
@@ -68,17 +70,20 @@ for p in range(0,PointCount):
     
     theory = 0.0
     theory2 = 0.0
-    theory1 = mySolver.GetWaitingTimeOriginal(cellTypes)
-    theory2 = mySolver.GetWaitingTime(cellTypes)
-    theory3 = mySolver.GetWaitingTimeNeglect(cellTypes)
+    theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
+    theory2 = mySolver.GetWaitingTime(cellTypes - 1)
+    theory3 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
+    theory4 = mySolver.GetWaitingTimeModel(cellTypes - 1)
     
     dataY_anal1.append(theory1)
     dataY_anal2.append(theory2)
     dataY_anal3.append(theory3)
+    dataY_anal4.append(theory4)
     
     dataY_anal1_err.append(theory1 - res.avgFixTime)
     dataY_anal2_err.append(theory2 - res.avgFixTime)
     dataY_anal3_err.append(theory3 - res.avgFixTime)
+    dataY_anal4_err.append(theory4 - res.avgFixTime)
     
     print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=1))    
 
@@ -88,6 +93,7 @@ plt.plot(dataX,dataY, 'o')
 plt.plot(dataX,dataY_anal1, ':')
 plt.plot(dataX,dataY_anal2, '-')
 plt.plot(dataX,dataY_anal3, '--')
+plt.plot(dataX,dataY_anal4, '-.')
 plt.xscale("log")
 plt.xlabel("N")
 plt.ylabel("t_{0}".format(cellTypes - 1))
@@ -97,6 +103,7 @@ plt.subplot(212)
 plt.plot(dataX, dataY_anal1_err,':')
 plt.plot(dataX, dataY_anal2_err, '-')
 plt.plot(dataX, dataY_anal3_err, '--')
+plt.plot(dataX, dataY_anal4_err, '-.')
 plt.xscale("log")
 plt.xlabel("N")
 plt.ylabel("Error")
@@ -104,13 +111,12 @@ plt.xlim(minN, maxN)
 
 plt.show()
 
-file_name = "WrightFisherSweepN_SDP_{0}_DPC_{1}_CT_{2}_S_{3}_U_{4}".format(SDP,PointCount,cellTypes,s,myParam.u[0])
-
 data = dict()
 data["N"] = dataX
 data["Nt_20"] = dataY
 data["Nt_20_anal1"] = dataY_anal1
 data["Nt_20_anal2_transient"] = dataY_anal2
 data["Nt_20_anal3_neglect"] = dataY_anal3
+data["Nt_20_anal4_transient2"] = dataY_anal4
 
-MatTools.SaveDict(file_name, data)
+MatTools.SaveDict2(data,SDP = SDP, DPC = PointCount, PARAM = myParam.GetFileString())

@@ -6,8 +6,6 @@ Created on Wed Mar 11 18:41:05 2015
 """
 
 import math
-import matplotlib.pyplot as plt
-import wright_fisher
 
 class Solver:
     def __init__(self, param):
@@ -27,13 +25,13 @@ class Solver:
     def CacheX0(self):
         self.params.Reset()
         self.X0_Cache = []
-        for i in range(0, self.params.typeCount + 1):
+        for i in range(0, self.params.typeCount):
             self.X0_Cache.append(self.GetXj0(i))
         
     def GetXj0(self, j):
         if j == 0:
             return 1.0
-        return max(self.params.u[0] * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.N)
+        return max(self.params.GetU(j) * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.N)
     
     def GetGammaTau(self, tau, j):
         tau = max(tau, 1e-99)
@@ -42,15 +40,16 @@ class Solver:
         return math.sqrt(2.0/(s*tau) * math.log(1.0 / x_j_0))
     
     def IntegralOfXj(self,j, tau):
-        s = self.params.r[1] - self.params.r[0]
-        u = self.params.u[0]
-        d = self.params.d
-        
         if j < 0:
             return 0.0
         if j == 0:
-            return tau
-
+            return tau * 1.0 #X_0(t) = 1.0
+        
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.u[j]
+        d = self.params.d
+        
+        
         gamma = self.GetGammaTau(tau, j)
         
         x_j_0 = self.X0_Cache[j]
@@ -63,13 +62,12 @@ class Solver:
         return fac * (selection + mutation)
         
     def RootFunc(self, j,tau):   #Find the roots of this function
-        s = self.params.r[1] - self.params.r[0]
-        u = self.params.u[0]
-        d = self.params.d
-        N = self.params.N
-
         if j < 0:
             return 0.0
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.GetU(j)
+        d = self.params.d
+        N = self.params.N
 
         gamma = self.GetGammaTau(tau, j)
         x_j_0 = self.X0_Cache[j]
@@ -79,6 +77,8 @@ class Solver:
         mutation = 0.0
         if j > 0: #Avoid divide by zero this term is not valid for this case
             mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)
+            mutation2 = u*d*x_j_1*(1.0/(s*gamma))
+            #print("DIFF = {0}".format(mutation - mutation2))
         offset = (s * gamma)/(N*u*d)
         return (selection + mutation) - offset
         
@@ -89,7 +89,7 @@ class Solver:
             return 1.0           
         
         s = self.params.r[1] - self.params.r[0]
-        u = self.params.u[0]
+        u = self.params.GetU(j)
         d = self.params.d
         N = self.params.N   
         
@@ -99,8 +99,8 @@ class Solver:
         x_j_1 = self.X0_Cache[j-1]             
         
         fac = 1.0/(s*gamma)
-        expFactor = u*d*x_j_1 + x_j_0*s*gamma
-        xj = fac * (expFactor * math.exp(s*gamma*t) - u*d*x_j_1)
+        expFactor = 0.0*u*d*x_j_1 + x_j_0*s*gamma
+        xj = fac * (expFactor * math.exp(s*gamma*t) - 0.0*u*d*x_j_1)
         return xj    
     
     #Newton Raphson to Solve tau
@@ -148,9 +148,9 @@ class Solver:
         return k * self.GetTauOriginal()
         
     #Neglecting the transient phase
-    def GetTauNeglect(self):
+    def GetTauNeglect(self, j):
         s = self.params.r[1] - self.params.r[0]
-        fac = (s/(self.params.u[0] * self.params.d))
+        fac = (s/(self.params.GetU(j+1) * self.params.d))
         logs = math.log(1.0 + fac*math.sqrt(2.0*math.log(self.params.N)))
         top = math.pow(logs,2.0)
         bottom = 2.0 * s * math.log(self.params.N)
@@ -160,27 +160,46 @@ class Solver:
         if k == 21:
             print("off by one error! (probably did you mean celltypes - 1)")
         j_i = -math.log(self.params.N)/math.log(self.params.u[0]*self.params.d)
-        return (k-j_i) * self.GetTauNeglect()
+
+        #Linear interpolate by taking the fractional part of the one we are
+        #supposed to miss. ie if at 3.5 then skip the first 3 then skip half the fourth        
+        frac_part = j_i - math.floor(j_i)
+        first_whole = int(math.ceil(j_i))
+        
+        #Take the fractioanal part of the one we are missing
+        frac_tau = frac_part * self.GetTauNeglect(int(math.floor(j_i)))
+        
+        total = 0.0
+        for i in range(first_whole, k):
+            total = total + self.GetTauNeglect(i)
+        return total + frac_tau
+        
+        #TODO: Support variable mutation rate
+        #return (k-j_i) * self.GetTauNeglect(0)
     
     
     #Modelling the transient phase with analytical
     def GetTauModel(self, j):
         self.ValidateJ(j)
-        
+        if j == 0:
+            return 0.0 #Justified in maths
+                
         s = self.params.r[1] - self.params.r[0]
-        u = self.params.u[0]
+        u = self.params.GetU(j+1)
         d = self.params.d
         N = self.params.N   
         x_j_0 = self.X0_Cache[j]
         x_j_1 = 0.0
-        if j == 0:
-            return 0.0 #Justified in maths
         if j > 0:
             x_j_1 = self.X0_Cache[j-1]
+            
+            
+            
         twoLogx0 = math.sqrt(-2.0 * math.log(x_j_0))
         fac = 1.0 / (-2.0 * s * math.log(x_j_0))
-        bracket = s/(N*u*d) * twoLogx0 - (u * d * x_j_1)/(s * twoLogx0)
-        bracket = max(bracket, 0.0)    
+        #bracket = s/(N*u*d) * twoLogx0 - (0.0* u * d * x_j_1)/(s * twoLogx0)
+        bracket = s/(N*u*d) * twoLogx0
+        #bracket = max(bracket, 0.0)    
         
         log = math.log(1.0 + bracket/x_j_0)
         
