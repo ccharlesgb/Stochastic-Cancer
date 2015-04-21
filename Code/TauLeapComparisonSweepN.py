@@ -16,17 +16,15 @@ import TauLeap
 import TauLeapParam
 import SimUtil
 import wright_fisher
+import anfixtime
 
-cellTypes = 3
+cellTypes = 2
 myParam = TauLeapParam.Params(cellTypes)
 
 #Create the simulator
 myGillespie = TauLeap.Sim(cellTypes)
 myGillespie.params = myParam
 myParam.Hook(myGillespie)
-#Set History
-myHist = TauLeapParam.Hist(cellTypes)
-myGillespie.history = myHist
 
 timeLimit = 1e3
 
@@ -39,12 +37,11 @@ myGillespie.epsilon = 0.05
 
 myWF = wright_fisher.wright_fisher(cellTypes)
 myWF.params = myParam
+myWF.stopAtAppear = 0
 
-#Param Stuff
-myParam.n0[0] = 1e2
-s = 0.0
-for i in range(0,cellTypes):
-    myParam.r[i] = math.pow(1.0 + s, i)
+#Set History
+myHist = TauLeapParam.Hist(cellTypes)
+myWF.history = myHist
 
 myParam.SetUAll(1e-4)
 myParam.USE_D = False
@@ -52,40 +49,21 @@ myParam.d = 100
 
 myParam.r[0] = 1.0
 myParam.r[1] = 1.0
-myParam.r[2] = 1.0
+#myParam.r[2] = 1.0
 
 myParam.u[0] = 0.1
-myParam.u[1] = 0.1
+#myParam.u[1] = 0.1
 
-#Deter Stuff
-deterSim = DeterministicTauLeap.Sim(cellTypes)
-deterSim.params = myParam
-myHist2 = TauLeapParam.Hist(cellTypes)
-deterSim.history = myHist2
-
-deterSim.timeStep = 0.01
-deterSim.timeLimit = timeLimit
-deterSim.stopAtAppear = 0
-
-'''
-deterSim.Integrate()
-myGillespie.Simulate()
-
-for i in range(0, cellTypes):
-    plt.plot(myHist2.tHist, myHist2.histArray[i])
-    plt.plot(myHist.tHist, myHist.histArray[i])
-'''
-
-SDP = 1
-PointCount = 8
+SDP = 200
+PointCount = 4
 
 dataX = []
 dataY = []
-dataY_deter = []
 dataY_WF = []
+data_anal = []
 
 minN = 1e1
-maxN = 1e2
+maxN = 1e3
 
 for p in range(0,PointCount):
     startTime = time.clock()
@@ -99,16 +77,23 @@ for p in range(0,PointCount):
     res = myGillespie.SimulateBatch(SDP)
     dataX.append(myParam.n0[0])
     dataY.append(res.avgFixTime)
-    
-    myWF.SimulateBatch(SDP)
+
+    #myParam.n0[0] = int(float(myParam.n0[0]) / math.sqrt(2.0))
+    res = myWF.SimulateBatch(SDP)
     dataY_WF.append(res.avgFixTime)
     
-    deterSim.Integrate()  
-    dataY_deter.append(deterSim.curTime)
+    myGillespie.Reset()
+    #data_anal.append(anfixtime.GetFixTimeJ(myGillespie, myParam,0))
 
+plt.figure()
+plt.subplot(211)
+plt.plot(myHist.tHist, myHist.histArray[0])
+plt.plot(myHist.tHist, myHist.histArray[1])
+
+plt.subplot(212)
 plt.plot(dataX, dataY, 'o')
-plt.plot(dataX, dataY_deter)
 plt.plot(dataX, dataY_WF)
+#plt.plot(dataX, data_anal)
 #plt.xscale("log")
 
 file_name = "TauLeapSweepN_SDP_{0}_DPC_{1}".format(SDP, PointCount)

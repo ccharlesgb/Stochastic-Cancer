@@ -151,7 +151,7 @@ class Sim:
             #print("Getting rate ", i_j, self.rateCache[i])
             self.lambd += self.rateCache[i]
 
-    #Get the mean change in the population type i       
+    #Get the mean change in the population type i
     def GetMeanChange(self, i):
         summation = 0.0        
         for j in self.rateRange:

@@ -114,25 +114,3 @@ def GetFixTimeJ(sim,j):
     part2=sum1 / sim.N
     #print("P1 {0} P2 {1}".format(part1,part2))
     return part1+part2
-    
-'''    
-#Initialize the Gillespie simulator with 10 cells
-mySim = TwoSpecies.Gillespie(100)
-mySim.timeLimit = 1000000
-dataPointCount = 100
-
-mySim.r0=0.5
-mySim.r1=0.5
-
-dataPointsX = []
-dataPointsY = []
-fixTime1 = GetFixTime1(mySim)
-for i in range(1,mySim.N):
-    dataPointsX.append(i)
-    dataPointsY.append(GetFixTimeJ(mySim,i))
-
-plt.plot(dataPointsX, dataPointsY, label = "Theoretical")
-plt.xlabel("Initial Number of Cell Types - j")
-plt.ylabel("Theoretical Fixation Time - t_j")
-plt.title("Theoretical Fixation Time for {0} Cells".format(mySim.N))
-'''

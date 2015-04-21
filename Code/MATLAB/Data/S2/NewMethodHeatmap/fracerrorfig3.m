@@ -1,7 +1,7 @@
 function [] = fracerrorfig()
     figure('Units','points','Position',[50 50 800 300])
-    simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_8_SDP_10_TIMES_.mat');
-    predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_10_SIZE_8.mat');
+    simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_8_SDP_30_TIMES_.mat');
+    predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_30_SIZE_8.mat');
     
     xlab = 'log_{10}(s)';
     ylab = 'log_{10}(u)';

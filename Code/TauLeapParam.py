@@ -12,6 +12,14 @@ class Hist:
     def __init__(self, typeCount):
         self.typeCount = typeCount
         self.ClearFrames()
+        self.ResetTotal()
+        self.SDP = 1
+
+    def ResetTotal(self):
+        self.tTotal = []
+        self.histArrayTotal = dict()
+        for i in range(0, self.typeCount):
+            self.histArrayTotal[i] = []
        
     def ClearFrames(self):
         self.histArray = dict()
@@ -29,8 +37,19 @@ class Hist:
         self.yearHist.append(float(sim.curTime) / 365.0)
         totalJ = 0.0
         totalSJ = 0.0            
+        if len(self.tHist) >= len(self.tTotal): #Append average hist if neccessary
+            self.tTotal.append(sim.curTime)
         for i in range(0, self.typeCount):
             self.histArray[i].append(sim.n[i])
+            
+            log_ni = 0.0
+            if sim.n[i] > 0:
+                log_ni = math.log10(float(sim.n[i])) / self.SPD
+            if len(self.histArray[i]) >= len(self.histArrayTotal[i]): #Append average hist if neccessary
+                self.histArrayTotal[i].append(log_ni)
+            else:
+                self.histArrayTotal[i][sim.curTime] += log_ni
+            
             if sim.prob_vector != 0:
                 self.thetajHist[i].append(sim.prob_vector[i])
             totalJ += i * float(sim.n[i]/sim.params.N)
@@ -123,8 +142,8 @@ class Params:
     
     #Reaction probability for cell from 1->0
     def GetTIJ(self, i, j, n):
-        return self.thetaJCache[j] * n[i]
-
+        return self.thetaJCache[j] * n[i]# * math.sqrt(2.0)
+        
     def SetUAll(self,u):
         for i in range(1,self.typeCount):
             self.SetU(i,u)
@@ -199,17 +218,14 @@ class Params:
         #if self.uNotConst == 0:
         summation = 0.0
         avgFit = self.avgFit
-        for i in range(0, j+1):
-            summation += self.combinations[i][j]*math.pow(self.GetU(i+1), j-i)*math.pow(1.0-self.GetU(i+1), self.d-j)*(self.r[i] * n[i])/avgFit
-        return summation
-        '''else:
-            #Probably should get rid of this and have it general
-            summation = 0.0
-            avgFit = self.avgFit
+        if self.USE_D == False:
             for i in range(0, j+1):
-                summation += self.combinations[i][j]*math.pow(self.u[1], j-i)*math.pow(1.0-self.u[1], self.d-j)*(self.r[i] * n[i])/avgFit
-            return summation
-    '''
+                summation += math.pow(self.GetU(i+1), j-i)*math.pow(1.0-self.GetU(i+1), self.typeCount - 1 - j)*(self.r[i] * n[i])/avgFit 
+        else:
+            for i in range(0, j+1):
+                summation += self.combinations[i][j]*math.pow(self.GetU(i+1), j-i)*math.pow(1.0-self.GetU(i+1), self.d-j)*(self.r[i] * n[i])/avgFit
+        return summation
+
     def PreSim(self, gillespie):
         self.avgFit = self.GetAvgFit(gillespie.n)
         self.CacheThetaJ(gillespie.n)

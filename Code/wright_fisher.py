@@ -64,7 +64,6 @@ class wright_fisher:
         for i in range(0,self.typeCount):        
             if(self.prob_vector[i] == 1.0):
                     self.isFixated = 1      
-                    print("The system is fixed. Took {0} steps".format(self.curTime))
     
     def SetHistory(self, hist):
         self.history = hist

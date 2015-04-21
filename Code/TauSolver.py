@@ -16,6 +16,7 @@ class Solver:
         self.tolerance = 1e-9 # accuracy required
         self.maxIter = 200
         self.maxTau = 1e4
+        self.tau_hist = []
         
     def ValidateJ(self, j):
         k = (self.params.typeCount - 1)
@@ -61,27 +62,6 @@ class Solver:
         
         return fac * (selection + mutation)
         
-    def RootFunc(self, j,tau):   #Find the roots of this function
-        if j < 0:
-            return 0.0
-        s = self.params.r[1] - self.params.r[0]
-        u = self.params.GetU(j)
-        d = self.params.d
-        N = self.params.N
-
-        gamma = self.GetGammaTau(tau, j)
-        x_j_0 = self.X0_Cache[j]
-        x_j_1 = self.X0_Cache[j-1]
-        
-        selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
-        mutation = 0.0
-        if j > 0: #Avoid divide by zero this term is not valid for this case
-            mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)
-            mutation2 = u*d*x_j_1*(1.0/(s*gamma))
-            #print("DIFF = {0}".format(mutation - mutation2))
-        offset = (s * gamma)/(N*u*d)
-        return (selection + mutation) - offset
-        
     def GetXJ(self, t,j):
         if j < 0:
             return 0.0
@@ -102,38 +82,6 @@ class Solver:
         expFactor = 0.0*u*d*x_j_1 + x_j_0*s*gamma
         xj = fac * (expFactor * math.exp(s*gamma*t) - 0.0*u*d*x_j_1)
         return xj    
-    
-    #Newton Raphson to Solve tau
-    def GetTau(self, j):
-        self.ValidateJ(j)
-        if j <= 2:
-            return 0.0
-        foundSol = False
-        
-        delta = 0.01
-        x0 = 10.0
-        s = self.params.r[1] - self.params.r[0]
-        for i in range(0, self.maxIter):
-            y = self.RootFunc(j, x0)
-            y_prime = (self.RootFunc(j, x0 + delta) - y) / delta
-            if abs(y_prime) < self.epsilon:
-                break #Denominator too small
-            x1 = min(x0 - y / y_prime, self.maxTau)
-            
-            if x1 == 0  or abs(x1 - x0)/abs(x1) < self.tolerance:
-                foundSol = True
-                break
-            x0 = x1
-        if foundSol == True:
-            return x0
-        else:
-            return -1.0
-            
-    def GetWaitingTime(self, k):
-        total = 0.0
-        for i in range(0, k):
-            total += self.GetTau(i)
-        return total
             
     #Original Model
     def GetTauOriginal(self):
@@ -189,18 +137,10 @@ class Solver:
         d = self.params.d
         N = self.params.N   
         x_j_0 = self.X0_Cache[j]
-        x_j_1 = 0.0
-        if j > 0:
-            x_j_1 = self.X0_Cache[j-1]
-            
-            
             
         twoLogx0 = math.sqrt(-2.0 * math.log(x_j_0))
         fac = 1.0 / (-2.0 * s * math.log(x_j_0))
-        #bracket = s/(N*u*d) * twoLogx0 - (0.0* u * d * x_j_1)/(s * twoLogx0)
         bracket = s/(N*u*d) * twoLogx0
-        #bracket = max(bracket, 0.0)    
-        
         log = math.log(1.0 + bracket/x_j_0)
         
         return fac * math.pow(log,2.0)
@@ -212,6 +152,61 @@ class Solver:
         for i in range(0,k):
             total += self.GetTauModel(i)
         return total
+    
+    def GetWaitingTimeModelNew(self,k):
+        if k == 21:
+            print("off by one error! (probably did you mean celltypes - 1)")
+        total = 0.0
+        self.tau_hist = [0.0] * k
+        for i in range(0,k):
+            tau = self.GetTauModelNew(i)
+            self.tau_hist.append(tau)
+            total += tau
+        return total
+    
+    def GetXJ_NEW(self,j,tau_j):
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.GetU(j+1)
+        d = self.params.d
+        N = self.params.N
+        tau_j = max(tau_j, 1e-9)
+        gamma = math.sqrt(2.0/(s*tau_j) * math.log(N))
+        x_j_1 = 0.0
+        if j == 1:
+            x_j_1 = 1.0 #Assume all type 0 cells forever
+        elif j > 1:
+            x_j_1 = self.GetXJ_NEW(j-1,self.tau_hist[j-1])
+        #x_j_1 = 0.0
+        #print("TAU_J IS", tau_j)
+        #print("Input into type {0} from type {1} = {2} TAU_-1 = {3}".format(j,j-1,x_j_1,self.tau_hist[j-1]))
+        return 1.0 / (s * gamma) * ((u*d*x_j_1 + (s*gamma)/N)*math.exp(s*gamma*tau_j) - u*d*x_j_1)
+    
+    def GetTauModelNew(self,j):
+        s = self.params.r[1] - self.params.r[0]
+        up1 = self.params.GetU(j+1)
+        d = self.params.d
+        N = self.params.N
+        if j == 0:
+            self.tau_hist[j] = 1.0/(N * up1 * d)
+            return self.tau_hist[j] #Neglect
+            
+        u = self.params.GetU(j)
+        
+        gamma = math.sqrt(2.0*math.log(N))
+        x_j_1 = 0.0
+        if j == 1:
+            x_j_1 =1.0
+        elif j > 1:
+            x_j_1 = self.GetXJ_NEW(j-1,self.tau_hist[j-1])   
+        #print("Solving tau_{0}, extra_term = {1}".format(j,x_j_1))
+        #print("Term comparison {0} and {1}".format((s*gamma/N),u*d*x_j_1))
+        fac = 1.0 / (2 * s * math.log(N))
+        logx = ((s * gamma)**2)/(N * up1 * d)
+        logx = logx / ((s*gamma/N) + u*d*x_j_1)
+        result = fac * math.pow(math.log(1.0 + logx),2.0)
+        self.tau_hist[j] = result
+        #print("TAU_{0} = {1}".format(j, result))
+        return result
             
 
         

@@ -58,6 +58,8 @@ sHist = []
 uHist = []
 
 SU_CUTOFF = 0 #Set to 0 to disable cutoff
+SU_ROUGH = 2 #Cut the SDP here as it takes ages
+SDP_ROUGH = 5
 DONT_SIM = False
 
 #Set up our arrays
@@ -88,6 +90,8 @@ for iS in range(0, mapSize):
         if DONT_SIM == True  or (iS < SU_CUTOFF and iU < SU_CUTOFF):
             res = myWF.SimulateBatch(0)
             res.avgFixTime = 1e9
+        elif (iS < SU_ROUGH and iU < SU_ROUGH): #Faster simulation here
+            res = myWF.SimulateBatch(SDP_ROUGH)
         else:
             res = myWF.SimulateBatch(SDP)
         #res.avgFixTime = random.randrange(800, 5000)
@@ -95,8 +99,7 @@ for iS in range(0, mapSize):
         
         theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
         theory2 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
-        #theory3 = mySolver.GetWaitingTime(cellTypes - 1)
-        theory3 = 0.0
+        theory3 = mySolver.GetWaitingTimeModelNew(cellTypes - 1)
         theory4 = mySolver.GetWaitingTimeModel(cellTypes - 1)
         
         fixTime1[iS,iU] = theory1
@@ -153,7 +156,7 @@ plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
-plt.title("Model Numererical")
+plt.title("Model Iterative")
 
 plt.subplot(224)
 plt.pcolormesh(x,y,errFixTime4, cmap = errormap)
@@ -161,7 +164,7 @@ plt.colorbar()
 plt.xlabel("S")
 plt.ylabel("U")
 plt.clim(-1.0,1.0)
-plt.title("Model Analytical")
+plt.title("Mutational Correction")
 
 data1 = dict()
 data1["xCoords"] = x
