@@ -13,7 +13,7 @@ class Hist:
         self.typeCount = typeCount
         self.ClearFrames()
         self.ResetTotal()
-        self.SDP = 1
+        self.SPD = 1
 
     def ResetTotal(self):
         self.tTotal = []

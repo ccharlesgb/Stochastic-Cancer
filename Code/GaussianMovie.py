@@ -40,17 +40,17 @@ for i in range(1, cellTypes):
     u_log = min(-8.0 + math.exp(i/20.0), -4.0)
     u = math.pow(10.0, u_log)
     myParam.SetU(i,u)
-    
+'''   
 #Switch
-u_before = 1e-9
-u_after = 1e-5
-switch = 5
+u_before = 1e-6
+u_after = 1e-9
+switch = 10
 for i in range(1, cellTypes):
     if (switch + 1) > i:
         myParam.SetU(i, u_before)
     else:
         myParam.SetU(i, u_after)
-'''
+
 s = 1e-2
 d = 1.8
 

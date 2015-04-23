@@ -131,8 +131,13 @@ class Solver:
         self.ValidateJ(j)
         if j == 0:
             return 0.0 #Justified in maths
-                
-        s = self.params.r[1] - self.params.r[0]
+
+        total_s = 0.0
+        for i in range(0, self.params.typeCount-1):
+            total_s += self.params.r[i+1] - self.params.r[i]
+        total_s = total_s / (self.params.typeCount-1)
+        print("TOTAL_S", total_s)
+        s = total_s
         u = self.params.GetU(j+1)
         d = self.params.d
         N = self.params.N   
@@ -203,7 +208,7 @@ class Solver:
         fac = 1.0 / (2 * s * math.log(N))
         logx = ((s * gamma)**2)/(N * up1 * d)
         logx = logx / ((s*gamma/N) + u*d*x_j_1)
-        result = fac * math.pow(math.log(1.0 + logx),2.0)
+        result = fac * math.pow(math.log(0.0 + logx),2.0)
         self.tau_hist[j] = result
         #print("TAU_{0} = {1}".format(j, result))
         return result

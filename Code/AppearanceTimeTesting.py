@@ -12,6 +12,7 @@ import SimUtil
 import TauSolver
 import TauLeapParam
 import MatTools
+import random
     
 cellTypes = 21
 population = 1e9
@@ -30,18 +31,23 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 2
+SPD = 5
 DPC = 1
 
 myHist.SPD = SPD
 
 s = 1e-2
+total = 1.0
 for i in range(0,cellTypes):
-    myParam.r[i] = math.pow(1.0 + s, i)
+    s = 1e-2 + ((i % 2)) * 1e-2
+    print(s)
+    myParam.r[i] = total + s
+    total = myParam.r[i]
+    #myParam.r[i] = math.pow(1.0 + s, i)
     
 myParam.SetUAll(1e-7)
 
-
+'''
 #Sinusoidal mutation rate
 f = 0.25
 for i in range(1, cellTypes):
@@ -68,7 +74,7 @@ for i in range(1, cellTypes):
         myParam.SetU(i, u_before)
     else:
         myParam.SetU(i, u_after)
-
+'''
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()
 
@@ -148,7 +154,7 @@ for i in range(first_whole, cellTypes-1):
 
 y = range(0,cellTypes)
 plt.figure()
-#plt.subplot(211)
+plt.subplot(211)
 plt.plot(avgAppear, 'o', label = "Simulation")
 #plt.plot(theoreticalAppear, label = "Original Method")
 plt.plot(theoreticalAppear2, '--', label = "Neglecting", linewidth = 2)
@@ -159,14 +165,14 @@ plt.ylabel("Appearance Time")
 plt.legend(loc = 2)
 plt.title("U = {0}, {1}, {2},{3}...".format(myParam.u[0],myParam.u[1],myParam.u[2],myParam.u[3]))
 
-'''plt.subplot(212)
+plt.subplot(212)
 for i in range(0, cellTypes-1):
    plt.plot(myHist.tTotal, myHist.histArrayTotal[i])
    #plt.plot(range(int(avgAppear[i]),int(avgAppear[i]) + 300), Eq12[i], ':', linewidth = 2.0)
    #plt.plot(range(int(avgAppear[i]),int(avgAppear[i]) + 300), Eq12_Old[i], '--')
 #plt.yscale("log")
 plt.show()
-'''
+
 data = dict()
 data["appear_sim"] = avgAppear
 data["appear_orig"] = theoreticalAppear
