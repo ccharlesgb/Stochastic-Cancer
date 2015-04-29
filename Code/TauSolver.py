@@ -11,11 +11,6 @@ class Solver:
     def __init__(self, param):
         self.params = param
         self.CacheX0()
-        #Newton-Raphson Params
-        self.epsilon = 1e-14 #Min value f prime
-        self.tolerance = 1e-9 # accuracy required
-        self.maxIter = 200
-        self.maxTau = 1e4
         self.tau_hist = []
         
     def ValidateJ(self, j):
@@ -132,12 +127,7 @@ class Solver:
         if j == 0:
             return 0.0 #Justified in maths
 
-        total_s = 0.0
-        for i in range(0, self.params.typeCount-1):
-            total_s += self.params.r[i+1] - self.params.r[i]
-        total_s = total_s / (self.params.typeCount-1)
-        print("TOTAL_S", total_s)
-        s = total_s
+        s = self.params.r[1] - self.params.r[0]
         u = self.params.GetU(j+1)
         d = self.params.d
         N = self.params.N   
@@ -206,12 +196,30 @@ class Solver:
         #print("Solving tau_{0}, extra_term = {1}".format(j,x_j_1))
         #print("Term comparison {0} and {1}".format((s*gamma/N),u*d*x_j_1))
         fac = 1.0 / (2 * s * math.log(N))
+        '''
+        top = (s*gamma)/(N*u*d)# + u*d*x_j_1 * (1.0 + 1.0/s)
+        bottom = u*d*x_j_1/(s*gamma) + 1.0 / N
+        
+        result = fac * math.pow(math.log(top/bottom),2.0)
+        self.tau_hist[j] = result
+        return result
+        '''
+        
+        top = s*s*gamma*gamma + u*d*x_j_1 * (1.0 + 1.0/s)
+        bottom = N * u * u * d * d * x_j_1
+        print(top, bottom, self.tau_hist[j-1], x_j_1, "T/B")
+        result = fac * math.pow(math.log(top/bottom),2.0)
+        self.tau_hist[j] = result
+        #print("TAU_{0} = {1}".format(j, result))
+        return result
+        
+        '''
         logx = ((s * gamma)**2)/(N * up1 * d)
         logx = logx / ((s*gamma/N) + u*d*x_j_1)
         result = fac * math.pow(math.log(0.0 + logx),2.0)
         self.tau_hist[j] = result
         #print("TAU_{0} = {1}".format(j, result))
-        return result
+        return result'''
             
 
         

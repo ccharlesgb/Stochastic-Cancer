@@ -215,13 +215,23 @@ class Sim:
     
     def ExecuteNonCrit(self):
         goodFrame = 0
-        while goodFrame == 0:        
+        while goodFrame == 0:
             goodFrame = 1
             for i in self.rateRange:
                 if self.criticalRateIndices[i] == False:
                     if self.rateCache[i] > 1e-10:
                         mean = self.rateCache[i] * self.tau
-                        self.eventCount[i] = self.Poission(mean)
+                        
+                        if mean >= self.MAX_POISSION:
+                            print("Dividing Poission Mean from {0}".format(mean))
+                            gen_count = 10
+                            p_total = 0.0
+                            for i in range(0, gen_count):
+                                p_total += self.Poission(float(mean)/gen_count)
+                                
+                            self.eventCount[i] = p_total
+                        else:
+                            self.eventCount[i] = self.Poission(mean)
                     else:
                         self.eventCount[i] = 0
                         continue
@@ -268,6 +278,7 @@ class Sim:
             
             #Quick check for fixation or appearance of the mutant we want
             if self.lambd == 0 or (self.stopAtAppear == 1 and (self.n[self.typeCount - 1] >= 1)):
+                print("Stopped because appeared", self.stopAtAppear)
                 break
             
             self.UpdateTauPrime()
@@ -307,6 +318,7 @@ class Sim:
         res.simCount = simCount
         
         if simCount <= 0:
+            res.avgFixTime = 0.0
             return res        
         
         if self.printProgress >= 1:

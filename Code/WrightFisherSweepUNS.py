@@ -11,6 +11,7 @@ import SimUtil
 import time
 import MatTools
 import TauSolver
+import TauLeap
 import TauLeapParam
 
 cellTypes = 21
@@ -20,21 +21,26 @@ myWF = wright_fisher.wright_fisher(cellTypes)
 myHist = TauLeapParam.Hist(cellTypes)
 myParam = TauLeapParam.Params(cellTypes)
 
-myParam.d = 100
-
 myWF.stopAtAppear = 1
-
-myParam.n0[0] = population
-myWF.history = myHist
+#myWF.history = myHist
 myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-myParam.SetUAll(1e-7)
+myTauLeap = TauLeap.Sim(cellTypes)
+myTauLeap.params = myParam
+myParam.Hook(myTauLeap)
+myTauLeap.epsilon = 0.1
+myTauLeap.n_c = 10
+myTauLeap.timeLimit = myWF.timeLimit
 
+
+myParam.n0[0] = population
+myParam.SetUAll(1e-7)
 s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
+myParam.d = 100
 
 mySolver = TauSolver.Solver(myParam)    
 
@@ -48,21 +54,25 @@ minS = 1e-4
 maxS = 1e-1
 
 SDP = 1
+SDP_TL = 1
 PointCount = 4
 PointCountTheory = 10
 
 NdataX = []
 NdataY = []
+NdataY_TL = []
 NdataX_orig = []
 NdataY_orig = []
 
 UdataX = []
 UdataY = []
+UdataY_TL = []
 UdataX_orig = []
 UdataY_orig = []
 
 SdataX = []
 SdataY = []
+SdataY_TL = []
 SdataX_orig = []
 SdataY_orig = []
 
@@ -75,30 +85,49 @@ for p in range(0,PointCount):
     myParam.SetUAll(1e-7)
     myParam.SetCompoundFitness(1e-2)
     print("N", myParam.n0[0])
+    
     res = myWF.SimulateBatch(SDP)
     NdataX.append(myParam.n0[0])
     NdataY.append(res.avgFixTime)
+    
+    res = myTauLeap.SimulateBatch(SDP_TL)
+    #res.avgFixTime = 0.0
+    NdataY_TL.append(res.avgFixTime)    
     
     #Sweep U
     myParam.n0[0] = 1e9
     myParam.SetCompoundFitness(1e-2)
     myParam.SetUAll(SimUtil.SweepParameterLog(p,PointCount, minU, maxU))
+    print("U", myParam.u[0])
     myParam.Reset()
-    res = myWF.SimulateBatch(SDP)
+    res = myWF.SimulateBatch(0)
     UdataX.append(myParam.u[0])
     UdataY.append(res.avgFixTime)
+    
+    res = myTauLeap.SimulateBatch(0)
+    res.avgFixTime = 0.0
+    UdataY_TL.append(res.avgFixTime)
     
     #Sweep S
     myParam.n0[0] = 1e9
     myParam.SetUAll(1e-7)
     s = SimUtil.SweepParameterLog(p,PointCount, minS, maxS)
+    print("s", s)
     myParam.SetCompoundFitness(s)
     myParam.Reset()
-    res = myWF.SimulateBatch(SDP)
+    res = myWF.SimulateBatch(0)
     SdataX.append(s)
     SdataY.append(res.avgFixTime)
-    print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=1))    
     
+    res = myTauLeap.SimulateBatch(0)
+    #res.avgFixTime = 0.0
+    SdataY_TL.append(res.avgFixTime)
+    
+    print("Complete (Took {:.{s}f} seconds)".format(time.clock() - startTime, s=1))    
+
+print(NdataY_TL)
+print(UdataY_TL)
+print(SdataY_TL)
 
 for p in range(0, PointCountTheory):
     #Sweep N
@@ -131,22 +160,28 @@ for p in range(0, PointCountTheory):
 plt.figure()
 plt.subplot(131)
 plt.plot(NdataX,NdataY, 'o')
+plt.plot(NdataX,NdataY_TL, '^')
 plt.plot(NdataX_orig,NdataY_orig)
 plt.xscale("log")
+plt.yscale("log")
 plt.xlabel("N")
 plt.ylabel("t_{0}".format(cellTypes - 1))
 plt.xlim(minN, maxN)
 plt.subplot(132)
 plt.plot(UdataX,UdataY, 'o')
+plt.plot(UdataX,UdataY_TL, '^')
 plt.plot(UdataX_orig,UdataY_orig)
 plt.xscale("log")
+plt.yscale("log")
 plt.xlabel("U")
 plt.ylabel("t_{0}".format(cellTypes - 1))
 plt.xlim(minU, maxU)
 plt.subplot(133)
 plt.plot(SdataX,SdataY, 'o')
+plt.plot(SdataX,SdataY_TL, '^')
 plt.plot(SdataX_orig,SdataY_orig)
 plt.xscale("log")
+plt.yscale("log")
 plt.xlabel("S")
 plt.ylabel("t_{0}".format(cellTypes - 1))
 plt.xlim(minS, maxS)
@@ -158,16 +193,18 @@ plt.show()
 data = dict()
 data["NX"] = NdataX
 data["Nt_20"] = NdataY
+data["Nt_20_TL"] = NdataY_TL
 data["NX_orig"] = NdataX_orig
 data["Nt_20_orig"] = NdataY_orig
 data["UX"] = UdataX
 data["Ut_20"] = UdataY
+data["Ut_20_TL"] = UdataY_TL
 data["UX_orig"] = UdataX_orig
 data["Ut_20_orig"] = UdataY_orig
 data["SX"] = SdataX
 data["St_20"] = SdataY
+data["St_20_TL"] = SdataY_TL
 data["SX_orig"] = SdataX_orig
 data["St_20_orig"] = SdataY_orig
-
 
 MatTools.SaveDict2(data,N='N',SDP = SDP, DPC = PointCount, PARAM = myParam.GetFileString())

@@ -100,6 +100,7 @@ class wright_fisher:
         res = BatchResult()
         res.simCount = simCount
         if simCount <= 0:
+            res.avgFixTime = 0.0
             return res
         
         if self.printProgress >= 1:

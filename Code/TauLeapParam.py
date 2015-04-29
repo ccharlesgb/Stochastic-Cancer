@@ -142,7 +142,7 @@ class Params:
     
     #Reaction probability for cell from 1->0
     def GetTIJ(self, i, j, n):
-        return self.thetaJCache[j] * n[i]# * math.sqrt(2.0)
+        return self.thetaJCache[j] * n[i]
         
     def SetUAll(self,u):
         for i in range(1,self.typeCount):
@@ -195,6 +195,7 @@ class Params:
             else:
                 top = (self.r[j]*(1.0 - u_j)*n[j] + self.r[j-1]*u_jm1*n[j-1])
             rate = top / self.avgFit
+            rate = self.GetThetaj(j,n)
             self.thetaJCache[j] = rate
     
     def SetCompoundFitness(self,s):

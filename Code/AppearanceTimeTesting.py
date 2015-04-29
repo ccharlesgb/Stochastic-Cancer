@@ -31,12 +31,13 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 5
+SPD = 1
 DPC = 1
 
 myHist.SPD = SPD
 
-s = 1e-2
+s = 1e-3
+'''
 total = 1.0
 for i in range(0,cellTypes):
     s = 1e-2 + ((i % 2)) * 1e-2
@@ -44,7 +45,9 @@ for i in range(0,cellTypes):
     myParam.r[i] = total + s
     total = myParam.r[i]
     #myParam.r[i] = math.pow(1.0 + s, i)
-    
+    '''
+ 
+myParam.SetCompoundFitness(s)   
 myParam.SetUAll(1e-7)
 
 '''
@@ -55,7 +58,6 @@ for i in range(1, cellTypes):
     u = math.pow(10.0, u_log)
     print(u_log),
     myParam.SetU(i,u)
-    
 
 #Exponential mutation rate
 for i in range(1, cellTypes):
@@ -63,7 +65,6 @@ for i in range(1, cellTypes):
     u = math.pow(10.0, u_log)
     print(u_log),
     myParam.SetU(i,u)
-
 
 #Switch
 u_before = 1e-9
@@ -75,6 +76,7 @@ for i in range(1, cellTypes):
     else:
         myParam.SetU(i, u_after)
 '''
+
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()
 
@@ -128,7 +130,7 @@ theory_model_total = 0.0
 #VERY IMPORTANT THESE ARE CHECKED
 mySolver.tau_hist = [0.0]*(cellTypes-1)
 for i in range(0, cellTypes - 1): #From 1 to 20
-    #theoreticalAppear[i+1] = (i+1) * mySolver.GetTauOriginal()
+    theoreticalAppear[i+1] = (i+1) * mySolver.GetTauOriginal()
     theoreticalAppear_NEW[i+1] = theory_NEW_total + mySolver.GetTauModel(i)
     theory_NEW_total = theoreticalAppear_NEW[i+1]
     theoreticalAppear_MODEL[i+1] = theory_model_total + mySolver.GetTauModelNew(i)
@@ -156,7 +158,7 @@ y = range(0,cellTypes)
 plt.figure()
 plt.subplot(211)
 plt.plot(avgAppear, 'o', label = "Simulation")
-#plt.plot(theoreticalAppear, label = "Original Method")
+plt.plot(theoreticalAppear, label = "Original Method")
 plt.plot(theoreticalAppear2, '--', label = "Neglecting", linewidth = 2)
 plt.plot(theoreticalAppear_NEW,label="Single Correction", linewidth = 2)
 plt.plot(theoreticalAppear_MODEL, ':', label="Recursive", linewidth = 2)

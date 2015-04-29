@@ -14,7 +14,7 @@ import time
 import TauLeap
 import TauLeapParam
 
-cellTypes = 3
+cellTypes = 21
 myParam = TauLeapParam.Params(cellTypes)
 
 #Create the simulator
@@ -38,19 +38,20 @@ myGillespie.timeLimit = 100000
 
 myGillespie.RECORD_TAU_INFO = 1
 
-myParam.n0[0] = 1e1
+myParam.n0[0] = 1e9
 
 s = 0.01
 for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
-    myParam.u[i] = 1e-1
+
+myParam.SetUAll(1e-7)
 
 myParam.USE_D = True
-myParam.d = 3
+myParam.d = 100
 
 myGillespie.n_c = 10
-myGillespie.stopAtAppear = 0
-myGillespie.epsilon = 0.2
+myGillespie.stopAtAppear = 1
+myGillespie.epsilon = 0.1
 
 '''
 for i in range(0, DPC):
@@ -97,4 +98,4 @@ data["tau"] = TAU_HIST_TOTAL
 data["bad_frame"] = avgBadFrame
 data["epsilon"] = myGillespie.epsilon
 
-MatTools.SaveDict(file_name,data)
+MatTools.SaveDict2(data, PARAMS = myParam.GetFileString())
