@@ -53,8 +53,8 @@ maxU = 1e-5
 minS = 1e-4
 maxS = 1e-1
 
-SDP = 1
-SDP_TL = 1
+SDP = 25
+SDP_TL = 25
 PointCount = 4
 PointCountTheory = 10
 
@@ -100,7 +100,7 @@ for p in range(0,PointCount):
     myParam.SetUAll(SimUtil.SweepParameterLog(p,PointCount, minU, maxU))
     print("U", myParam.u[0])
     myParam.Reset()
-    res = myWF.SimulateBatch(0)
+    res = myWF.SimulateBatch(SDP)
     UdataX.append(myParam.u[0])
     UdataY.append(res.avgFixTime)
     
@@ -115,7 +115,7 @@ for p in range(0,PointCount):
     print("s", s)
     myParam.SetCompoundFitness(s)
     myParam.Reset()
-    res = myWF.SimulateBatch(0)
+    res = myWF.SimulateBatch(SDP)
     SdataX.append(s)
     SdataY.append(res.avgFixTime)
     

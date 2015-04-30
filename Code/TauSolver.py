@@ -193,24 +193,19 @@ class Solver:
             x_j_1 =1.0
         elif j > 1:
             x_j_1 = self.GetXJ_NEW(j-1,self.tau_hist[j-1])   
+        print("X_{0}({1}) = {2}".format(j-1,self.tau_hist[j-1],x_j_1))
         #print("Solving tau_{0}, extra_term = {1}".format(j,x_j_1))
         #print("Term comparison {0} and {1}".format((s*gamma/N),u*d*x_j_1))
-        fac = 1.0 / (2 * s * math.log(N))
-        '''
-        top = (s*gamma)/(N*u*d)# + u*d*x_j_1 * (1.0 + 1.0/s)
-        bottom = u*d*x_j_1/(s*gamma) + 1.0 / N
-        
-        result = fac * math.pow(math.log(top/bottom),2.0)
-        self.tau_hist[j] = result
-        return result
-        '''
+        fac = 1.0 / (2.0 * s * math.log(N))
+
         
         top = s*s*gamma*gamma + u*d*x_j_1 * (1.0 + 1.0/s)
-        bottom = N * u * u * d * d * x_j_1
-        print(top, bottom, self.tau_hist[j-1], x_j_1, "T/B")
+        bottom = u*d*(s*gamma + N*u*d*x_j_1)
+        print(j, top, bottom, self.tau_hist[j-1], "T/B/tau_j_1")
         result = fac * math.pow(math.log(top/bottom),2.0)
+        print("T/B = {0} fac = {1}".format(top/bottom, fac))
         self.tau_hist[j] = result
-        #print("TAU_{0} = {1}".format(j, result))
+        print("TAU_{0} = {1}".format(j, result))
         return result
         
         '''
@@ -221,7 +216,14 @@ class Solver:
         #print("TAU_{0} = {1}".format(j, result))
         return result'''
             
-
+        '''
+        top = (s*gamma)/(N*u*d)# + u*d*x_j_1 * (1.0 + 1.0/s)
+        bottom = u*d*x_j_1/(s*gamma) + 1.0 / N
+        
+        result = fac * math.pow(math.log(top/bottom),2.0)
+        self.tau_hist[j] = result
+        return result
+        '''
         
     
     

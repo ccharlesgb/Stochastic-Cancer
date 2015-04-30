@@ -181,13 +181,13 @@ class Params:
                 u_j = self.GetU(j+1) #Mutation rate from type j to j+1
             u_jm1 = 0.0
             
+            if j > 0: #No such thing as u_0
+                u_jm1 = self.GetU(j) #Mutation rate from type j-1 to j            
+            
             if self.USE_D == True: #Use the susceptible loci model?
                 u_j  = u_j * (self.d - j)
                 u_jm1 = u_jm1 * (self.d - j + 1)
                 
-            if j > 0: #No such thing as u_0
-                u_jm1 = self.GetU(j) #Mutation rate from type j-1 to j
-            
             if j == 0:
                 top = (self.r[j] * (1.0 - u_j) * n[j])
             elif j == self.typeCount - 1:
@@ -195,7 +195,7 @@ class Params:
             else:
                 top = (self.r[j]*(1.0 - u_j)*n[j] + self.r[j-1]*u_jm1*n[j-1])
             rate = top / self.avgFit
-            rate = self.GetThetaj(j,n)
+            #rate = self.GetThetaj(j,n)
             self.thetaJCache[j] = rate
     
     def SetCompoundFitness(self,s):
