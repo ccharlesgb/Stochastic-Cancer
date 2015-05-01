@@ -31,24 +31,14 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 1
+SPD = 3
 DPC = 1
 
 myHist.SPD = SPD
 
-s = 1e-3
-'''
-total = 1.0
-for i in range(0,cellTypes):
-    s = 1e-2 + ((i % 2)) * 1e-2
-    print(s)
-    myParam.r[i] = total + s
-    total = myParam.r[i]
-    #myParam.r[i] = math.pow(1.0 + s, i)
-    '''
- 
+s = 2e-3
 myParam.SetCompoundFitness(s)   
-myParam.SetUAll(1e-7)
+myParam.SetUAll(1e-5)
 
 '''
 #Sinusoidal mutation rate

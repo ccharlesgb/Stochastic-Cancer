@@ -27,56 +27,7 @@ class Solver:
     def GetXj0(self, j):
         if j == 0:
             return 1.0
-        return max(self.params.GetU(j) * self.params.d * self.IntegralOfXj(j-1, 1.0), 1.0/self.params.N)
-    
-    def GetGammaTau(self, tau, j):
-        tau = max(tau, 1e-99)
-        s = self.params.r[1] - self.params.r[0]
-        x_j_0 = self.X0_Cache[j]
-        return math.sqrt(2.0/(s*tau) * math.log(1.0 / x_j_0))
-    
-    def IntegralOfXj(self,j, tau):
-        if j < 0:
-            return 0.0
-        if j == 0:
-            return tau * 1.0 #X_0(t) = 1.0
-        
-        s = self.params.r[1] - self.params.r[0]
-        u = self.params.u[j]
-        d = self.params.d
-        
-        
-        gamma = self.GetGammaTau(tau, j)
-        
-        x_j_0 = self.X0_Cache[j]
-        x_j_1 = self.X0_Cache[j-1]
-        
-        fac = 1.0/(s*gamma)
-        selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
-        mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)        
-        
-        return fac * (selection + mutation)
-        
-    def GetXJ(self, t,j):
-        if j < 0:
-            return 0.0
-        if j == 0:
-            return 1.0           
-        
-        s = self.params.r[1] - self.params.r[0]
-        u = self.params.GetU(j)
-        d = self.params.d
-        N = self.params.N   
-        
-        gamma = self.GetGammaTau(max(t,1e-10),j)        
-        
-        x_j_0 = self.X0_Cache[j]
-        x_j_1 = self.X0_Cache[j-1]             
-        
-        fac = 1.0/(s*gamma)
-        expFactor = 0.0*u*d*x_j_1 + x_j_0*s*gamma
-        xj = fac * (expFactor * math.exp(s*gamma*t) - 0.0*u*d*x_j_1)
-        return xj    
+        return self.params.GetU(j) * self.params.d * self.X0_Cache[j-1] + (1.0 / self.params.N)
             
     #Original Model
     def GetTauOriginal(self):
@@ -122,7 +73,7 @@ class Solver:
     
     
     #Modelling the transient phase with analytical
-    def GetTauModel(self, j):
+    def GetTauCorrect(self, j):
         self.ValidateJ(j)
         if j == 0:
             return 0.0 #Justified in maths
@@ -140,21 +91,21 @@ class Solver:
         
         return fac * math.pow(log,2.0)
     
-    def GetWaitingTimeModel(self,k):
+    def GetWaitingTimeCorrect(self,k):
         if k == 21:
             print("off by one error! (probably did you mean celltypes - 1)")
         total = 0.0
         for i in range(0,k):
-            total += self.GetTauModel(i)
+            total += self.GetTauCorrect(i)
         return total
     
-    def GetWaitingTimeModelNew(self,k):
+    def GetWaitingTimeRecursive(self,k):
         if k == 21:
             print("off by one error! (probably did you mean celltypes - 1)")
         total = 0.0
         self.tau_hist = [0.0] * k
         for i in range(0,k):
-            tau = self.GetTauModelNew(i)
+            tau = self.GetTauRecursive(i)
             self.tau_hist.append(tau)
             total += tau
         return total
@@ -164,19 +115,16 @@ class Solver:
         u = self.params.GetU(j+1)
         d = self.params.d
         N = self.params.N
-        tau_j = max(tau_j, 1e-9)
-        gamma = math.sqrt(2.0/(s*tau_j) * math.log(N))
+        gamma = math.sqrt(2.0 * math.log(N))
         x_j_1 = 0.0
         if j == 1:
             x_j_1 = 1.0 #Assume all type 0 cells forever
         elif j > 1:
             x_j_1 = self.GetXJ_NEW(j-1,self.tau_hist[j-1])
         #x_j_1 = 0.0
-        #print("TAU_J IS", tau_j)
-        #print("Input into type {0} from type {1} = {2} TAU_-1 = {3}".format(j,j-1,x_j_1,self.tau_hist[j-1]))
-        return 1.0 / (s * gamma) * ((u*d*x_j_1 + (s*gamma)/N)*math.exp(s*gamma*tau_j) - u*d*x_j_1)
+        return (u*d*x_j_1)/(s*gamma)*(math.exp(s*gamma*tau_j) - 1.0) + 1.0/N * math.exp(s*gamma*tau_j)
     
-    def GetTauModelNew(self,j):
+    def GetTauRecursive(self,j):
         s = self.params.r[1] - self.params.r[0]
         up1 = self.params.GetU(j+1)
         d = self.params.d
@@ -193,37 +141,89 @@ class Solver:
             x_j_1 =1.0
         elif j > 1:
             x_j_1 = self.GetXJ_NEW(j-1,self.tau_hist[j-1])   
-        print("X_{0}({1}) = {2}".format(j-1,self.tau_hist[j-1],x_j_1))
-        #print("Solving tau_{0}, extra_term = {1}".format(j,x_j_1))
-        #print("Term comparison {0} and {1}".format((s*gamma/N),u*d*x_j_1))
+        #print("X_{0}({1}) = {2}".format(j-1,self.tau_hist[j-1],x_j_1))
+        
         fac = 1.0 / (2.0 * s * math.log(N))
+        a = s * gamma
+        b = u*d
+        c = x_j_1
+        #c = 0.0
+        top = a * (a + b + N*b*b*c*(1.0 + 1.0/s))
+        bottom = b * (N*b*c + a)
 
-        
-        top = s*s*gamma*gamma + u*d*x_j_1 * (1.0 + 1.0/s)
-        bottom = u*d*(s*gamma + N*u*d*x_j_1)
-        print(j, top, bottom, self.tau_hist[j-1], "T/B/tau_j_1")
         result = fac * math.pow(math.log(top/bottom),2.0)
-        print("T/B = {0} fac = {1}".format(top/bottom, fac))
-        self.tau_hist[j] = result
-        print("TAU_{0} = {1}".format(j, result))
-        return result
-        
-        '''
-        logx = ((s * gamma)**2)/(N * up1 * d)
-        logx = logx / ((s*gamma/N) + u*d*x_j_1)
-        result = fac * math.pow(math.log(0.0 + logx),2.0)
         self.tau_hist[j] = result
         #print("TAU_{0} = {1}".format(j, result))
-        return result'''
-            
-        '''
-        top = (s*gamma)/(N*u*d)# + u*d*x_j_1 * (1.0 + 1.0/s)
-        bottom = u*d*x_j_1/(s*gamma) + 1.0 / N
-        
-        result = fac * math.pow(math.log(top/bottom),2.0)
-        self.tau_hist[j] = result
         return result
-        '''
+    
+    #Keep these names for now but give a warning
+    def GetWaitingTimeModelNew(self,k):
+        print("GetWaitingTimeModelNew() is old use GetWaitingTimeRecursive()")
+        return self.GetWaitingTimeRecursive(k)
+        
+    def GetTauModelNew(self):
+        print("GetTauModelNew() is old use GetTauRecursive()")
+        return self.GetTauRecursive()
+        
+    def GetWaitingTimeModel(self,k):
+        print("GetWaitingTimeModel() is old use GetWaitingTimeCorrect()")
+        return self.GetWaitingTimeCorrect(k)
+            
+    def GetTauModel(self):
+        print("GetTauModel() is old use GetTauCorrect)")
+        return self.GetTauCorrect()
+        
         
     
+        
+        
+        
+    def GetXJ(self, t,j):
+        if j < 0:
+            return 0.0
+        if j == 0:
+            return 1.0           
+        
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.GetU(j)
+        d = self.params.d
+        N = self.params.N   
+        
+        gamma = self.GetGammaTau(max(t,1e-10),j)        
+        
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = self.X0_Cache[j-1]             
+        
+        fac = 1.0/(s*gamma)
+        expFactor = 0.0*u*d*x_j_1 + x_j_0*s*gamma
+        xj = fac * (expFactor * math.exp(s*gamma*t) - 0.0*u*d*x_j_1)
+        return xj    
+        
+    def GetGammaTau(self, tau, j):
+        tau = max(tau, 1e-99)
+        s = self.params.r[1] - self.params.r[0]
+        x_j_0 = self.X0_Cache[j]
+        return math.sqrt(2.0/(s*tau) * math.log(1.0 / x_j_0))
+    
+    def IntegralOfXj(self,j, tau):
+        if j < 0:
+            return 0.0
+        if j == 0:
+            return tau * 1.0 #X_0(t) = 1.0
+        
+        s = self.params.r[1] - self.params.r[0]
+        u = self.params.u[j]
+        d = self.params.d
+        
+        
+        gamma = self.GetGammaTau(tau, j)
+        
+        x_j_0 = self.X0_Cache[j]
+        x_j_1 = self.X0_Cache[j-1]
+        
+        fac = 1.0/(s*gamma)
+        selection = x_j_0 * (math.exp(s * gamma * tau)-1.0)
+        mutation = u*d*x_j_1*(1.0/(s*gamma) - tau)        
+        
+        return fac * (selection + mutation)
     

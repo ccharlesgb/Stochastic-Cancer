@@ -53,7 +53,6 @@ class TwoSpeciesAnalytical:
                 self.cached_gamma_product[m][k] = self.cached_gamma_product[m][k-1]*self.cached_gamma[k]
         for k in range(0,self.N):
             self.cached_gamma_product[self.N][k] = 1.0
-        
 
     def GetCachedGammaProd(self, l, k):
         if(l>k):
@@ -63,11 +62,9 @@ class TwoSpeciesAnalytical:
             return 0.0
         return self.cached_gamma_product[k]/self.cached_gamma_product[l-1]
      
-     
     def GetAverageFitness(self, j):
         return ( (self.N - j)*self.r0 + j*self.r1)
         
-    
     def GetTJplus(self, j):
         top = (self.N-j)*( (j * self.r1) + self.u1 * self.r0 * (self.N - j))
         #return top / (self.params.GetAvgFit([self.N, self.N-j]) )

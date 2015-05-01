@@ -41,7 +41,7 @@ mySolver = TauSolver.Solver(myParam)
 minN = 1e6
 maxN = 1e9
 
-SDP = 25
+SDP = 1
 PointCount = 4
 
 dataX = []
@@ -71,9 +71,9 @@ for p in range(0,PointCount):
     theory = 0.0
     theory2 = 0.0
     theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
-    theory2 = mySolver.GetWaitingTime(cellTypes - 1)
+    theory2 = mySolver.GetWaitingTimeRecursive(cellTypes - 1)
     theory3 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
-    theory4 = mySolver.GetWaitingTimeModel(cellTypes - 1)
+    theory4 = mySolver.GetWaitingTimeCorrect(cellTypes - 1)
     
     dataY_anal1.append(theory1)
     dataY_anal2.append(theory2)
@@ -115,8 +115,8 @@ data = dict()
 data["N"] = dataX
 data["Nt_20"] = dataY
 data["Nt_20_anal1"] = dataY_anal1
-data["Nt_20_anal2_transient"] = dataY_anal2
+data["Nt_20_anal2_recursive"] = dataY_anal2
 data["Nt_20_anal3_neglect"] = dataY_anal3
-data["Nt_20_anal4_transient2"] = dataY_anal4
+data["Nt_20_anal4_correct"] = dataY_anal4
 
 MatTools.SaveDict2(data,SDP = SDP, DPC = PointCount, PARAM = myParam.GetFileString())

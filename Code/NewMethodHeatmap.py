@@ -22,7 +22,6 @@ errormap = colors.ListedColormap([[0.1, 0.2, 1.0],
 
 cm.register_cmap('Errors', cmap = errormap)
 
-
 cellTypes = 21
 population = 1e9
 
@@ -44,27 +43,26 @@ for i in range(0,cellTypes):
 
 mySolver = TauSolver.Solver(myParam)
 
-mapSize = 8
+mapSize = 16
 
 minS = 1e-4
 maxS = 1e-1
 
-minU = 1e-7
+minU = 1e-8
 maxU = 1e-4
-
-SDP = 30
 
 sHist = []
 uHist = []
 
+SDP = 30
 SU_CUTOFF = 0 #Set to 0 to disable cutoff
-SU_ROUGH = 2 #Cut the SDP here as it takes ages
+SU_ROUGH = 4 #Cut the SDP here as it takes ages
 SDP_ROUGH = 5
 DONT_SIM = False
 
 #Set up our arrays
 avgFixTime = np.zeros((mapSize, mapSize))
-fixTime1 = np.zeros((mapSize, mapSize))
+fixTime1 = np.zeros((mapSize, mapSize)) 
 fixTime2 = np.zeros((mapSize, mapSize))
 fixTime3 = np.zeros((mapSize, mapSize))
 fixTime4 = np.zeros((mapSize, mapSize))
@@ -80,7 +78,7 @@ for iS in range(0, mapSize):
         u = SimUtil.SweepParameterLog(iU, mapSize, minU,maxU)
         sHist.append(math.log(s, 10.0))
         uHist.append(math.log(u, 10.0))
-        print("s = {0} u = {1}".format(s,u))        
+        print("Progress: {0}% s = {1} u = {2}".format(round(100.0 * float((iS * mapSize) + iU) / (mapSize * mapSize)), s, u))        
         
         myParam.SetUAll(u)
         for i in range(0,cellTypes):
@@ -95,7 +93,7 @@ for iS in range(0, mapSize):
         else:
             res = myWF.SimulateBatch(SDP)
         #res.avgFixTime = random.randrange(800, 5000)
-        avgFixTime[iU, iS] = res.avgFixTime
+        avgFixTime[iS, iU] = res.avgFixTime
         
         theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
         theory2 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
@@ -121,14 +119,14 @@ maxUHist = round(max(uHist))
 print(minUHist, maxUHist)
 print(minSHist, maxSHist)
 
-dy = abs(maxUHist - minUHist) / mapSize
-dx = abs(maxSHist - minSHist) / mapSize
+dx = abs(maxUHist - minUHist) / mapSize
+dy = abs(maxSHist - minSHist) / mapSize
 
 print("MAXU", maxUHist)
 print("MAXS", maxSHist)
 
 print("DX IS", dx)
-y, x = np.mgrid[slice(minUHist, maxUHist + dy, dy), slice(minSHist, maxSHist + dx, dx)]
+y, x = np.mgrid[slice(minSHist, maxSHist + dy, dy), slice(minUHist, maxUHist + dx, dx)]
 
 #print(y)
 #print(x)
@@ -137,32 +135,32 @@ plt.figure()
 plt.subplot(221)
 plt.pcolormesh(x,y,errFixTime1, cmap = errormap)
 plt.colorbar()
-plt.xlabel("S")
-plt.ylabel("U")
+plt.xlabel("u")
+plt.ylabel("s")
 plt.clim(-1.0,1.0)
 plt.title("Original")
 
 plt.subplot(222)
 plt.pcolormesh(x,y,errFixTime2, cmap = errormap)
 plt.colorbar()
-plt.xlabel("S")
-plt.ylabel("U")
+plt.xlabel("u")
+plt.ylabel("s")
 plt.clim(-1.0,1.0)
 plt.title("Neglect")
 
 plt.subplot(223)
 plt.pcolormesh(x,y,errFixTime3, cmap = errormap)
 plt.colorbar()
-plt.xlabel("S")
-plt.ylabel("U")
+plt.xlabel("u")
+plt.ylabel("s")
 plt.clim(-1.0,1.0)
 plt.title("Model Iterative")
 
 plt.subplot(224)
 plt.pcolormesh(x,y,errFixTime4, cmap = errormap)
 plt.colorbar()
-plt.xlabel("S")
-plt.ylabel("U")
+plt.xlabel("u")
+plt.ylabel("s")
 plt.clim(-1.0,1.0)
 plt.title("Mutational Correction")
 

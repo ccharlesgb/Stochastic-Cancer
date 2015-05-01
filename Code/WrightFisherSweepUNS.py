@@ -186,8 +186,6 @@ plt.xlabel("S")
 plt.ylabel("t_{0}".format(cellTypes - 1))
 plt.xlim(minS, maxS)
 
-
-
 plt.show()
 
 data = dict()
@@ -196,11 +194,13 @@ data["Nt_20"] = NdataY
 data["Nt_20_TL"] = NdataY_TL
 data["NX_orig"] = NdataX_orig
 data["Nt_20_orig"] = NdataY_orig
+
 data["UX"] = UdataX
 data["Ut_20"] = UdataY
 data["Ut_20_TL"] = UdataY_TL
 data["UX_orig"] = UdataX_orig
 data["Ut_20_orig"] = UdataY_orig
+
 data["SX"] = SdataX
 data["St_20"] = SdataY
 data["St_20_TL"] = SdataY_TL

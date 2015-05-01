@@ -9,13 +9,14 @@ import wright_fisher
 import matplotlib.pyplot as plt
 import SimUtil
 import math
+import TauLeapParam
 
 def GetT_K(param):
     summation = 0.0
     s = param.r[1] - param.r[0]
-    for i in range(0, param.cellTypes):
+    for i in range(0, param.typeCount - 1):
         top = math.pow(math.log(s / (param.u[i] * param.d)), 2.0)
-        bottom = 2.0 * s * math.log(param.popSize)
+        bottom = 2.0 * s * math.log(param.N)
         summation += (top / bottom)
     return summation;
 
@@ -23,15 +24,15 @@ def GetT_K(param):
 cellTypes = 21
 population = 1e9
 
-myWF = wright_fisher.wright_fisher()
-myHist = wright_fisher.wf_hist(cellTypes)
-myParam = wright_fisher.wright_fisher_params(cellTypes)
+myWF = wright_fisher.wright_fisher(cellTypes)
+myHist = TauLeapParam.Hist(cellTypes)
+myParam = TauLeapParam.Params(cellTypes)
 
 myParam.d = 100
 
 myWF.stopAtAppear = 1
 
-myParam.iN[0] = population
+myParam.n0[0] = population
 #myWF.history = myHist
 myWF.stepLimit = 1000000
 myWF.useApproxTheta = 0
@@ -46,7 +47,7 @@ uPow = 2.0
 uPowMin = 1.8
 uPowMax = 2.2
 
-SPD = 10
+SPD = 5
 DPC = 5
 
 dataX = []
@@ -59,10 +60,10 @@ for i in range(0,cellTypes):
 
 for curPoint in range(0,DPC):
     uPow = SimUtil.SweepParameter(curPoint, DPC, uPowMin, uPowMax)
-    for i in range(0,cellTypes):
+    for i in range(0,cellTypes-1):
         myParam.u[i] = 1e-10 * math.pow(uPow,i)
     
-    print("U: ", myParam.u[0], myParam.u[cellTypes - 1])    
+    print("U: ", myParam.u[0], myParam.u[cellTypes - 2])    
 
     dataX.append(uPow)
 

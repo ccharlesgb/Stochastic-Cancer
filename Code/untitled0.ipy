@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May 01 00:50:53 2015
+
+@author: Connor
+"""
+
+%pylab inline
+x, y = 2 * np.random.random((2, 500)) - 1
+
+ax = plt.axes(aspect='equal', xticks=[], yticks=[], frameon=False)
+ax.scatter(x, y, c=(x ** 2 + y ** 2 < 1), cmap=plt.cm.binary)
+ax.add_patch(mpl.patches.Circle((0, 0), 1, zorder=0, fc='#FFAAAA'))

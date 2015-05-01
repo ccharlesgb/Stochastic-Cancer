@@ -1,4 +1,4 @@
-function fracerrorfig()
+function [] = fracerrorfig()
     figure('Units','points','Position',[50 50 1000 300]);
     simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_16_SDP_30_TIMES_.mat');
     predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_30_SIZE_16.mat');
@@ -38,10 +38,10 @@ function fracerrorfig()
         sumAbsModelNum = sumAbsModelNum + abs(fracErrorModelNum(i));
         sumAbsModelAna = sumAbsModelAna + abs(fracErrorModelAna(i));
     end
-    fprintf('Original <AbsFracErr> = %f\n', sumAbsOrig./size(fracErrorOrig,1));
-    fprintf('Neglect  <AbsFracErr> = %f\n', sumAbsNeglect./size(fracErrorOrig,1));
-    fprintf('Recurse  <AbsFracErr> = %f\n', sumAbsModelNum./size(fracErrorOrig,1));
-    fprintf('Correct  <AbsFracErr> = %f\n', sumAbsModelAna./size(fracErrorOrig,1));
+    fprintf('Original AB',sumAbsOrig./size(fracErrorOrig,1));
+    disp(sumAbsNeglect./size(fracErrorOrig,1));
+    disp(sumAbsModelNum./size(fracErrorOrig,1));
+    disp(sumAbsModelAna./size(fracErrorOrig,1));
     
     subplot(141);
     ax1 = import_cmap(-8.0:-4.0,-4.0:-1.0, fracErrorOrig);

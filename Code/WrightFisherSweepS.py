@@ -72,9 +72,9 @@ for p in range(0,PointCount):
     mySolver.CacheX0()
     
     theory1 = mySolver.GetWaitingTimeOriginal(cellTypes - 1)
-    theory2 = mySolver.GetWaitingTime(cellTypes - 1)
+    theory2 = mySolver.GetWaitingTimeRecursive(cellTypes - 1)
     theory3 = mySolver.GetWaitingTimeNeglect(cellTypes - 1)
-    theory4 = mySolver.GetWaitingTimeModel(cellTypes - 1)
+    theory4 = mySolver.GetWaitingTimeCorrect(cellTypes - 1)
     
     dataY_anal1.append(theory1)
     dataY_anal2.append(theory2)
