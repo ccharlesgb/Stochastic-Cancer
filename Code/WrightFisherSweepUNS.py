@@ -42,7 +42,7 @@ for i in range(0,cellTypes):
     myParam.r[i] = math.pow(1.0 + s, i)
 myParam.d = 100
 
-mySolver = TauSolver.Solver(myParam)    
+mySolver = TauSolver.Solver(myParam)
 
 minN = 1e6
 maxN = 1e9
@@ -53,8 +53,8 @@ maxU = 1e-5
 minS = 1e-4
 maxS = 1e-1
 
-SDP = 25
-SDP_TL = 25
+SDP = 1
+SDP_TL = 0
 PointCount = 4
 PointCountTheory = 10
 
@@ -100,7 +100,7 @@ for p in range(0,PointCount):
     myParam.SetUAll(SimUtil.SweepParameterLog(p,PointCount, minU, maxU))
     print("U", myParam.u[0])
     myParam.Reset()
-    res = myWF.SimulateBatch(SDP)
+    res = myWF.SimulateBatch(0)
     UdataX.append(myParam.u[0])
     UdataY.append(res.avgFixTime)
     
@@ -115,7 +115,7 @@ for p in range(0,PointCount):
     print("s", s)
     myParam.SetCompoundFitness(s)
     myParam.Reset()
-    res = myWF.SimulateBatch(SDP)
+    res = myWF.SimulateBatch(0)
     SdataX.append(s)
     SdataY.append(res.avgFixTime)
     
@@ -157,6 +157,7 @@ for p in range(0, PointCountTheory):
     SdataY_orig.append(theory1)
 
 
+padding = 0.25
 plt.figure()
 plt.subplot(131)
 plt.plot(NdataX,NdataY, 'o')
@@ -166,7 +167,7 @@ plt.xscale("log")
 plt.yscale("log")
 plt.xlabel("N")
 plt.ylabel("t_{0}".format(cellTypes - 1))
-plt.xlim(minN, maxN)
+plt.xlim(math.pow(10.0, math.log10(minN) - padding), math.pow(10.0, math.log10(maxN) + padding))
 plt.subplot(132)
 plt.plot(UdataX,UdataY, 'o')
 plt.plot(UdataX,UdataY_TL, '^')

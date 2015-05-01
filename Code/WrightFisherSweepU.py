@@ -42,7 +42,7 @@ maxU = 1e-5
 
 mySolver = TauSolver.Solver(myParam)
 
-SDP = 1
+SDP = 25
 PointCount = 4
 
 dataX = []
@@ -115,8 +115,8 @@ data = dict()
 data["U"] = dataX
 data["Ut_20"] = dataY
 data["Ut_20_anal1"] = dataY_anal1
-data["Ut_20_anal2_transient"] = dataY_anal2
+data["Ut_20_anal2_recursive"] = dataY_anal2
 data["Ut_20_anal3_neglect"] = dataY_anal3
-data["Ut_20_anal4_transient2"] = dataY_anal4
+data["Ut_20_anal4_correct"] = dataY_anal4
 
 MatTools.SaveDict2(data,SDP = SDP, DPC = PointCount, PARAM = myParam.GetFileString())
