@@ -31,7 +31,7 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 25
+SPD = 1
 DPC = 1
 
 myHist.SPD = SPD

@@ -16,6 +16,7 @@ import MatTools
 import random
 import numpy
 
+
 def LogNormalU(mean,variance, count):
     u = numpy.random.lognormal(mean,variance, count)
     return u
@@ -45,8 +46,8 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 10
-DPC = 4
+SPD = 100
+DPC = 8
 
 myHist.SPD = SPD
 
@@ -90,9 +91,7 @@ for dp in range(0, DPC):
 
     #dataApp.append(res.avgFixTime)
     #dataApp_neglect.append(mySolver.GetWaitingTimeNeglect(cellTypes - 1))
-    
-    
+
 plt.figure()
-for i in range(0, DPC):
-    plt.plot(dataVar, dataVariances)
+plt.plot(dataVar, dataVariances)
 #plt.plot(dataVar, dataApp_neglect)

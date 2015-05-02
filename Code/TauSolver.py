@@ -148,7 +148,7 @@ class Solver:
         b = u*d
         c = x_j_1
         #c = 0.0
-        top = a * (a + b + N*b*b*c*(1.0 + 1.0/s))
+        top = a * (a + b + N*b*b*c*(0.0 + 1.0/s))
         bottom = b * (N*b*c + a)
 
         result = fac * math.pow(math.log(top/bottom),2.0)
