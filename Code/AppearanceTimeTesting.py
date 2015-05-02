@@ -31,41 +31,51 @@ myWF.timeLimit = 1000000
 myWF.useApproxTheta = 0
 myWF.params = myParam
 
-SPD = 3
+SPD = 25
 DPC = 1
 
 myHist.SPD = SPD
 
-s = 2e-3
+s = 1e-2
 myParam.SetCompoundFitness(s)   
-myParam.SetUAll(1e-5)
+myParam.SetUAll(1e-4)
 
-'''
 #Sinusoidal mutation rate
 f = 0.25
 for i in range(1, cellTypes):
-    u_log = -7.0 + 3.0*math.cos(i*f * 2.0 * math.pi)
+    u_log = -7.0 + 4.0*math.cos(i*f * 2.0 * math.pi)
     u = math.pow(10.0, u_log)
     print(u_log),
     myParam.SetU(i,u)
+print("")
 
-#Exponential mutation rate
+'''
+#Exponential decrease mutation rate
 for i in range(1, cellTypes):
-    u_log = -10 + 4 * math.exp(-i/13.0)
-    u = math.pow(10.0, u_log)
+    u =  SimUtil.SweepParameterLog(i-1,cellTypes-1,1e-6,1e-9)
+    u_log = math.log10(u)
     print(u_log),
     myParam.SetU(i,u)
+'''
+'''
+#Exponential increase mutation rate
+for i in range(1, cellTypes):
+    u =  SimUtil.SweepParameterLog(i-1,cellTypes-1,1e-9,1e-6)
+    u_log = math.log10(u)
+    print(u_log),
+    myParam.SetU(i,u)
+'''
 
 #Switch
-u_before = 1e-9
-u_after = 1e-6
+u_before = 1e-6
+u_after = 1e-9
 switch = 10
 for i in range(1, cellTypes):
     if (switch + 1) > i:
         myParam.SetU(i, u_before)
     else:
         myParam.SetU(i, u_after)
-'''
+
 
 mySolver = TauSolver.Solver(myParam)
 mySolver.CacheX0()
@@ -121,9 +131,9 @@ theory_model_total = 0.0
 mySolver.tau_hist = [0.0]*(cellTypes-1)
 for i in range(0, cellTypes - 1): #From 1 to 20
     theoreticalAppear[i+1] = (i+1) * mySolver.GetTauOriginal()
-    theoreticalAppear_NEW[i+1] = theory_NEW_total + mySolver.GetTauModel(i)
+    theoreticalAppear_NEW[i+1] = theory_NEW_total + mySolver.GetTauCorrect(i)
     theory_NEW_total = theoreticalAppear_NEW[i+1]
-    theoreticalAppear_MODEL[i+1] = theory_model_total + mySolver.GetTauModelNew(i)
+    theoreticalAppear_MODEL[i+1] = theory_model_total + mySolver.GetTauRecursive(i)
     theory_model_total = theoreticalAppear_MODEL[i+1]
     
 for i in range(0, cellTypes):
@@ -148,7 +158,7 @@ y = range(0,cellTypes)
 plt.figure()
 plt.subplot(211)
 plt.plot(avgAppear, 'o', label = "Simulation")
-plt.plot(theoreticalAppear, label = "Original Method")
+#plt.plot(theoreticalAppear, label = "Original Method")
 plt.plot(theoreticalAppear2, '--', label = "Neglecting", linewidth = 2)
 plt.plot(theoreticalAppear_NEW,label="Single Correction", linewidth = 2)
 plt.plot(theoreticalAppear_MODEL, ':', label="Recursive", linewidth = 2)
@@ -168,10 +178,11 @@ plt.show()
 data = dict()
 data["appear_sim"] = avgAppear
 data["appear_orig"] = theoreticalAppear
-data["appear_transient"] = theoreticalAppear_NEW
+data["appear_correct"] = theoreticalAppear_NEW
 data["appear_neglect"] = theoreticalAppear2
+data["appear_recursive"] = theoreticalAppear_MODEL
 
-MatTools.SaveDict2(data, spd = SPD, dpc = DPC, params = myParam.GetFileString())
+MatTools.SaveDict2(data, prefix = "VARUSWITCH", spd = SPD, dpc = DPC, params = myParam.GetFileString())
 
 
 

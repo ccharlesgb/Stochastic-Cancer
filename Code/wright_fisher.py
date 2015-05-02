@@ -60,7 +60,6 @@ class wright_fisher:
             self.prob_vector[i] = (self.params.GetThetaj(i, self.n))
             probSum += self.prob_vector[i]
         self.prob_vector[self.typeCount - 1] = 1.0 - probSum
-         
         for i in range(0,self.typeCount):        
             if(self.prob_vector[i] == 1.0):
                     self.isFixated = 1      

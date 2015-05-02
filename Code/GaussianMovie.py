@@ -65,7 +65,8 @@ for i in range(0,cellTypes):
     #myParam.r[i] = 1.0 + sum_s_j
     myParam.r[i] = math.pow(1.0 + s, i)
 
-#myParam.SetUAll(1e-9)
+myParam.SetCompoundFitness(1e-4)
+myParam.SetUAll(1e-4)
 
 myWF.Simulate()
 

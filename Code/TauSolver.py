@@ -161,17 +161,17 @@ class Solver:
         print("GetWaitingTimeModelNew() is old use GetWaitingTimeRecursive()")
         return self.GetWaitingTimeRecursive(k)
         
-    def GetTauModelNew(self):
+    def GetTauModelNew(self,j):
         print("GetTauModelNew() is old use GetTauRecursive()")
-        return self.GetTauRecursive()
+        return self.GetTauRecursive(j)
         
     def GetWaitingTimeModel(self,k):
         print("GetWaitingTimeModel() is old use GetWaitingTimeCorrect()")
         return self.GetWaitingTimeCorrect(k)
             
-    def GetTauModel(self):
+    def GetTauModel(self, j):
         print("GetTauModel() is old use GetTauCorrect)")
-        return self.GetTauCorrect()
+        return self.GetTauCorrect(j)
         
         
     

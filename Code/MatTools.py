@@ -17,9 +17,13 @@ def SaveDict2(data, **kwargs):
         os.makedirs(direct)
     
     file_name = dir_name
-    for key in kwargs:       
+    prefix = ""
+    for key in kwargs:    
+        if key == "prefix":
+            prefix = kwargs[key] + "_"
+            continue
         file_name = file_name + "_{0}_{1}".format(key, kwargs[key])
-    
+    file_name = prefix + file_name
     file_name = "{0}/{1}".format(direct,file_name)
     print("Saving File: {0}".format(file_name))
     
