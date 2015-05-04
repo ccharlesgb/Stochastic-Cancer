@@ -156,7 +156,7 @@ class Solver:
         #print("TAU_{0} = {1}".format(j, result))
         return result
     
-    #Keep these names for now but give a warning
+    #Function alias for old names
     def GetWaitingTimeModelNew(self,k):
         print("GetWaitingTimeModelNew() is old use GetWaitingTimeRecursive()")
         return self.GetWaitingTimeRecursive(k)

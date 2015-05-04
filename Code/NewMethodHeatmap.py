@@ -54,10 +54,10 @@ maxU = 1e-4
 sHist = []
 uHist = []
 
-SDP = 30
+SDP = 60
 SU_CUTOFF = 0 #Set to 0 to disable cutoff
 SU_ROUGH = 4 #Cut the SDP here as it takes ages
-SDP_ROUGH = 5
+SDP_ROUGH = 10
 DONT_SIM = False
 
 #Set up our arrays

@@ -9,6 +9,7 @@ import wright_fisher
 import TauLeapParam
 import matplotlib.pyplot as plt
 import math
+import MatTools
 
 def GetTauJ(param):
     summation = 0.0
@@ -21,13 +22,13 @@ def GetTauJ(param):
 
 
 cellTypes = 21
-population = 1e6
+population = 1e9
 
 myWF = wright_fisher.wright_fisher(cellTypes)
 myHist = TauLeapParam.Hist(cellTypes)
 myParam = TauLeapParam.Params(cellTypes)
 
-myParam.u = [1e-7] * cellTypes
+myParam.SetUAll(1e-7)
 
 myParam.d = 100
 
@@ -44,25 +45,25 @@ myWF.params = myParam
 myParam.uNotConst = 0
 
 s = 0.01
-d = 1.8
-for i in range(0,cellTypes):
-    myParam.r[i] = math.pow(1.0 + s, i)
-    #myParam.r[i] = 1.0 + (i*i)*s
-
+myParam.SetCompoundFitness(s)
 
 print(myParam.u)
 
 myWF.Simulate()
 
+save_data = dict()
+
 plt.figure()
 plt.subplot(211)
-for t in range(0, myWF.curTime, max(myWF.curTime / 8, 1)):
+for t in range(0, myWF.curTime, 600):
     dataX = []
     dataY = []
     for i in range(0, cellTypes):
         #dataX.append(myParam.r[i]-1.0)
         dataX.append(i)        
         dataY.append(myHist.histArray[i][t])
+    save_data["t_{0}_j".format(t)] = dataX
+    save_data["t_{0}_x_j".format(t)] = dataY
     plt.plot(dataX,dataY, 'o-')
     
 plt.yscale("log")
@@ -72,7 +73,7 @@ plt.show()
 
 plt.subplot(212)
 for i in range(0, cellTypes):
-   plt.plot(myHist.tHist[0::1], myHist.histArray[i][0::1])
+   plt.plot(myHist.tHist, myHist.histArray[i])
    plt.yscale("log")
 plt.xlabel("Time")
 plt.ylabel("Cell Count")
@@ -99,27 +100,8 @@ plt.plot(gradJ)
 
 print("Appearance Time: {0}".format(myWF.curTime))
 
-'''
+save_data["hist_t"] = myHist.tHist
+for i in range(0, cellTypes):
+    save_data["hist_n{0}".format(i)] = myHist.histArray[i]
 
-s_min = 0.01
-s_max = 0.50
-steps_to_fix = []
-SPD = 10
-DPC = 4
-s = []
-
-for curPoint in range(0,DPC):
-    s.append( s_max*(curPoint/(DPC-1) ) )
-    myWF.s = s[curPoint]
-    
-    fix_step_term = 0    
-    for dataPoint in range(0,SPD):
-        myWF.Simulate()
-        fix_step_term += myWF.curStep
-    steps_to_fix.append(float(fix_step_term)/SPD)
-    
-plt.plot(s,steps_to_fix)
-plt.xlabel("Selective advantage")
-plt.ylabel("Steps to fixation")
-plt.xscale("log")
-'''
+MatTools.SaveDict2(save_data, PARAMS = myParam.GetFileString())

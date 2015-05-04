@@ -68,6 +68,8 @@ for i in range(0, DPC):
 plt.plot(dataX, dataY, linewidth=1.0, label="X2(t)")
 '''
 
+myGillespie.Simulate()
+
 avgBadFrame = 0
 TAU_HIST_TOTAL = []
 
