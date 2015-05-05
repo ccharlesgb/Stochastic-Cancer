@@ -22,20 +22,20 @@ class TwoSpeciesAnalytical:
         self.j = 0
 
     def reset(self):
-        self.N = self.params.n0[0]
+        self.N = int(self.params.n0[0])
         self.r0 = self.params.r[0]
         self.r1 = self.params.r[1]
         self.u1 = self.params.GetU(1)
         
-        self.cached_gamma = [0]*(self.N)
-        self.cached_inverse_TJ_Plus = [0]*(self.N)
-        self.cached_gamma_product = np.zeros((self.N + 1, self.N +1))
-        
+        self.cached_gamma = [0]*(self.N + 1)
+        self.cached_inverse_TJ_Plus = [0]*(self.N )
+        #self.cached_gamma_product = np.zeros((self.N + 1, self.N +1))
+        self.cached_gamma_product = [0]*(self.N)
           
     def cache_gamma(self):
         for j in range(0, self.N):            
             self.cached_gamma[j] = self.GetGammaJ(j)
-        
+        self.cached_gamma[self.N] = 1.0
     def cache_inverse_TJ_Plus(self):
         for j in range(0,self.N):
             self.cached_inverse_TJ_Plus[j] = 1.0/self.GetTJplus(j)
@@ -53,6 +53,16 @@ class TwoSpeciesAnalytical:
                 self.cached_gamma_product[m][k] = self.cached_gamma_product[m][k-1]*self.cached_gamma[k]
         for k in range(0,self.N):
             self.cached_gamma_product[self.N][k] = 1.0
+<<<<<<< HEAD
+            
+    def cache_gamma_prod_one(self):
+        self.cached_gamma_product[0] = 0
+        self.cached_gamma_product[1] = self.cached_gamma[1]
+        for m in range(2,self.N):
+            self.cached_gamma_product[m] = self.cached_gamma_product[m-1] *self.cached_gamma[m]
+        
+=======
+>>>>>>> origin/master
 
     def GetCachedGammaProd(self, l, k):
         if(l>k):
@@ -89,18 +99,28 @@ class TwoSpeciesAnalytical:
         #print(self.cached_gamma)
         print("Caching TJ Plus...")
         self.cache_inverse_TJ_Plus()
-        print("Caching gamma product")
-        self.cache_gamma_prod()
-        print(self.cached_gamma_product)        
+        #print("Caching gamma product")
+        self.cache_gamma_prod_one()
+        #print(self.cached_gamma_product)        
 
-        sum_k = 0     
+        sum_k = 0
+        
         for k in range(i,self.N):
            print("k is: {0}".format(k))
-           first_term = (1.0/(self.N * self.u1) ) * self.cached_gamma_product[1][k] 
+           first_term = (1.0/(self.N * self.u1) ) * self.cached_gamma_product[k]
            
-           second_term = 0         
-           for m in range(1, k+1):        
-               second_term += self.cached_inverse_TJ_Plus[m]*self.cached_gamma_product[m+1][k]
+           second_term = self.cached_inverse_TJ_Plus[k]         
+           
+           #prev_product = self.cached_gamma_product[k]
+           prev_product = 1
+           threshold = 1e-20
+           for m in range(k-1, 0,-1):
+               second_term += self.cached_inverse_TJ_Plus[m]*prev_product*self.cached_gamma[m+1]
+               prev_product *= self.cached_gamma[m+1]
+               if(prev_product < threshold):
+                   break
+               #print ("sum from m= {0} to k={1} is {2}".format(m+1,k,prev_product))
+               
                 
            sum_k += first_term + second_term
         

@@ -1,7 +1,6 @@
 function fracerrorfig()
     figure('Units','points','Position',[50 50 1000 300]);
     simTime = load('NewMethodHeatmap_N_1000000000.0_SIZE_16_SDP_30_TIMES_.mat');
-    simTime2 = load('NewMethodHeatmap_N_1000000000.0_SIZE_16_SDP_60_TIMES_.mat');
     predictTimes = load('NewMethodHeatmap_PREDICT__DONT_SIM_False_N_1000000000.0_SDP_30_SIZE_16.mat');
     
     xlab = 'log_{10}(u)';
@@ -18,11 +17,10 @@ function fracerrorfig()
     calculate_own = 1;
     if calculate_own == 1
         simTime.time = transpose(simTime.time);
-        weighted = simTime.time .* (30.0/90.0) + simTime2.time .* (60.0/90.0);
-        fracErrorOrig =     (predictTimes.fixTimeOrig - weighted)./weighted;
-        fracErrorNeglect =  (predictTimes.fixTimeNegl - weighted)./weighted;
-        fracErrorModelNum = (predictTimes.fixTimeModN - weighted)./weighted;
-        fracErrorModelAna=  (predictTimes.fixTimeModA - weighted)./weighted;
+        fracErrorOrig =     (predictTimes.fixTimeOrig - simTime.time)./simTime.time;
+        fracErrorNeglect =  (predictTimes.fixTimeNegl - simTime.time)./simTime.time;
+        fracErrorModelNum = (predictTimes.fixTimeModN - simTime.time)./simTime.time;
+        fracErrorModelAna=  (predictTimes.fixTimeModA - simTime.time)./simTime.time;
         %disp(fracErrorOrig);
     else
         fracErrorOrig = predictTimes.errFixTimeOrig;
@@ -30,26 +28,6 @@ function fracerrorfig()
         fracErrorModelNum = predictTimes.errFixTimeModN;
         fracErrorModelAna = predictTimes.errFixTimeModA;
     end
-    
-    %Dont have time for more SPD
-    fracErrorOrig(1,1) = -0.25;
-    fracErrorOrig(1,6) = -0.65;
-    fracErrorOrig(1,5) = -0.65;
-    
-    fracErrorNeglect(5,4) = 0;
-    fracErrorNeglect(7,5) = 0;
-    fracErrorNeglect(4,5) = 0;
-    fracErrorNeglect(1,5) = 0;
-    fracErrorNeglect(2,3) = 0;
-    
-    fracErrorModelNum(2,2) = 0.0; 
-    fracErrorModelNum(1,2) = 0.0;
-    fracErrorModelNum(1,8) = 0.0;
-    
-    fracErrorModelAna(1,3) = 0.0;
-    fracErrorModelAna(1,5) = 0.0;
-    fracErrorModelAna(2,3) = 0.0;
-    
     sumAbsOrig = 0.0;
     sumAbsNeglect = 0.0;
     sumAbsModelNum = 0.0;
