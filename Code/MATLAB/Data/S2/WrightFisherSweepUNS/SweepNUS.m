@@ -17,9 +17,9 @@ function [] = NewMethod()
     dat_01 = load('WrightFisherSweepUNS_DPC_4_SDP_25_PARAM_K_21_N_1.0e9.0_d_100_u_1e-07_s_0.1_N_N.mat');
     %Sweep N
     subplot(1,3,1)
-    semilogx(dat_01.NX, dat_01.Nt_20, 'k.');
+    semilogx(dat_01.NX, dat_01.Nt_20, 'k.','MarkerSize', 10);
     hold all
-    semilogx(dat_01.NX, dat_01.Nt_20_TL, 'kx');
+    semilogx(dat_01.NX, dat_01.Nt_20_TL, 'kx','MarkerSize', 8);
     semilogx(dat_01.NX_orig, dat_01.Nt_20_orig, 'Color', oriCol);
     xlabel('N')
     ylabel('t_{20}')
@@ -28,7 +28,7 @@ function [] = NewMethod()
     
     %Sweep U
     subplot(1,3,2)
-    loglog(dat_01.UX, dat_01.Ut_20, 'k.');
+    loglog(dat_01.UX, dat_01.Ut_20, 'k.','MarkerSize', 10);
     hold all
     loglog(dat_01.UX_orig, dat_01.Ut_20_orig, 'Color', oriCol);
     xlabel('U')
@@ -37,11 +37,11 @@ function [] = NewMethod()
 
     %Sweep S
     subplot(1,3,3)
-    loglog(dat_01.SX, dat_01.St_20, 'k.');
+    loglog(dat_01.SX, dat_01.St_20, 'k.','MarkerSize', 10);
     hold all
-    loglog(dat_01.SX, dat_01.St_20_TL, 'kx');
+    loglog(dat_01.SX, dat_01.St_20_TL, 'kx','MarkerSize', 8);
     xlim([10.0 ^ (log10(minS) - padding), 10.0^(log10(maxS) + padding)]);
-
+    
     loglog(dat_01.SX_orig, dat_01.St_20_orig, 'Color', oriCol);
     xlabel('S');
     ylabel('t_{20}');
